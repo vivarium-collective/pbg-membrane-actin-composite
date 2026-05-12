@@ -150,6 +150,39 @@ The "headline coupling chart" required by the pbg-superpowers composite-demo
 spec plots `actin_max_z`, `membrane_min_z`, and `contact_force` on a shared
 time axis — making the gap closures visible.
 
+## Known pymem3dg limitations affecting Rung 3
+
+A focused investigation of pymem3dg 0.0.7's force behavior turned up two
+limitations that constrain how the flexible rung can be set up:
+
+1. **Closed icosphere works; open hexagon doesn't (with closure-based
+   pressure).** When `osmotic.form` is a Python closure that *reads* a
+   live pressure value from an external object (the pattern this composite
+   uses to drive `osmotic_strength_offset` without rebuilding the System
+   on every change), pymem3dg correctly evaluates and re-evaluates the
+   closure on the icosphere mesh — pressure changes propagate to forces.
+   On an open hexagon, however, pymem3dg appears to cache something
+   pressure-derived at `System.initialize()` time; subsequent mutations
+   to the closure's read-target produce zero osmotic force regardless of
+   boundary condition (`roller`, `pin`, or `fixed`). The hexagon DOES
+   deform when osmotic.form is a `partial(...)` with the pressure baked
+   in at construction — but driving the pressure dynamically requires a
+   System rebuild on every change, which is too expensive for the demo's
+   per-step coupling cadence.
+2. **Tension cancels pressure aggressively.** With `pressure=1.0` and
+   `tension_modulus=1.0`, max mechanical force drops from 0.32 (pressure
+   alone) to 0.036 (90% cancelled). Earlier versions of this composite
+   set `tension_modulus=1.0` "to bound the inflation" — that
+   over-suppressed the response. The current Rung 3 uses much softer
+   tension (the wrapper default).
+
+**Consequence for the demo:** Rung 3 uses a closed icosphere geometry
+because that's what reliably deforms under pressure with the closure
+pattern. A future version with a flat-membrane Rung 3 (closer to the
+spec's primary observable) needs either (a) a System-rebuild path on
+every coupling step, or (b) a pymem3dg upgrade that re-evaluates the
+osmotic.form callable on open meshes.
+
 ## Limitations and assumptions
 
 - **Coupling is at the parameter level, not per-vertex / per-particle.**

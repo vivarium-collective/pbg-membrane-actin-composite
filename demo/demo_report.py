@@ -129,8 +129,13 @@ CONFIGS = [
             "interval": 0.5,
             "n_filaments": 6,
             "monomers_per_filament": 4,
-            "force_constant": 2.0,
-            "osmotic_force_scale": 0.02,
+            # Probed values: at force_constant=5, osmotic_force_scale=0.05
+            # the icosphere inflates from vol 32.4 → ~77 (137% growth) over
+            # the run, with no overshoot/oscillation. Lower gain (the
+            # earlier 2.0 / 0.02) gave only ~12% inflation, which Three.js
+            # renders as barely-visible expansion.
+            "force_constant": 5.0,
+            "osmotic_force_scale": 0.05,
             "contact_threshold": 0.3,
         },
         "total_time": 8.0,
@@ -692,6 +697,17 @@ function buildViewer(s) {{
     }});
     memWire = new THREE.LineSegments(new THREE.WireframeGeometry(geom), wireMat);
     scene.add(memWire);
+
+    // Reference shell — the INITIAL membrane geometry, frozen in place
+    // as a translucent dotted wireframe. With this present, even small
+    // deformations are visible because the live mesh moves AGAINST a
+    // fixed visual baseline.
+    const refGeom = _meshGeom(firstVerts, s.faces);
+    const refWireMat = new THREE.LineBasicMaterial({{
+      color: 0x9ca3af, transparent: true, opacity: 0.35,
+    }});
+    const refWire = new THREE.LineSegments(new THREE.WireframeGeometry(refGeom), refWireMat);
+    scene.add(refWire);
   }}
 
   // ---- Actin particles (one small sphere per particle, instanced for
