@@ -15,15 +15,31 @@ from __future__ import annotations
 
 # Default ReaDDy actin scenario: a band of monomers near the bottom of the
 # box, with a fusion reaction G + G -> F representing actin polymerization.
-def _default_actin_config(box_size=(8.0, 8.0, 8.0), n_monomers=20, growth_rate=4.0):
+def _default_actin_config(box_size=(8.0, 8.0, 8.0), n_filaments=6,
+                          monomers_per_filament=3, growth_rate=4.0):
+    """Seed actin as N short vertical proto-filaments at the box bottom.
+
+    Each "filament" is a vertical stack of `monomers_per_filament` G
+    particles at the same (x, y) position with increasing z. This gives
+    the demo viewer something that visually reads as filaments rising
+    upward, even though ReaDDy treats them as independent particles
+    (no bonded chain in v0.1 — bonded topology coming in v0.2).
+    """
     half = [s / 2.0 for s in box_size]
-    # Monomers seeded across the lower half of the box (z < 0).
     initial = []
-    for i in range(n_monomers):
-        x = ((i % 4) - 1.5) * 0.6
-        y = (((i // 4) % 4) - 1.5) * 0.6
-        z = -half[2] + 0.3 + (i // 16) * 0.4
-        initial.append([float(x), float(y), float(z)])
+    # Place filament bases on a small grid in the xy plane near the bottom.
+    spacing = 1.0
+    grid_side = int(round(n_filaments ** 0.5))
+    grid_side = max(1, grid_side)
+    for i in range(n_filaments):
+        gx = (i % grid_side) - (grid_side - 1) / 2.0
+        gy = (i // grid_side) - (grid_side - 1) / 2.0
+        x = gx * spacing
+        y = gy * spacing
+        # Stack monomers vertically, base near the floor.
+        for k in range(monomers_per_filament):
+            z = -half[2] + 0.4 + k * 0.5
+            initial.append([float(x), float(y), float(z)])
     return {
         'box_size': box_size,
         'periodic': (False, False, False),
@@ -206,6 +222,12 @@ def build_document(
                     'membrane_volume': 'float',
                     'membrane_energy': 'float',
                     'ratchet_steps': 'integer',
+                    # Per-step real geometry — used by the demo report's
+                    # Three.js viewer to render the actual mesh deforming
+                    # and the actual particles drifting, rather than a
+                    # schematic disk and sphere driven by aggregate stats.
+                    'actin_positions': 'list',
+                    'membrane_vertex_positions': 'list',
                 }
             },
             'inputs': {
@@ -220,6 +242,8 @@ def build_document(
                 'membrane_volume': ['membrane', 'volume'],
                 'membrane_energy': ['membrane', 'total_energy'],
                 'ratchet_steps': ['coupling', 'ratchet_steps'],
+                'actin_positions': ['actin', 'positions'],
+                'membrane_vertex_positions': ['membrane', 'vertex_positions'],
             },
         },
     }

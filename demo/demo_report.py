@@ -33,6 +33,7 @@ from pathlib import Path
 from process_bigraph import Composite, gather_emitter_results
 
 from pbg_membrane_actin_composite import build_core, build_document
+from pbg_mem3dg import Mem3DGProcess
 
 
 HERE = Path(__file__).resolve().parent
@@ -55,10 +56,12 @@ CONFIGS = [
         "accent": "#94a3b8",
         "doc_kwargs": {
             "closed_loop": False,
-            "interval": 0.5,
+            "interval": 0.25,
             "growth_rate": 4.0,
         },
-        "total_time": 6.0,
+        # Long enough to see the actin field rise toward the membrane,
+        # tight enough sampling to render a smooth animation.
+        "total_time": 16.0,
     },
     {
         "id": "coupled_ratchet",
@@ -76,10 +79,10 @@ CONFIGS = [
         "accent": "#10b981",
         "doc_kwargs": {
             "closed_loop": True,
-            "interval": 0.5,
+            "interval": 0.25,
             "growth_rate": 4.0,
         },
-        "total_time": 6.0,
+        "total_time": 16.0,
     },
     {
         "id": "stressed_ratchet",
@@ -95,10 +98,10 @@ CONFIGS = [
         "accent": "#f59e0b",
         "doc_kwargs": {
             "closed_loop": True,
-            "interval": 0.5,
+            "interval": 0.25,
             "growth_rate": 8.0,
         },
-        "total_time": 6.0,
+        "total_time": 16.0,
     },
 ]
 
@@ -107,9 +110,30 @@ CONFIGS = [
 # Run a scenario
 # ---------------------------------------------------------------------------
 
+def _membrane_face_matrix(doc):
+    """Return the static face connectivity for the membrane mesh.
+
+    The composite document references the membrane config under
+    `membrane_sim.config`. Mem3DG mesh topology is fixed at construction
+    (no remeshing in our setup), so it's safe to capture faces once via
+    a sibling Mem3DGProcess instance instead of plumbing them through
+    the emitter (which would require a custom static-snapshot Step).
+    """
+    mem_cfg = doc["membrane_sim"]["config"]
+    # Mem3DGProcess inherits from Edge which requires a core; we don't
+    # actually need a wired-up core here, just enough for instantiation.
+    proc = Mem3DGProcess(config=mem_cfg, core=build_core())
+    return proc.get_faces()
+
+
 def _run_scenario(scenario: dict) -> dict:
     core = build_core()
     doc = build_document(**scenario["doc_kwargs"])
+
+    # Capture face matrix BEFORE running the composite, so we don't pay
+    # the rebuild cost partway through.
+    faces = _membrane_face_matrix(doc)
+
     sim = Composite({"state": doc}, core=core)
     t0 = time.perf_counter()
     sim.run(scenario["total_time"])
@@ -129,6 +153,8 @@ def _run_scenario(scenario: dict) -> dict:
     wall_z = [s.get("wall_z") for s in samples]
     membrane_volume = [s.get("membrane_volume", 0.0) for s in samples]
     ratchet_steps = [s.get("ratchet_steps", 0) for s in samples]
+    actin_positions = [s.get("actin_positions") or [] for s in samples]
+    membrane_vertices = [s.get("membrane_vertex_positions") or [] for s in samples]
     cumulative_ratchets = []
     running = 0
     for r in ratchet_steps:
@@ -140,6 +166,7 @@ def _run_scenario(scenario: dict) -> dict:
         "elapsed_seconds": elapsed,
         "samples": samples,
         "document": doc,
+        "faces": faces,
         "series": {
             "times": times,
             "actin_total": actin_total,
@@ -151,6 +178,8 @@ def _run_scenario(scenario: dict) -> dict:
             "wall_z": [None if w is None else float(w) for w in wall_z],
             "membrane_volume": membrane_volume,
             "ratchet_steps_cum": cumulative_ratchets,
+            "actin_positions": actin_positions,
+            "membrane_vertices": membrane_vertices,
         },
         "final_ratchets": cumulative_ratchets[-1] if cumulative_ratchets else 0,
         "final_volume": membrane_volume[-1] if membrane_volume else 0.0,
@@ -326,6 +355,7 @@ def _scenario_chart_data(result):
         "id": s["id"],
         "title": s["title"],
         "accent": s["accent"],
+        "faces": result["faces"],
         **series,
     }
 
@@ -455,65 +485,193 @@ SCENARIOS.forEach(s => {{
   }}, {{displayModeBar: false, responsive: true}});
 }});
 
-// Three.js schematic viewers — sphere radius tracks membrane_volume,
-// puck below tracks actin_total.
+// Three.js viewers — render the REAL Mem3DG triangulated mesh and the
+// REAL ReaDDy particle positions, frame by frame. Animation steps once
+// every FRAME_DELAY ms (not per requestAnimationFrame tick), so the user
+// can actually see the deformation and ratchet events.
+const FRAME_DELAY_MS = 600;
 const VIEWERS = {{}};
+
+function _meshGeom(verts, faces) {{
+  const g = new THREE.BufferGeometry();
+  const positions = new Float32Array(verts.length * 3);
+  for (let i = 0; i < verts.length; i++) {{
+    positions[i*3]   = verts[i][0];
+    positions[i*3+1] = verts[i][1];
+    positions[i*3+2] = verts[i][2];
+  }}
+  g.setAttribute("position", new THREE.BufferAttribute(positions, 3));
+  const indices = new Uint32Array(faces.length * 3);
+  for (let i = 0; i < faces.length; i++) {{
+    indices[i*3]   = faces[i][0];
+    indices[i*3+1] = faces[i][1];
+    indices[i*3+2] = faces[i][2];
+  }}
+  g.setIndex(new THREE.BufferAttribute(indices, 1));
+  g.computeVertexNormals();
+  return g;
+}}
+
+function _firstNonEmpty(arr) {{
+  for (let i = 0; i < arr.length; i++) {{
+    if (arr[i] && arr[i].length > 0) return arr[i];
+  }}
+  return null;
+}}
+
 function buildViewer(s) {{
   const container = document.getElementById("viewer-" + s.id);
   const w = container.clientWidth, h = container.clientHeight;
   const scene = new THREE.Scene();
   scene.background = new THREE.Color(0xf8fafc);
-  const camera = new THREE.PerspectiveCamera(38, w / h, 0.01, 100);
-  camera.position.set(3.0, 2.5, 3.5);
+
+  // Camera — angled side view so you see the membrane (above) and the
+  // actin column (below) at the same time.
+  const camera = new THREE.PerspectiveCamera(40, w / h, 0.01, 200);
+  camera.position.set(7.0, 2.5, 7.0);
   camera.lookAt(0, 0, 0);
+
   const renderer = new THREE.WebGLRenderer({{antialias: true}});
   renderer.setPixelRatio(window.devicePixelRatio || 1);
   renderer.setSize(w, h);
   renderer.domElement.style.display = "block";
   container.insertBefore(renderer.domElement, container.firstChild);
+
   const controls = new THREE.OrbitControls(camera, renderer.domElement);
   controls.enableDamping = true; controls.dampingFactor = 0.08;
-  controls.autoRotate = true; controls.autoRotateSpeed = 0.7;
+  controls.target.set(0, 0, 0);
 
   scene.add(new THREE.AmbientLight(0xffffff, 0.55));
   const key = new THREE.DirectionalLight(0xffffff, 0.85);
-  key.position.set(4, 5, 6); scene.add(key);
-  const grid = new THREE.GridHelper(6, 12, 0xd1d5db, 0xe5e7eb);
-  grid.position.y = -1.6; grid.material.transparent = true; grid.material.opacity = 0.5;
+  key.position.set(6, 8, 4); scene.add(key);
+  const fill = new THREE.DirectionalLight(0xffffff, 0.3);
+  fill.position.set(-4, -2, -3); scene.add(fill);
+
+  // Floor grid (xy plane) + axis cue.
+  const grid = new THREE.GridHelper(8, 8, 0xd1d5db, 0xe5e7eb);
+  grid.material.transparent = true; grid.material.opacity = 0.4;
+  grid.position.y = -3.5;
   scene.add(grid);
 
-  const geom = new THREE.SphereGeometry(1, 48, 32);
-  const mat = new THREE.MeshStandardMaterial({{color: "#6366f1", roughness: 0.5, metalness: 0.1, transparent: true, opacity: 0.85}});
-  const sphere = new THREE.Mesh(geom, mat); scene.add(sphere);
-  const wireMat = new THREE.MeshBasicMaterial({{color: "#6366f1", wireframe: true, transparent: true, opacity: 0.18}});
-  const wire = new THREE.Mesh(geom, wireMat); scene.add(wire);
+  // ---- Membrane mesh ----
+  // Pick the first non-empty vertex frame to seed the geometry. Subsequent
+  // frames update the position attribute in place.
+  const firstVerts = _firstNonEmpty(s.membrane_vertices);
+  let memMesh = null, memWire = null;
+  if (firstVerts && s.faces && s.faces.length) {{
+    const geom = _meshGeom(firstVerts, s.faces);
+    const mat = new THREE.MeshStandardMaterial({{
+      color: 0x6366f1, roughness: 0.45, metalness: 0.1,
+      transparent: true, opacity: 0.55,
+      side: THREE.DoubleSide,
+    }});
+    memMesh = new THREE.Mesh(geom, mat); scene.add(memMesh);
+    const wireMat = new THREE.LineBasicMaterial({{
+      color: 0x4338ca, transparent: true, opacity: 0.35,
+    }});
+    memWire = new THREE.LineSegments(new THREE.WireframeGeometry(geom), wireMat);
+    scene.add(memWire);
+  }}
 
-  // Actin field as a flat puck below the sphere — radius tracks particle count.
-  const actinGeom = new THREE.CylinderGeometry(1, 1, 0.15, 32);
-  const actinMat = new THREE.MeshStandardMaterial({{color: s.accent, roughness: 0.6, metalness: 0.1}});
-  const actin = new THREE.Mesh(actinGeom, actinMat);
-  actin.position.y = -1.5;
-  scene.add(actin);
+  // ---- Actin particles (one small sphere per particle, instanced for
+  // performance even though counts are modest). ----
+  const PARTICLE_RADIUS = 0.12;
+  const particleGeom = new THREE.SphereGeometry(PARTICLE_RADIUS, 8, 6);
+  const particleMat = new THREE.MeshStandardMaterial({{
+    color: s.accent, roughness: 0.6, metalness: 0.1,
+  }});
+  // Determine an upper bound for instance count across all frames so
+  // we can allocate the InstancedMesh once.
+  let maxParticles = 0;
+  for (const f of s.actin_positions) {{
+    if (f && f.length > maxParticles) maxParticles = f.length;
+  }}
+  let particles = null;
+  if (maxParticles > 0) {{
+    particles = new THREE.InstancedMesh(particleGeom, particleMat, maxParticles);
+    particles.count = 0;
+    scene.add(particles);
+  }}
 
-  const maxVol = Math.max(...s.membrane_volume) || 1;
-  const radii = s.membrane_volume.map(v => Math.max(0.05, Math.pow(Math.max(0, v) / maxVol, 1/3)));
-  const maxAct = Math.max(...s.actin_total) || 1;
-  const actinScales = s.actin_total.map(c => Math.max(0.1, Math.pow(c / maxAct, 1/2)));
+  // ---- wall_z translucent plane (only when not null) ----
+  const wallGeom = new THREE.PlaneGeometry(8, 8);
+  const wallMat = new THREE.MeshBasicMaterial({{
+    color: 0x10b981, transparent: true, opacity: 0.18, side: THREE.DoubleSide,
+  }});
+  const wallPlane = new THREE.Mesh(wallGeom, wallMat);
+  wallPlane.rotation.x = Math.PI / 2;  // lie flat in xy
+  wallPlane.visible = false;
+  scene.add(wallPlane);
 
   const slider = document.getElementById("slider-" + s.id);
-  slider.max = radii.length - 1;
+  slider.max = s.times.length - 1;
 
   return {{
-    scene, camera, renderer, controls, sphere, wire, actin,
-    radii, actinScales, times: s.times, container,
-    playing: true, frame: 0, slider,
+    scene, camera, renderer, controls,
+    memMesh, memWire, particles, wallPlane,
+    times: s.times,
+    membrane_vertices: s.membrane_vertices,
+    actin_positions: s.actin_positions,
+    wall_z: s.wall_z,
+    container,
+    playing: true, frame: 0,
+    lastStep: 0,
+    slider,
     tlabel: document.getElementById("t-" + s.id),
   }};
 }}
-SCENARIOS.forEach(s => {{ VIEWERS[s.id] = buildViewer(s); }});
+
+function _updateViewer(v) {{
+  const verts = v.membrane_vertices[v.frame];
+  if (verts && verts.length && v.memMesh) {{
+    const attr = v.memMesh.geometry.attributes.position;
+    for (let i = 0; i < verts.length && i*3 < attr.array.length; i++) {{
+      attr.array[i*3]   = verts[i][0];
+      attr.array[i*3+1] = verts[i][1];
+      attr.array[i*3+2] = verts[i][2];
+    }}
+    attr.needsUpdate = true;
+    v.memMesh.geometry.computeVertexNormals();
+    // Rebuild the wireframe from the updated geometry.
+    v.memWire.geometry.dispose();
+    v.memWire.geometry = new THREE.WireframeGeometry(v.memMesh.geometry);
+  }}
+
+  if (v.particles) {{
+    const positions = v.actin_positions[v.frame] || [];
+    v.particles.count = Math.min(positions.length, v.particles.instanceMatrix.count);
+    const m = new THREE.Matrix4();
+    for (let i = 0; i < v.particles.count; i++) {{
+      const p = positions[i];
+      m.makeTranslation(p[0], p[1], p[2]);
+      v.particles.setMatrixAt(i, m);
+    }}
+    v.particles.instanceMatrix.needsUpdate = true;
+  }}
+
+  const wz = v.wall_z[v.frame];
+  if (wz !== null && wz !== undefined) {{
+    v.wallPlane.visible = true;
+    v.wallPlane.position.set(0, 0, wz);
+  }} else {{
+    v.wallPlane.visible = false;
+  }}
+
+  v.tlabel.textContent = "t = " + v.times[v.frame].toFixed(2);
+}}
+
+SCENARIOS.forEach(s => {{
+  VIEWERS[s.id] = buildViewer(s);
+  _updateViewer(VIEWERS[s.id]);
+}});
 
 function toggleViewer(id) {{ VIEWERS[id].playing = !VIEWERS[id].playing; }}
-function seekViewer(id, value) {{ const v = VIEWERS[id]; v.frame = parseInt(value); v.playing = false; }}
+function seekViewer(id, value) {{
+  const v = VIEWERS[id];
+  v.frame = parseInt(value);
+  v.playing = false;
+  _updateViewer(v);
+}}
 
 const ro = new ResizeObserver(entries => {{
   for (const entry of entries) {{
@@ -529,18 +687,21 @@ const ro = new ResizeObserver(entries => {{
 }});
 SCENARIOS.forEach(s => ro.observe(document.getElementById("viewer-" + s.id)));
 
-function animate() {{
+// Render loop — runs every requestAnimationFrame for smooth orbit-control
+// updates, but the simulation frame only advances once every FRAME_DELAY_MS
+// so the user can actually SEE what's happening.
+let lastAdvance = performance.now();
+function animate(now) {{
+  if (!now) now = performance.now();
+  const advance = (now - lastAdvance) >= FRAME_DELAY_MS;
+  if (advance) lastAdvance = now;
   for (const id in VIEWERS) {{
     const v = VIEWERS[id];
-    if (v.playing) {{
-      v.frame = (v.frame + 1) % v.radii.length;
+    if (advance && v.playing && v.times.length > 0) {{
+      v.frame = (v.frame + 1) % v.times.length;
       v.slider.value = v.frame;
+      _updateViewer(v);
     }}
-    const r = v.radii[v.frame];
-    v.sphere.scale.setScalar(r);
-    v.wire.scale.setScalar(r * 1.015);
-    v.actin.scale.set(v.actinScales[v.frame], 1, v.actinScales[v.frame]);
-    v.tlabel.textContent = "t = " + v.times[v.frame].toFixed(2);
     v.controls.update();
     v.renderer.render(v.scene, v.camera);
   }}
