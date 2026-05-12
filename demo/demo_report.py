@@ -43,65 +43,94 @@ DEMO_TIMEOUT_SECONDS = 120
 
 CONFIGS = [
     {
-        "id": "decoupled_baseline",
-        "title": "Decoupled baseline",
-        "subtitle": "Both simulators run, coupler emits zero back-channel",
+        "id": "flat_patch_decoupled",
+        "title": "Flat membrane patch (decoupled)",
+        "subtitle": "Hexagonal Mem3DG patch above; bonded actin filaments below",
         "description": (
-            "ReaDDy advances actin polymerization and Mem3DG relaxes the "
-            "membrane independently. The coupler still computes the "
-            "contact diagnostics (gap, force) so the report can show what "
-            "the ratchet WOULD do, but it publishes wall_z=None and "
-            "osmotic_offset=0 — neither simulator feels the other."
+            "Mem3DG simulates a FLAT hexagonal membrane patch in the xy "
+            "plane, while ReaDDy advances bonded actin filaments below "
+            "it. No back-channel: the patch is open (no enclosed volume) "
+            "so the osmotic-pressure coupling lever doesn't apply. This "
+            "scenario is here to show the planar membrane geometry and "
+            "to act as a visual baseline for the closed-loop scenarios "
+            "below — you should see filaments diffusing freely without "
+            "a barrier above them."
         ),
         "accent": "#94a3b8",
         "doc_kwargs": {
             "closed_loop": False,
+            "coupling_mode": "planar",
+            "membrane_geometry": "hexagon",
             "interval": 0.25,
             "growth_rate": 4.0,
+            "n_filaments": 6,
         },
-        # Long enough to see the actin field rise toward the membrane,
-        # tight enough sampling to render a smooth animation.
-        "total_time": 16.0,
+        "total_time": 12.0,
     },
     {
-        "id": "coupled_ratchet",
-        "title": "Coupled Brownian ratchet",
-        "subtitle": "Closed-loop coupling — actin pushes membrane up, membrane lifts wall",
+        "id": "vesicle_inside_pressure",
+        "title": "Actin INSIDE vesicle pushing outward",
+        "subtitle": "Spherical coupling — radial barrier shrinks/grows with the membrane",
         "description": (
-            "The coupler closes the loop: when actin tips approach the "
-            "lowest membrane vertex, contact_force kicks in. That force "
-            "scales the osmotic_strength_offset published to Mem3DG, so "
-            "the membrane bulges outward, raising membrane_min_z. The "
-            "coupler then publishes a new wall_z to ReaDDy, freeing "
-            "vertical space the actin can grow into. Each contact event "
-            "increments ratchet_steps."
+            "Bonded actin filaments are seeded INSIDE a Mem3DG icosphere "
+            "vesicle, oriented radially outward from the origin. The "
+            "coupler computes the radial gap between the outermost "
+            "filament tip and the closest membrane vertex; when the gap "
+            "closes, it (a) publishes a wall_radius to ReaDDy that "
+            "tracks the membrane's inner surface, and (b) raises Mem3DG's "
+            "osmotic_strength_offset so the vesicle visibly inflates "
+            "outward in response to the internal pressure. This is the "
+            "headline ratchet — actin pushes out, membrane bulges, the "
+            "actin's confinement loosens, and the cycle continues."
         ),
         "accent": "#10b981",
         "doc_kwargs": {
             "closed_loop": True,
-            "interval": 0.25,
+            "coupling_mode": "spherical",
+            "membrane_geometry": "icosphere",
+            # Larger interval = fewer composite steps = fewer chances for
+            # noisy back-channel updates to trigger ReaDDy/Mem3DG rebuilds.
+            "interval": 0.5,
             "growth_rate": 4.0,
+            "n_filaments": 6,
+            "monomers_per_filament": 4,
+            # Pressure scale is far more sensitive than the strength scale —
+            # tiny offsets produce visible bulges, large offsets explode the
+            # mesh. Small force constant keeps contact_force in single digits;
+            # tiny osmotic_force_scale keeps the added pressure within a
+            # range Mem3DG can integrate stably.
+            # Higher gain now that mem3dg uses a closure for osmotic.form
+            # and doesn't rebuild on every offset change.
+            "force_constant": 2.0,
+            "osmotic_force_scale": 0.02,
+            "contact_threshold": 0.3,
         },
-        "total_time": 16.0,
+        "total_time": 8.0,
     },
     {
-        "id": "stressed_ratchet",
-        "title": "Stressed ratchet (2× polymerization)",
-        "subtitle": "Doubled G+G→F rate — ratchet fires more often",
+        "id": "vesicle_stressed",
+        "title": "Stressed vesicle ratchet (more filaments)",
+        "subtitle": "Same closed-loop coupling, more filaments under load",
         "description": (
-            "Same closed-loop coupling as the headline config, but the "
-            "polymerization rate is doubled. The actin field reaches the "
-            "membrane faster and contact events fire more frequently — "
-            "ratchet_steps climbs visibly faster than in the baseline "
-            "coupled scenario."
+            "Same spherical coupling as the headline scenario but with "
+            "more filaments simultaneously pushing on the membrane. More "
+            "filaments mean more contact events per step and a more "
+            "uniformly distributed pressure load on the vesicle."
         ),
         "accent": "#f59e0b",
         "doc_kwargs": {
             "closed_loop": True,
-            "interval": 0.25,
+            "coupling_mode": "spherical",
+            "membrane_geometry": "icosphere",
+            "interval": 0.5,
             "growth_rate": 8.0,
+            "n_filaments": 10,
+            "monomers_per_filament": 5,
+            "force_constant": 3.0,
+            "osmotic_force_scale": 0.04,
+            "contact_threshold": 0.3,
         },
-        "total_time": 16.0,
+        "total_time": 8.0,
     },
 ]
 

@@ -15,25 +15,12 @@ from __future__ import annotations
 
 # Default ReaDDy actin scenario: a band of monomers near the bottom of the
 # box, with a fusion reaction G + G -> F representing actin polymerization.
-def _default_actin_config(box_size=(8.0, 8.0, 8.0), n_filaments=6,
-                          monomers_per_filament=5, growth_rate=4.0):
-    """Seed actin as N bonded filaments at the box bottom, growing upward.
-
-    Each filament is a true ReaDDy topology — a chain of
-    monomers_per_filament F particles bonded by harmonic springs and
-    angle potentials, so the chain has bending stiffness. When the head
-    pushes against the wall_z barrier, the chain physically bends in
-    response (which is the visual the demo wants to convey).
-
-    The `growth_rate` parameter currently scales an attached-monomer pool
-    of free G particles whose presence makes the demo's `actin_total`
-    metric meaningful, but bonded-filament *growth* (G → adds to chain
-    end) requires structural reactions which v0.1 doesn't enable. The
-    filaments themselves are static-length but free to deform.
-    """
+def _planar_actin_config(box_size=(8.0, 8.0, 8.0), n_filaments=6,
+                         monomers_per_filament=5, growth_rate=4.0):
+    """Bonded actin filaments at the BOTTOM of the box, growing upward
+    toward a flat membrane patch above. Used by the planar (hexagon)
+    membrane scenario."""
     half = [s / 2.0 for s in box_size]
-
-    # Place filament bases on a small grid in the xy plane near the bottom.
     spacing = 1.2
     grid_side = max(1, int(round(n_filaments ** 0.5)))
     bond_length = 0.5
@@ -43,7 +30,6 @@ def _default_actin_config(box_size=(8.0, 8.0, 8.0), n_filaments=6,
         gy = (i // grid_side) - (grid_side - 1) / 2.0
         x = gx * spacing
         y = gy * spacing
-        # Vertical chain, base near the floor.
         positions = [
             [float(x), float(y), -half[2] + 0.5 + k * bond_length]
             for k in range(monomers_per_filament)
@@ -54,11 +40,6 @@ def _default_actin_config(box_size=(8.0, 8.0, 8.0), n_filaments=6,
             'positions': positions,
         })
 
-    # Free G monomers floating around the bottom — give the
-    # `total_particles` and polymerization-rate metrics in the demo
-    # something to track. Their count is scaled by growth_rate so the
-    # 'stressed' scenario (2x growth rate) has 2x more free monomers
-    # in the bath, broadly approximating an enhanced supply.
     n_g = max(2, int(growth_rate * 2))
     g_initial = [
         [float(((i % 4) - 1.5) * 0.7),
@@ -67,22 +48,78 @@ def _default_actin_config(box_size=(8.0, 8.0, 8.0), n_filaments=6,
         for i in range(n_g)
     ]
 
+    return _actin_config_common(box_size, g_initial, initial_topologies, bond_length)
+
+
+def _spherical_actin_config(box_size=(8.0, 8.0, 8.0),
+                            vesicle_radius=2.0,
+                            n_filaments=8,
+                            monomers_per_filament=5,
+                            growth_rate=4.0):
+    """Bonded actin filaments INSIDE a vesicle, oriented radially outward
+    from the origin. Used by the spherical (icosphere vesicle) scenarios:
+    each filament is a short bonded chain whose tail is near the origin
+    and whose head points outward. As they grow / diffuse, the heads
+    push against the inner surface of the membrane sphere.
+    """
+    bond_length = 0.4
+    initial_topologies = []
+    # Distribute filament directions roughly uniformly on a sphere via a
+    # simple golden-ratio Fibonacci point set.
+    import math
+    golden = math.pi * (3 - math.sqrt(5))
+    for i in range(n_filaments):
+        # Fibonacci sphere points (unit vectors).
+        y = 1 - (i + 0.5) * (2.0 / n_filaments)  # in (-1, 1)
+        r_xy = math.sqrt(max(0.0, 1 - y * y))
+        theta = i * golden
+        ux = math.cos(theta) * r_xy
+        uy = y
+        uz = math.sin(theta) * r_xy
+
+        # Tail near origin, head pointing outward; chain length stays well
+        # inside the vesicle so the filament can grow into the membrane.
+        base_r = 0.2
+        positions = [
+            [float((base_r + k * bond_length) * ux),
+             float((base_r + k * bond_length) * uy),
+             float((base_r + k * bond_length) * uz)]
+            for k in range(monomers_per_filament)
+        ]
+        initial_topologies.append({
+            'type': 'filament',
+            'particle_types': ['F'] * monomers_per_filament,
+            'positions': positions,
+        })
+
+    # A handful of free G monomers also inside the vesicle.
+    n_g = max(2, int(growth_rate * 2))
+    g_initial = []
+    for i in range(n_g):
+        # Place near origin, jittered.
+        gx = ((i % 4) - 1.5) * 0.3
+        gy = ((i // 4 % 4) - 1.5) * 0.3
+        gz = ((i // 16) - 0.5) * 0.3
+        g_initial.append([float(gx), float(gy), float(gz)])
+
+    return _actin_config_common(box_size, g_initial, initial_topologies, bond_length)
+
+
+def _actin_config_common(box_size, g_initial, initial_topologies, bond_length):
+    """Shared ReaDDy config — species, reactions, potentials, topology
+    templates — across both planar and spherical actin layouts."""
     return {
         'box_size': box_size,
         'periodic': (False, False, False),
-        'species': {'G': 0.5},  # G = free monomer
+        'species': {'G': 0.5},
         'reactions': [],
         'potentials': [
-            # Soft repulsion so free monomers don't pile through bonded chains.
             {'type': 'harmonic_repulsion', 'species1': 'G', 'species2': 'G',
              'force_constant': 10.0, 'interaction_distance': 0.4},
         ],
         'initial_particles': {'G': g_initial},
-        # Bonded filaments — F particles in topology chains. Harmonic bonds
-        # give each filament rod-like behavior; angle potentials around 180°
-        # add bending stiffness so the chain prefers to stay straight, but
-        # bends visibly when the head is blocked.
-        'topology_species': {'F': 0.05},  # very low diffusion — filaments are heavy
+        # Bonded filaments — harmonic bonds + angle potential at ~180°.
+        'topology_species': {'F': 0.05},
         'topology_types': ['filament'],
         'topology_bonds': [
             {'type1': 'F', 'type2': 'F',
@@ -93,35 +130,87 @@ def _default_actin_config(box_size=(8.0, 8.0, 8.0), n_filaments=6,
              'force_constant': 30.0, 'equilibrium_angle': 3.14159},
         ],
         'initial_topologies': initial_topologies,
-        'timestep': 0.005,  # tighter timestep — bonded forces are stiffer
+        'timestep': 0.005,
         'observe_stride': 10,
     }
 
 
-def _default_membrane_config(radius=2.0, subdivision=2):
-    # Default Mem3DGProcess config tuned for a small icosphere that bulges
-    # visibly when the osmotic offset rises. Numerically modest so a single
-    # demo step stays under a few seconds.
+# Backwards-compatible default — used when the caller doesn't pass a
+# layout to build_document(). Equivalent to the planar layout.
+def _default_actin_config(box_size=(8.0, 8.0, 8.0), n_filaments=6,
+                          monomers_per_filament=5, growth_rate=4.0):
+    return _planar_actin_config(box_size, n_filaments, monomers_per_filament,
+                                growth_rate)
+
+
+def _vesicle_membrane_config(radius=2.0, subdivision=2):
+    """Closed icosphere vesicle using the *constant pressure* osmotic
+    model. With this model, a positive `osmotic_strength_offset` from
+    the coupler adds to the constant pressure → an outward force on
+    every vertex → the vesicle inflates. The preferredVolume model
+    converges to a setpoint and so cannot represent runaway inflation,
+    which is why we don't use it here.
+
+    Surface tension is intentionally STIFF (tension_modulus=1.0,
+    preferred_area_scale=1.0) so the membrane provides a real
+    counter-force to the added pressure. Without a preferred-volume
+    setpoint, only tension prevents runaway inflation; soft tension
+    lets even a tiny pressure offset blow the mesh out to infinity.
+    """
     return {
         'mesh_type': 'icosphere',
         'radius': radius,
         'subdivision': subdivision,
         'characteristic_timestep': 0.5,
         'tolerance': 1e-9,
-        'osmotic_strength': 0.02,
-        'preferred_volume_fraction': 0.7,
+        'osmotic_model': 'constant',
+        'osmotic_pressure': 0.0,
+        'tension_modulus': 1.0,        # stiff — bounds the inflation
+        'preferred_area_scale': 1.0,   # tension restores toward initial area
+    }
+
+
+def _hexagon_membrane_config(radius=2.0, subdivision=2):
+    """Flat hexagonal patch. Open mesh — no enclosed volume — so the
+    preferred-volume osmotic model is not viable; we use the constant-
+    pressure model with pressure=0. This means osmotic_strength_offset
+    won't bulge it (the patch can't physically respond to internal
+    pressure with no volume to contain), so this layout is intended for
+    the *decoupled* baseline scenario where no closed-loop coupling is
+    expected anyway."""
+    return {
+        'mesh_type': 'hexagon',
+        'radius': radius,
+        'subdivision': subdivision,
+        'characteristic_timestep': 0.5,
+        'tolerance': 1e-9,
+        # Constant-pressure osmotic model — works on open meshes.
+        'osmotic_model': 'constant',
+        'osmotic_pressure': 0.0,
+        # Disable the runtime-rebuild path entirely for this scenario:
+        # the hexagon's geometry doesn't engage with osmotic_strength_offset.
+        'osmotic_strength': 0.0,
         'tension_modulus': 0.05,
     }
+
+
+# Back-compat alias — the legacy build_document caller sees the vesicle.
+def _default_membrane_config(radius=2.0, subdivision=2):
+    return _vesicle_membrane_config(radius, subdivision)
 
 
 def build_document(
     *,
     interval: float = 0.5,
     closed_loop: bool = True,
+    coupling_mode: str = 'planar',           # 'planar' or 'spherical'
+    membrane_geometry: str = 'icosphere',     # 'icosphere' or 'hexagon'
     contact_threshold: float = 0.5,
     force_constant: float = 1.0,
-    osmotic_force_scale: float = 0.05,
+    osmotic_force_scale: float = 0.5,
     growth_rate: float = 4.0,
+    n_filaments: int = 6,
+    monomers_per_filament: int = 5,
     actin_config_overrides: dict | None = None,
     membrane_config_overrides: dict | None = None,
 ) -> dict:
@@ -130,24 +219,43 @@ def build_document(
     Parameters
     ----------
     interval : float
-        Time interval each Process advances per composite step. Used by
-        ReaDDy, Mem3DG, and the coupler so they tick together.
+        Time interval each Process advances per composite step.
     closed_loop : bool
         When False, the coupler computes diagnostics but emits zero
-        osmotic_offset and no wall_z — produces the decoupled-baseline
-        scenario for the demo.
+        osmotic_offset and no wall publication — decoupled-baseline scenario.
+    coupling_mode : 'planar' | 'spherical'
+        'planar': actin pushes UP against a membrane patch, coupler
+                  publishes wall_z to ReaDDy.
+        'spherical': actin INSIDE a vesicle pushes radially outward,
+                  coupler publishes wall_radius to ReaDDy.
+    membrane_geometry : 'icosphere' | 'hexagon'
+        'icosphere': closed vesicle (works with osmotic-pressure coupling).
+        'hexagon': flat patch (osmotic_strength_offset has no effect, so
+                   this geometry is intended for decoupled scenarios only).
     contact_threshold, force_constant, osmotic_force_scale : float
         Coupler tunables. See BrownianRatchetCoupler.config_schema.
     growth_rate : float
-        Multiplier on the actin polymerization rate (G + G -> F). Drives
-        the stressed scenario in the demo.
+        Drives the actin pool size (more free G monomers in stressed scenario).
     """
-    actin_cfg = _default_actin_config(growth_rate=growth_rate)
-    if actin_config_overrides:
-        actin_cfg.update(actin_config_overrides)
-    membrane_cfg = _default_membrane_config()
+    if membrane_geometry == 'hexagon':
+        membrane_cfg = _hexagon_membrane_config()
+    else:
+        membrane_cfg = _vesicle_membrane_config()
     if membrane_config_overrides:
         membrane_cfg.update(membrane_config_overrides)
+
+    if coupling_mode == 'spherical':
+        actin_cfg = _spherical_actin_config(
+            n_filaments=n_filaments,
+            monomers_per_filament=monomers_per_filament,
+            growth_rate=growth_rate)
+    else:
+        actin_cfg = _planar_actin_config(
+            n_filaments=n_filaments,
+            monomers_per_filament=monomers_per_filament,
+            growth_rate=growth_rate)
+    if actin_config_overrides:
+        actin_cfg.update(actin_config_overrides)
 
     return {
         'actin_sim': {
@@ -157,6 +265,7 @@ def build_document(
             'interval': interval,
             'inputs': {
                 'wall_z': ['control', 'wall_z'],
+                'wall_radius': ['control', 'wall_radius'],
             },
             'outputs': {
                 'particle_counts': ['actin', 'particle_counts'],
@@ -191,6 +300,7 @@ def build_document(
             'address': 'local:BrownianRatchetCoupler',
             'config': {
                 'closed_loop': closed_loop,
+                'coupling_mode': coupling_mode,
                 'contact_threshold': contact_threshold,
                 'force_constant': force_constant,
                 'osmotic_force_scale': osmotic_force_scale,
@@ -202,16 +312,20 @@ def build_document(
             },
             'outputs': {
                 'wall_z': ['control', 'wall_z'],
+                'wall_radius': ['control', 'wall_radius'],
                 'osmotic_strength_offset': ['control', 'osmotic_strength_offset'],
                 'contact_force': ['coupling', 'contact_force'],
                 'actin_max_z': ['coupling', 'actin_max_z'],
                 'membrane_min_z': ['coupling', 'membrane_min_z'],
+                'actin_max_radius': ['coupling', 'actin_max_radius'],
+                'membrane_min_radius': ['coupling', 'membrane_min_radius'],
                 'gap': ['coupling', 'gap'],
                 'ratchet_steps': ['coupling', 'ratchet_steps'],
             },
         },
         'control': {
             'wall_z': None,
+            'wall_radius': None,
             'osmotic_strength_offset': 0.0,
         },
         'actin': {
@@ -236,6 +350,8 @@ def build_document(
             'contact_force': 0.0,
             'actin_max_z': 0.0,
             'membrane_min_z': 0.0,
+            'actin_max_radius': 0.0,
+            'membrane_min_radius': 0.0,
             'gap': 0.0,
             'ratchet_steps': 0,
         },
@@ -252,9 +368,14 @@ def build_document(
                     'contact_force': 'float',
                     'osmotic_offset': 'float',
                     'wall_z': 'maybe[float]',
+                    'wall_radius': 'maybe[float]',
                     'membrane_volume': 'float',
                     'membrane_energy': 'float',
                     'ratchet_steps': 'integer',
+                    # Radial diagnostics — only meaningful in spherical mode
+                    # but always emitted for consistent demo plotting.
+                    'actin_max_radius': 'float',
+                    'membrane_min_radius': 'float',
                     # Per-step real geometry — used by the demo report's
                     # Three.js viewer to render the actual mesh deforming
                     # and the actual particles drifting, rather than a
@@ -268,10 +389,13 @@ def build_document(
                 'actin_total': ['actin', 'total_particles'],
                 'actin_max_z': ['coupling', 'actin_max_z'],
                 'membrane_min_z': ['coupling', 'membrane_min_z'],
+                'actin_max_radius': ['coupling', 'actin_max_radius'],
+                'membrane_min_radius': ['coupling', 'membrane_min_radius'],
                 'gap': ['coupling', 'gap'],
                 'contact_force': ['coupling', 'contact_force'],
                 'osmotic_offset': ['control', 'osmotic_strength_offset'],
                 'wall_z': ['control', 'wall_z'],
+                'wall_radius': ['control', 'wall_radius'],
                 'membrane_volume': ['membrane', 'volume'],
                 'membrane_energy': ['membrane', 'total_energy'],
                 'ratchet_steps': ['coupling', 'ratchet_steps'],

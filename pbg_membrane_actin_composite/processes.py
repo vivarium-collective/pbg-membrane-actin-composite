@@ -63,6 +63,11 @@ class BrownianRatchetCoupler(Process):
     """
 
     config_schema = {
+        # Coupling geometry. 'planar' = actin pushes UP against a membrane
+        # patch above (wall_z barrier). 'spherical' = actin INSIDE a vesicle
+        # pushes radially outward against the membrane sphere (wall_radius
+        # barrier).
+        'coupling_mode': {'_type': 'string', '_default': 'planar'},
         # When the gap drops below this threshold, count it as a ratchet
         # event and apply the contact force model.
         'contact_threshold': {'_type': 'float', '_default': 0.5},
@@ -70,15 +75,17 @@ class BrownianRatchetCoupler(Process):
         # contact_threshold - gap).
         'force_constant': {'_type': 'float', '_default': 1.0},
         # Multiplier from contact_force to osmotic_strength_offset. The
-        # absolute value depends on Mem3DG's units; the default scales the
-        # bulge to a visible level for the included demo configurations.
-        'osmotic_force_scale': {'_type': 'float', '_default': 0.05},
-        # Wall z-offset published to ReaDDy. The barrier sits this far
-        # below the lowest membrane vertex, so the membrane and the wall
-        # don't try to occupy the same space.
+        # absolute value depends on Mem3DG's units; default scales the
+        # bulge to a visibly large level for the included demo configurations.
+        'osmotic_force_scale': {'_type': 'float', '_default': 0.5},
+        # Wall offset published to ReaDDy. For planar mode this is a
+        # z-offset (barrier sits this far below the lowest membrane vertex).
+        # For spherical mode this is a radius-offset (barrier sits this
+        # much smaller than the closest membrane vertex). Either way it
+        # prevents the wall and the membrane from occupying the same space.
         'wall_offset': {'_type': 'float', '_default': 0.05},
         # When False, the coupler still computes diagnostics but emits
-        # zero osmotic_offset and a static wall_z. Used for the
+        # zero osmotic_offset and no wall publication. Used for the
         # decoupled-baseline demo configuration.
         'closed_loop': {'_type': 'boolean', '_default': True},
     }
@@ -94,14 +101,23 @@ class BrownianRatchetCoupler(Process):
         }
 
     def outputs(self):
+        # Most outputs are *absolute readings* of the world (current
+        # geometry, current contact force, current setpoint), NOT deltas
+        # to be accumulated. They use overwrite[T] so each publish replaces
+        # the store value rather than summing into it. The lone exception
+        # is `ratchet_steps`, which IS a per-step delta — a sibling
+        # consumer accumulating it gets the cumulative ratchet count.
         return {
-            'wall_z': 'maybe[float]',
-            'osmotic_strength_offset': 'float',
-            'contact_force': 'float',
-            'actin_max_z': 'float',
-            'membrane_min_z': 'float',
-            'gap': 'float',
-            'ratchet_steps': 'integer',
+            'wall_z': 'maybe[float]',           # maybe[T] is replace-by-default
+            'wall_radius': 'maybe[float]',      # ditto
+            'osmotic_strength_offset': 'overwrite[float]',
+            'contact_force': 'overwrite[float]',
+            'actin_max_z': 'overwrite[float]',
+            'membrane_min_z': 'overwrite[float]',
+            'actin_max_radius': 'overwrite[float]',
+            'membrane_min_radius': 'overwrite[float]',
+            'gap': 'overwrite[float]',
+            'ratchet_steps': 'integer',         # additive — cumulative count
         }
 
     def initial_state(self):
@@ -114,55 +130,73 @@ class BrownianRatchetCoupler(Process):
         actin = state.get('actin_positions') or []
         membrane = state.get('membrane_vertices') or []
         cfg = self.config
+        mode = cfg['coupling_mode']
 
         # Default: no information yet, emit neutral signals.
         if not actin or not membrane:
-            return {
-                'wall_z': None,
-                'osmotic_strength_offset': 0.0,
-                'contact_force': 0.0,
-                'actin_max_z': 0.0,
-                'membrane_min_z': 0.0,
-                'gap': 0.0,
-                'ratchet_steps': 0,
-            }
+            return self._neutral_output()
 
         actin_arr = np.asarray(actin, dtype=np.float64)
         membrane_arr = np.asarray(membrane, dtype=np.float64)
+
+        # Compute per-mode geometry. Always populate every output key so
+        # downstream consumers see consistent shape regardless of mode.
         actin_max_z = float(actin_arr[:, 2].max())
         membrane_min_z = float(membrane_arr[:, 2].min())
-        gap = membrane_min_z - actin_max_z
+        actin_max_radius = float(np.linalg.norm(actin_arr, axis=1).max())
+        membrane_min_radius = float(np.linalg.norm(membrane_arr, axis=1).min())
 
-        # Spring model: force grows linearly as the gap shrinks below the
-        # contact threshold; zero above the threshold. Clipped to be
-        # non-negative because the membrane never pulls the actin.
+        if mode == 'spherical':
+            # Inside-vesicle: gap = how much room the actin still has before
+            # it hits the membrane. Negative = breached.
+            gap = membrane_min_radius - actin_max_radius
+        else:  # 'planar'
+            gap = membrane_min_z - actin_max_z
+
+        # Spring model — force grows linearly as the gap shrinks below the
+        # contact threshold; clipped non-negative (membrane never pulls back).
         contact_force = max(0.0, cfg['force_constant'] * (cfg['contact_threshold'] - gap))
-
-        # Ratchet step counter — incremented on this step iff in contact.
         is_ratchet = contact_force > 0.0
         if is_ratchet:
             self._ratchet_steps += 1
 
+        wall_z = None
+        wall_radius = None
+        osmotic_offset = 0.0
         if cfg['closed_loop']:
-            wall_z = membrane_min_z - cfg['wall_offset']
             osmotic_offset = cfg['osmotic_force_scale'] * contact_force
-        else:
-            wall_z = None
-            osmotic_offset = 0.0
+            if mode == 'spherical':
+                # Wall sits just inside the closest membrane point so the
+                # membrane and the wall don't overlap.
+                wall_radius = max(0.1, membrane_min_radius - cfg['wall_offset'])
+            else:
+                wall_z = membrane_min_z - cfg['wall_offset']
 
-        # Note: ratchet_steps is wired to a `delta` semantics store via the
-        # `integer` schema (additive), so we publish the per-step delta
-        # (1 if a ratchet event happened this step, else 0). Cumulative
-        # tracking lives on the Process instance for diagnostics in the
-        # update return; downstream consumers see the additive delta.
         ratchet_delta = 1 if is_ratchet else 0
 
         return {
             'wall_z': wall_z,
+            'wall_radius': wall_radius,
             'osmotic_strength_offset': float(osmotic_offset),
             'contact_force': float(contact_force),
             'actin_max_z': actin_max_z,
             'membrane_min_z': membrane_min_z,
+            'actin_max_radius': actin_max_radius,
+            'membrane_min_radius': membrane_min_radius,
             'gap': float(gap),
             'ratchet_steps': ratchet_delta,
+        }
+
+    def _neutral_output(self):
+        return {
+            'wall_z': None,
+            'wall_radius': None,
+            'osmotic_strength_offset': 0.0,
+            'contact_force': 0.0,
+            'actin_max_z': 0.0,
+            'membrane_min_z': 0.0,
+            'actin_max_radius': 0.0,
+            'membrane_min_radius': 0.0,
+            'gap': 0.0,
+            'ratchet_steps': 0,
         }
