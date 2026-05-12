@@ -723,18 +723,88 @@ def _install_timeout():
         signal.alarm(DEMO_TIMEOUT_SECONDS)
 
 
+def _run_scenario_in_subprocess(scenario_id: str) -> dict:
+    """Spawn a subprocess that runs ONE scenario and returns its result.
+
+    ReaDDy retains process-global state across ReactionDiffusionSystem
+    instances, so building two systems in the same process can crash with
+    'graph not connected' on the second one. Subprocess-per-scenario
+    guarantees a clean ReaDDy state per run.
+    """
+    import subprocess
+    cmd = [sys.executable, str(Path(__file__).resolve()),
+           "--scenario", scenario_id, "--json-out"]
+    result = subprocess.run(
+        cmd, capture_output=True, text=True, timeout=DEMO_TIMEOUT_SECONDS,
+    )
+    if result.returncode != 0:
+        raise RuntimeError(
+            f"scenario {scenario_id} subprocess failed (exit {result.returncode}):\n"
+            f"--- stderr (tail) ---\n{result.stderr[-2000:]}"
+        )
+    begin = "<<<SCENARIO_RESULT_JSON>>>"
+    end = "<<<END_SCENARIO_RESULT_JSON>>>"
+    a = result.stdout.find(begin)
+    b = result.stdout.find(end, a + len(begin)) if a >= 0 else -1
+    if a < 0 or b < 0:
+        raise RuntimeError(
+            f"scenario {scenario_id} did not emit JSON markers.\n"
+            f"--- stdout (tail) ---\n{result.stdout[-2000:]}"
+        )
+    return json.loads(result.stdout[a + len(begin):b])
+
+
+def _serialize_result(result: dict) -> dict:
+    """Strip non-JSON-serializable bits from the result dict for IPC."""
+    return {
+        "scenario": result["scenario"],
+        "elapsed_seconds": result["elapsed_seconds"],
+        "document": json.loads(json.dumps(result["document"], default=str)),
+        "faces": result["faces"],
+        "series": result["series"],
+        "final_ratchets": result["final_ratchets"],
+        "final_volume": result["final_volume"],
+        "final_actin_total": result["final_actin_total"],
+    }
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--no-open", action="store_true")
+    parser.add_argument("--scenario", type=str, default=None,
+                        help="Run a single scenario by id (subprocess mode).")
+    parser.add_argument("--json-out", action="store_true",
+                        help="Emit the scenario result as JSON on stdout.")
     args = parser.parse_args()
 
     _install_timeout()
-    print(f"Running {len(CONFIGS)} scenarios...")
+
+    # Subprocess mode: run one scenario and emit JSON.
+    if args.scenario:
+        cfg = next((c for c in CONFIGS if c["id"] == args.scenario), None)
+        if cfg is None:
+            print(f"unknown scenario: {args.scenario}", file=sys.stderr)
+            sys.exit(2)
+        result = _run_scenario(cfg)
+        if args.json_out:
+            print("<<<SCENARIO_RESULT_JSON>>>")
+            print(json.dumps(_serialize_result(result)))
+            print("<<<END_SCENARIO_RESULT_JSON>>>")
+        else:
+            print(f"{cfg['id']}: {result['elapsed_seconds']:.1f}s, "
+                  f"{result['final_ratchets']} ratchet steps")
+        return
+
+    # Parent mode: spawn one subprocess per scenario.
+    print(f"Running {len(CONFIGS)} scenarios (one subprocess each, "
+          f"to isolate ReaDDy state across runs)...")
     results = []
     for cfg in CONFIGS:
-        print(f"  • {cfg['id']} (closed_loop={cfg['doc_kwargs']['closed_loop']}, growth_rate={cfg['doc_kwargs']['growth_rate']})...", end="", flush=True)
-        r = _run_scenario(cfg)
-        print(f" {r['elapsed_seconds']:.1f}s, {r['final_ratchets']} ratchet steps, final volume {r['final_volume']:.2f}")
+        print(f"  • {cfg['id']} (closed_loop={cfg['doc_kwargs']['closed_loop']}, "
+              f"growth_rate={cfg['doc_kwargs']['growth_rate']})...", end="", flush=True)
+        r = _run_scenario_in_subprocess(cfg["id"])
+        print(f" {r['elapsed_seconds']:.1f}s, {r['final_ratchets']} ratchet steps, "
+              f"final volume {r['final_volume']:.2f}")
         results.append(r)
 
     print("Rendering architecture diagram...")

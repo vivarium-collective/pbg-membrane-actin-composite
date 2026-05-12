@@ -16,52 +16,85 @@ from __future__ import annotations
 # Default ReaDDy actin scenario: a band of monomers near the bottom of the
 # box, with a fusion reaction G + G -> F representing actin polymerization.
 def _default_actin_config(box_size=(8.0, 8.0, 8.0), n_filaments=6,
-                          monomers_per_filament=3, growth_rate=4.0):
-    """Seed actin as N short vertical proto-filaments at the box bottom.
+                          monomers_per_filament=5, growth_rate=4.0):
+    """Seed actin as N bonded filaments at the box bottom, growing upward.
 
-    Each "filament" is a vertical stack of `monomers_per_filament` G
-    particles at the same (x, y) position with increasing z. This gives
-    the demo viewer something that visually reads as filaments rising
-    upward, even though ReaDDy treats them as independent particles
-    (no bonded chain in v0.1 — bonded topology coming in v0.2).
+    Each filament is a true ReaDDy topology — a chain of
+    monomers_per_filament F particles bonded by harmonic springs and
+    angle potentials, so the chain has bending stiffness. When the head
+    pushes against the wall_z barrier, the chain physically bends in
+    response (which is the visual the demo wants to convey).
+
+    The `growth_rate` parameter currently scales an attached-monomer pool
+    of free G particles whose presence makes the demo's `actin_total`
+    metric meaningful, but bonded-filament *growth* (G → adds to chain
+    end) requires structural reactions which v0.1 doesn't enable. The
+    filaments themselves are static-length but free to deform.
     """
     half = [s / 2.0 for s in box_size]
-    initial = []
+
     # Place filament bases on a small grid in the xy plane near the bottom.
-    spacing = 1.0
-    grid_side = int(round(n_filaments ** 0.5))
-    grid_side = max(1, grid_side)
+    spacing = 1.2
+    grid_side = max(1, int(round(n_filaments ** 0.5)))
+    bond_length = 0.5
+    initial_topologies = []
     for i in range(n_filaments):
         gx = (i % grid_side) - (grid_side - 1) / 2.0
         gy = (i // grid_side) - (grid_side - 1) / 2.0
         x = gx * spacing
         y = gy * spacing
-        # Stack monomers vertically, base near the floor.
-        for k in range(monomers_per_filament):
-            z = -half[2] + 0.4 + k * 0.5
-            initial.append([float(x), float(y), float(z)])
+        # Vertical chain, base near the floor.
+        positions = [
+            [float(x), float(y), -half[2] + 0.5 + k * bond_length]
+            for k in range(monomers_per_filament)
+        ]
+        initial_topologies.append({
+            'type': 'filament',
+            'particle_types': ['F'] * monomers_per_filament,
+            'positions': positions,
+        })
+
+    # Free G monomers floating around the bottom — give the
+    # `total_particles` and polymerization-rate metrics in the demo
+    # something to track. Their count is scaled by growth_rate so the
+    # 'stressed' scenario (2x growth rate) has 2x more free monomers
+    # in the bath, broadly approximating an enhanced supply.
+    n_g = max(2, int(growth_rate * 2))
+    g_initial = [
+        [float(((i % 4) - 1.5) * 0.7),
+         float(((i // 4) % 4 - 1.5) * 0.7),
+         float(-half[2] + 0.3 + 0.2 * (i // 16))]
+        for i in range(n_g)
+    ]
+
     return {
         'box_size': box_size,
         'periodic': (False, False, False),
-        'species': {'G': 0.5, 'F': 0.05},  # G = monomer, F = filament unit
-        'reactions': [
-            # G + G -> F: filament growth event. The fusion semantics in
-            # ReaDDy preserve total mass; the F population is what we
-            # interpret as "polymerized actin".
-            {'descriptor': 'polymerize: G +(0.6) G -> F', 'rate': float(growth_rate)},
-        ],
+        'species': {'G': 0.5},  # G = free monomer
+        'reactions': [],
         'potentials': [
-            # Soft repulsion so monomers don't overlap.
+            # Soft repulsion so free monomers don't pile through bonded chains.
             {'type': 'harmonic_repulsion', 'species1': 'G', 'species2': 'G',
              'force_constant': 10.0, 'interaction_distance': 0.4},
-            {'type': 'harmonic_repulsion', 'species1': 'G', 'species2': 'F',
-             'force_constant': 10.0, 'interaction_distance': 0.4},
-            {'type': 'harmonic_repulsion', 'species1': 'F', 'species2': 'F',
-             'force_constant': 10.0, 'interaction_distance': 0.4},
         ],
-        'initial_particles': {'G': initial, 'F': []},
-        'timestep': 0.01,
-        'observe_stride': 5,
+        'initial_particles': {'G': g_initial},
+        # Bonded filaments — F particles in topology chains. Harmonic bonds
+        # give each filament rod-like behavior; angle potentials around 180°
+        # add bending stiffness so the chain prefers to stay straight, but
+        # bends visibly when the head is blocked.
+        'topology_species': {'F': 0.05},  # very low diffusion — filaments are heavy
+        'topology_types': ['filament'],
+        'topology_bonds': [
+            {'type1': 'F', 'type2': 'F',
+             'force_constant': 200.0, 'length': bond_length},
+        ],
+        'topology_angles': [
+            {'type1': 'F', 'type2': 'F', 'type3': 'F',
+             'force_constant': 30.0, 'equilibrium_angle': 3.14159},
+        ],
+        'initial_topologies': initial_topologies,
+        'timestep': 0.005,  # tighter timestep — bonded forces are stiffer
+        'observe_stride': 10,
     }
 
 
