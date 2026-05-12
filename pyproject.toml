@@ -1,0 +1,37 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pbg-membrane-actin-composite"
+version = "0.1.0"
+description = "Process-bigraph composite wiring pbg-mem3dg + pbg-readdy as a Brownian-ratchet membrane-actin coupling"
+readme = "README.md"
+license = {text = "MIT"}
+requires-python = ">=3.10"
+authors = [{name = "Eran Agmon", email = "agmon.eran@gmail.com"}]
+classifiers = [
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Bio-Informatics",
+    "Topic :: Scientific/Engineering :: Physics",
+]
+dependencies = [
+    "bigraph-schema>=0.0.60",
+    "process-bigraph>=0.0.66",
+    "numpy>=1.24",
+    "pbg-mem3dg",
+    "pbg-readdy",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=7.4", "pytest-cov>=4.1", "pytest-timeout>=2.1"]
+demo = ["plotly>=5.18", "matplotlib>=3.7", "bigraph-viz>=0.0.30"]
+
+[project.urls]
+Homepage = "https://github.com/vivarium-collective/pbg-membrane-actin-composite"
+Issues = "https://github.com/vivarium-collective/pbg-membrane-actin-composite/issues"
+
+[tool.setuptools.packages.find]
+include = ["pbg_membrane_actin_composite*"]
