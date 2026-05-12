@@ -1,0 +1,32 @@
+Metadata-Version: 2.4
+Name: pbg-membrane-actin-composite
+Version: 0.1.0
+Summary: Process-bigraph composite wiring pbg-mem3dg + pbg-readdy as a Brownian-ratchet membrane-actin coupling
+Author-email: Eran Agmon <agmon.eran@gmail.com>
+License: MIT
+Project-URL: Homepage, https://github.com/vivarium-collective/pbg-membrane-actin-composite
+Project-URL: Issues, https://github.com/vivarium-collective/pbg-membrane-actin-composite/issues
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Topic :: Scientific/Engineering :: Bio-Informatics
+Classifier: Topic :: Scientific/Engineering :: Physics
+Requires-Python: >=3.10
+Description-Content-Type: text/markdown
+Requires-Dist: bigraph-schema>=0.0.60
+Requires-Dist: process-bigraph>=0.0.66
+Requires-Dist: numpy>=1.24
+Requires-Dist: pbg-mem3dg
+Requires-Dist: pbg-readdy
+Provides-Extra: dev
+Requires-Dist: pytest>=7.4; extra == "dev"
+Requires-Dist: pytest-cov>=4.1; extra == "dev"
+Requires-Dist: pytest-timeout>=2.1; extra == "dev"
+Provides-Extra: demo
+Requires-Dist: plotly>=5.18; extra == "demo"
+Requires-Dist: matplotlib>=3.7; extra == "demo"
+Requires-Dist: bigraph-viz>=0.0.30; extra == "demo"
+
+# pbg-membrane-actin-composite
+
+Brownian-ratchet membrane-actin coupling — placeholder, full README later.
