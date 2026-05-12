@@ -63,36 +63,62 @@ class BrownianRatchetCoupler(Process):
     """
 
     config_schema = {
-        # Coupling geometry. 'planar' = actin pushes UP against a membrane
-        # patch above (wall_z barrier). 'spherical' = actin INSIDE a vesicle
-        # pushes radially outward against the membrane sphere (wall_radius
-        # barrier).
+        # Coupling geometry. 'planar' = actin pushes UP against a barrier
+        # above (wall_z). 'spherical' = actin INSIDE a vesicle pushes
+        # radially outward (wall_radius). Most spec-aligned scenarios use
+        # 'planar'; spherical is preserved for the inside-vesicle demo.
         'coupling_mode': {'_type': 'string', '_default': 'planar'},
+        # Barrier dynamics — the spec §2.2 boundary-condition staircase:
+        #   'fixed':         wall_z stays at barrier_initial_z; doesn't move.
+        #                    Models the rigid-wall regime (rung 1).
+        #   'rigid_movable': wall_z translates under integrated contact force.
+        #                    Drag-balance kinematics — Peskin 1993 (rung 2).
+        #   'flexible':      wall_z follows membrane_min_z (or _radius), and
+        #                    coupler publishes osmotic_offset to inflate
+        #                    Mem3DG. Phase-2 headline run (rung 3).
+        'barrier_kind': {'_type': 'string', '_default': 'flexible'},
+        # Initial position of the barrier. For planar this is the z-plane
+        # height; for spherical it would be the initial sphere radius.
+        # Used by 'fixed' and 'rigid_movable' modes (which don't have a
+        # Mem3DG to read the position from).
+        'barrier_initial_z': {'_type': 'float', '_default': 0.0},
+        # Drag coefficient for 'rigid_movable' mode: barrier_velocity =
+        # contact_force / drag. Higher drag = barrier resists motion more.
+        'barrier_drag': {'_type': 'float', '_default': 5.0},
         # When the gap drops below this threshold, count it as a ratchet
         # event and apply the contact force model.
         'contact_threshold': {'_type': 'float', '_default': 0.5},
         # Spring constant of the contact-force model: F = k * max(0,
         # contact_threshold - gap).
         'force_constant': {'_type': 'float', '_default': 1.0},
-        # Multiplier from contact_force to osmotic_strength_offset. The
-        # absolute value depends on Mem3DG's units; default scales the
-        # bulge to a visibly large level for the included demo configurations.
-        'osmotic_force_scale': {'_type': 'float', '_default': 0.5},
-        # Wall offset published to ReaDDy. For planar mode this is a
-        # z-offset (barrier sits this far below the lowest membrane vertex).
-        # For spherical mode this is a radius-offset (barrier sits this
-        # much smaller than the closest membrane vertex). Either way it
-        # prevents the wall and the membrane from occupying the same space.
+        # Multiplier from contact_force to osmotic_strength_offset (only
+        # applied in barrier_kind='flexible'). Pressure scale in pymem3dg
+        # is sensitive — defaults are tuned for ~10-20% inflation over
+        # the demo's run length.
+        'osmotic_force_scale': {'_type': 'float', '_default': 0.02},
+        # Distance the published wall sits below the actual barrier
+        # surface so the wall and the surface don't try to occupy the
+        # same space.
         'wall_offset': {'_type': 'float', '_default': 0.05},
-        # When False, the coupler still computes diagnostics but emits
-        # zero osmotic_offset and no wall publication. Used for the
-        # decoupled-baseline demo configuration.
+        # When False, the coupler still computes diagnostics but doesn't
+        # update wall_z or osmotic_offset. Used for the decoupled-baseline
+        # scenario.
         'closed_loop': {'_type': 'boolean', '_default': True},
     }
 
     def __init__(self, config=None, core=None):
         super().__init__(config=config, core=core)
         self._ratchet_steps = 0
+        # Standalone barrier state — used by 'fixed' and 'rigid_movable'
+        # modes (which have no Mem3DG to read position from). Initialized
+        # lazily on first update() so the config defaults are honored.
+        self._barrier_z = None
+        # Sample history for barrier velocity estimation. Each entry:
+        # (sim_time, barrier_z). The coupler publishes the linear-fit
+        # slope of the most recent samples so the demo can plot a real
+        # F-V point per scenario.
+        self._barrier_history = []
+        self._mean_force = 0.0  # rolling mean of contact_force samples
 
     def inputs(self):
         return {
@@ -117,6 +143,12 @@ class BrownianRatchetCoupler(Process):
             'actin_max_radius': 'overwrite[float]',
             'membrane_min_radius': 'overwrite[float]',
             'gap': 'overwrite[float]',
+            # Barrier kinematics — published every step so the demo can
+            # plot displacement-vs-time curves and F-V scatter points
+            # across the staircase regimes.
+            'barrier_z': 'overwrite[float]',           # current z position
+            'barrier_velocity': 'overwrite[float]',    # linear-fit slope
+            'mean_contact_force': 'overwrite[float]',  # rolling mean force
             'ratchet_steps': 'integer',         # additive — cumulative count
         }
 
@@ -131,46 +163,94 @@ class BrownianRatchetCoupler(Process):
         membrane = state.get('membrane_vertices') or []
         cfg = self.config
         mode = cfg['coupling_mode']
+        kind = cfg['barrier_kind']
 
-        # Default: no information yet, emit neutral signals.
-        if not actin or not membrane:
-            return self._neutral_output()
+        # Lazy-init the standalone barrier_z (used by 'fixed' and
+        # 'rigid_movable' modes — they have no Mem3DG to read from).
+        if self._barrier_z is None:
+            self._barrier_z = float(cfg['barrier_initial_z'])
 
-        actin_arr = np.asarray(actin, dtype=np.float64)
-        membrane_arr = np.asarray(membrane, dtype=np.float64)
+        actin_arr = np.asarray(actin, dtype=np.float64) if actin else np.zeros((0, 3))
+        membrane_arr = np.asarray(membrane, dtype=np.float64) if membrane else np.zeros((0, 3))
 
-        # Compute per-mode geometry. Always populate every output key so
-        # downstream consumers see consistent shape regardless of mode.
-        actin_max_z = float(actin_arr[:, 2].max())
-        membrane_min_z = float(membrane_arr[:, 2].min())
-        actin_max_radius = float(np.linalg.norm(actin_arr, axis=1).max())
-        membrane_min_radius = float(np.linalg.norm(membrane_arr, axis=1).min())
+        # ---- Geometry probes -------------------------------------------------
+        actin_max_z = float(actin_arr[:, 2].max()) if len(actin_arr) else 0.0
+        actin_max_radius = float(np.linalg.norm(actin_arr, axis=1).max()) if len(actin_arr) else 0.0
+        if len(membrane_arr):
+            membrane_min_z = float(membrane_arr[:, 2].min())
+            membrane_min_radius = float(np.linalg.norm(membrane_arr, axis=1).min())
+        else:
+            membrane_min_z = self._barrier_z
+            membrane_min_radius = self._barrier_z
 
+        # ---- Barrier position (regime-dependent) ----------------------------
+        # Decide where the current barrier sits in space — this is what
+        # ReaDDy's wall_z (or wall_radius) is published from.
+        if kind == 'flexible' and len(membrane_arr):
+            # Phase-2 endpoint: the barrier IS the membrane.
+            barrier_position = membrane_min_z if mode == 'planar' else membrane_min_radius
+        else:
+            # 'fixed' and 'rigid_movable' (and 'flexible' before Mem3DG
+            # has emitted) use the standalone barrier_z. (rigid_movable
+            # advances it below.)
+            barrier_position = self._barrier_z
+
+        # ---- Contact gap + force --------------------------------------------
         if mode == 'spherical':
-            # Inside-vesicle: gap = how much room the actin still has before
-            # it hits the membrane. Negative = breached.
-            gap = membrane_min_radius - actin_max_radius
+            gap = barrier_position - actin_max_radius
         else:  # 'planar'
-            gap = membrane_min_z - actin_max_z
-
-        # Spring model — force grows linearly as the gap shrinks below the
-        # contact threshold; clipped non-negative (membrane never pulls back).
+            gap = barrier_position - actin_max_z
         contact_force = max(0.0, cfg['force_constant'] * (cfg['contact_threshold'] - gap))
         is_ratchet = contact_force > 0.0
         if is_ratchet:
             self._ratchet_steps += 1
 
+        # ---- Barrier kinematics (regime-dependent) --------------------------
+        # 'fixed':         barrier_z unchanged.
+        # 'rigid_movable': drag-balance: dz/dt = F / drag.
+        # 'flexible':      barrier_z follows the live membrane reading.
+        if kind == 'rigid_movable':
+            self._barrier_z += contact_force / cfg['barrier_drag'] * interval
+            barrier_position = self._barrier_z
+        elif kind == 'flexible' and len(membrane_arr):
+            self._barrier_z = barrier_position  # mirror for diagnostics
+        # 'fixed': barrier_z stays put.
+
+        # Track barrier samples for velocity estimation.
+        sim_time = self._barrier_history[-1][0] + interval if self._barrier_history else 0.0
+        self._barrier_history.append((sim_time, barrier_position))
+        # Use only the last 8 samples for the slope fit so the published
+        # velocity reflects recent dynamics, not the whole-run average.
+        recent = self._barrier_history[-8:]
+        if len(recent) >= 2:
+            ts = np.asarray([t for t, _ in recent], dtype=np.float64)
+            zs = np.asarray([z for _, z in recent], dtype=np.float64)
+            slope, _ = np.polyfit(ts, zs, 1)
+            barrier_velocity = float(slope)
+        else:
+            barrier_velocity = 0.0
+
+        # Rolling mean of contact force (window = 8 to match velocity window).
+        n = min(8, len(self._barrier_history))
+        # Approximate: track via exponential moving average.
+        alpha = 2.0 / (n + 1)
+        self._mean_force = (1 - alpha) * self._mean_force + alpha * contact_force
+
+        # ---- Closed-loop back-channel publication ---------------------------
         wall_z = None
         wall_radius = None
         osmotic_offset = 0.0
         if cfg['closed_loop']:
-            osmotic_offset = cfg['osmotic_force_scale'] * contact_force
+            # ReaDDy barrier publication — always emitted (all 3 regimes
+            # publish a wall to ReaDDy so the actin field is confined).
             if mode == 'spherical':
-                # Wall sits just inside the closest membrane point so the
-                # membrane and the wall don't overlap.
-                wall_radius = max(0.1, membrane_min_radius - cfg['wall_offset'])
+                wall_radius = max(0.1, barrier_position - cfg['wall_offset'])
             else:
-                wall_z = membrane_min_z - cfg['wall_offset']
+                wall_z = barrier_position - cfg['wall_offset']
+            # Mem3DG-side publication only meaningful in the 'flexible'
+            # regime (the other regimes have no Mem3DG instance).
+            if kind == 'flexible':
+                osmotic_offset = cfg['osmotic_force_scale'] * contact_force
 
         ratchet_delta = 1 if is_ratchet else 0
 
@@ -184,6 +264,9 @@ class BrownianRatchetCoupler(Process):
             'actin_max_radius': actin_max_radius,
             'membrane_min_radius': membrane_min_radius,
             'gap': float(gap),
+            'barrier_z': float(barrier_position),
+            'barrier_velocity': float(barrier_velocity),
+            'mean_contact_force': float(self._mean_force),
             'ratchet_steps': ratchet_delta,
         }
 
@@ -198,5 +281,8 @@ class BrownianRatchetCoupler(Process):
             'actin_max_radius': 0.0,
             'membrane_min_radius': 0.0,
             'gap': 0.0,
+            'barrier_z': float(self.config.get('barrier_initial_z', 0.0)),
+            'barrier_velocity': 0.0,
+            'mean_contact_force': 0.0,
             'ratchet_steps': 0,
         }

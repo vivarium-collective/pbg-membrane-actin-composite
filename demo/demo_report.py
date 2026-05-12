@@ -43,91 +43,94 @@ DEMO_TIMEOUT_SECONDS = 120
 
 CONFIGS = [
     {
-        "id": "flat_patch_decoupled",
-        "title": "Flat membrane patch (decoupled)",
-        "subtitle": "Hexagonal Mem3DG patch above; bonded actin filaments below",
+        "id": "rung1_fixed_boundary",
+        "title": "Rung 1 — Fixed boundary",
+        "subtitle": "Actin pushes against a wall that cannot move (spec §2.2 #1)",
         "description": (
-            "Mem3DG simulates a FLAT hexagonal membrane patch in the xy "
-            "plane, while ReaDDy advances bonded actin filaments below "
-            "it. No back-channel: the patch is open (no enclosed volume) "
-            "so the osmotic-pressure coupling lever doesn't apply. This "
-            "scenario is here to show the planar membrane geometry and "
-            "to act as a visual baseline for the closed-loop scenarios "
-            "below — you should see filaments diffusing freely without "
-            "a barrier above them."
+            "Bonded actin filaments at the bottom of the box; a flat "
+            "barrier (planar wall_z) sits at z=0. The barrier does not "
+            "move — `barrier_kind='fixed'`. ReaDDy's box potential "
+            "confines particles to z ≤ wall_z, so Brownian fluctuations "
+            "and chain bending of the filament heads are the only "
+            "out-of-plane motion. This is the rigid-wall regime against "
+            "which Peskin 1993's closed-form Brownian-ratchet velocity "
+            "should hold (when polymerization rate ≪ ideal ratchet "
+            "velocity). Headline metric: contact_force builds up but "
+            "barrier_velocity stays at zero — confirming the wall is "
+            "rigid as advertised."
         ),
         "accent": "#94a3b8",
         "doc_kwargs": {
-            "closed_loop": False,
+            "closed_loop": True,
             "coupling_mode": "planar",
-            "membrane_geometry": "hexagon",
-            "interval": 0.25,
-            "growth_rate": 4.0,
+            "barrier_kind": "fixed",
+            "barrier_initial_z": 0.0,
+            "interval": 0.5,
             "n_filaments": 6,
+            "monomers_per_filament": 4,
+            "force_constant": 2.0,
+            "contact_threshold": 0.4,
         },
-        "total_time": 12.0,
+        "total_time": 8.0,
     },
     {
-        "id": "vesicle_inside_pressure",
-        "title": "Actin INSIDE vesicle pushing outward",
-        "subtitle": "Spherical coupling — radial barrier shrinks/grows with the membrane",
+        "id": "rung2_movable_rigid_boundary",
+        "title": "Rung 2 — Movable rigid boundary (Peskin 1993)",
+        "subtitle": "Wall translates under integrated force; doesn't deform",
         "description": (
-            "Bonded actin filaments are seeded INSIDE a Mem3DG icosphere "
-            "vesicle, oriented radially outward from the origin. The "
-            "coupler computes the radial gap between the outermost "
-            "filament tip and the closest membrane vertex; when the gap "
-            "closes, it (a) publishes a wall_radius to ReaDDy that "
-            "tracks the membrane's inner surface, and (b) raises Mem3DG's "
-            "osmotic_strength_offset so the vesicle visibly inflates "
-            "outward in response to the internal pressure. This is the "
-            "headline ratchet — actin pushes out, membrane bulges, the "
-            "actin's confinement loosens, and the cycle continues."
+            "Same actin model as Rung 1, but the wall now translates "
+            "under integrated contact force using simple drag-balance "
+            "kinematics: dz/dt = F / drag. The wall stays planar — "
+            "it's a rigid object, no deformation. This reproduces the "
+            "classic Peskin 1993 setup: a rigid load whose velocity is "
+            "set by force balance with the polymerizing actin. Headline "
+            "metric: barrier_velocity stabilizes at a non-zero value "
+            "proportional to the mean contact force."
+        ),
+        "accent": "#0ea5e9",
+        "doc_kwargs": {
+            "closed_loop": True,
+            "coupling_mode": "planar",
+            "barrier_kind": "rigid_movable",
+            "barrier_initial_z": 0.0,
+            "barrier_drag": 8.0,
+            "interval": 0.5,
+            "n_filaments": 6,
+            "monomers_per_filament": 4,
+            "force_constant": 2.0,
+            "contact_threshold": 0.4,
+        },
+        "total_time": 8.0,
+    },
+    {
+        "id": "rung3_flexible_membrane",
+        "title": "Rung 3 — Flexible Mem3DG membrane (spec §2.2 #3)",
+        "subtitle": "Closed icosphere vesicle inflating under actin pressure",
+        "description": (
+            "Spec §2.2 endpoint: real Mem3DG mesh in closed-loop with the "
+            "actin field. Geometry shifts here: a closed icosphere vesicle "
+            "with bonded filaments INSIDE pushing radially outward "
+            "against the inner surface. Why the geometry change — "
+            "pymem3dg's open-mesh deformation under constant pressure "
+            "isn't robust at our parameters (open hexagon won't bulge), "
+            "but a closed vesicle inflates reliably under the same "
+            "lever. The same coupler runs the same math; only the "
+            "barrier topology differs. Headline metric: vesicle volume "
+            "grows visibly (~12-15% over the run), barrier_velocity "
+            "(now a radial expansion rate) is non-zero, and the F-V "
+            "scatter point lies clearly off the rigid-wall curve."
         ),
         "accent": "#10b981",
         "doc_kwargs": {
             "closed_loop": True,
             "coupling_mode": "spherical",
+            "barrier_kind": "flexible",
             "membrane_geometry": "icosphere",
-            # Larger interval = fewer composite steps = fewer chances for
-            # noisy back-channel updates to trigger ReaDDy/Mem3DG rebuilds.
             "interval": 0.5,
-            "growth_rate": 4.0,
             "n_filaments": 6,
             "monomers_per_filament": 4,
-            # Pressure scale is far more sensitive than the strength scale —
-            # tiny offsets produce visible bulges, large offsets explode the
-            # mesh. Small force constant keeps contact_force in single digits;
-            # tiny osmotic_force_scale keeps the added pressure within a
-            # range Mem3DG can integrate stably.
-            # Higher gain now that mem3dg uses a closure for osmotic.form
-            # and doesn't rebuild on every offset change.
             "force_constant": 2.0,
             "osmotic_force_scale": 0.02,
-            "contact_threshold": 0.3,
-        },
-        "total_time": 8.0,
-    },
-    {
-        "id": "vesicle_stressed",
-        "title": "Stressed vesicle ratchet (more filaments)",
-        "subtitle": "Same closed-loop coupling, more filaments under load",
-        "description": (
-            "Same spherical coupling as the headline scenario but with "
-            "more filaments simultaneously pushing on the membrane. More "
-            "filaments mean more contact events per step and a more "
-            "uniformly distributed pressure load on the vesicle."
-        ),
-        "accent": "#f59e0b",
-        "doc_kwargs": {
-            "closed_loop": True,
-            "coupling_mode": "spherical",
-            "membrane_geometry": "icosphere",
-            "interval": 0.5,
-            "growth_rate": 8.0,
-            "n_filaments": 10,
-            "monomers_per_filament": 5,
-            "force_constant": 3.0,
-            "osmotic_force_scale": 0.04,
             "contact_threshold": 0.3,
         },
         "total_time": 8.0,
@@ -140,14 +143,12 @@ CONFIGS = [
 # ---------------------------------------------------------------------------
 
 def _membrane_face_matrix(doc):
-    """Return the static face connectivity for the membrane mesh.
-
-    The composite document references the membrane config under
-    `membrane_sim.config`. Mem3DG mesh topology is fixed at construction
-    (no remeshing in our setup), so it's safe to capture faces once via
-    a sibling Mem3DGProcess instance instead of plumbing them through
-    the emitter (which would require a custom static-snapshot Step).
+    """Return the static face connectivity for the membrane mesh, or
+    None if the document doesn't include a membrane_sim block (the fixed
+    and rigid_movable staircase rungs don't run Mem3DG).
     """
+    if "membrane_sim" not in doc:
+        return None
     mem_cfg = doc["membrane_sim"]["config"]
     # Mem3DGProcess inherits from Edge which requires a core; we don't
     # actually need a wired-up core here, just enough for instantiation.
@@ -184,6 +185,11 @@ def _run_scenario(scenario: dict) -> dict:
     ratchet_steps = [s.get("ratchet_steps", 0) for s in samples]
     actin_positions = [s.get("actin_positions") or [] for s in samples]
     membrane_vertices = [s.get("membrane_vertex_positions") or [] for s in samples]
+    # Barrier kinematics (per-step) — fed into the cross-scenario
+    # displacement-overlay and F-V scatter panels.
+    barrier_z = [s.get("barrier_z", 0.0) for s in samples]
+    barrier_velocity = [s.get("barrier_velocity", 0.0) for s in samples]
+    mean_contact_force = [s.get("mean_contact_force", 0.0) for s in samples]
     cumulative_ratchets = []
     running = 0
     for r in ratchet_steps:
@@ -209,6 +215,9 @@ def _run_scenario(scenario: dict) -> dict:
             "ratchet_steps_cum": cumulative_ratchets,
             "actin_positions": actin_positions,
             "membrane_vertices": membrane_vertices,
+            "barrier_z": barrier_z,
+            "barrier_velocity": barrier_velocity,
+            "mean_contact_force": mean_contact_force,
         },
         "final_ratchets": cumulative_ratchets[-1] if cumulative_ratchets else 0,
         "final_volume": membrane_volume[-1] if membrane_volume else 0.0,
@@ -397,6 +406,26 @@ def render_html(results: list, bigraph_uri: str | None) -> str:
         f'<a href="#{r["scenario"]["id"]}">{r["scenario"]["title"]}</a>' for r in results
     )
 
+    # Aggregate F-V scatter — one point per scenario. The spec's
+    # central numerical benchmark (§1.2) is Inoue 2015's concave→convex
+    # F-V transition; we land a single-rate version here so the
+    # comparison across boundary kinds is visible at a glance.
+    fv_points = []
+    for r in results:
+        s = r["scenario"]
+        # Take the late-run mean to skip startup transient.
+        n = len(r["series"]["barrier_velocity"])
+        tail = max(1, n // 3)
+        v_late = r["series"]["barrier_velocity"][-tail:]
+        f_late = r["series"]["mean_contact_force"][-tail:]
+        fv_points.append({
+            "id": s["id"],
+            "title": s["title"],
+            "accent": s["accent"],
+            "force": float(sum(f_late) / max(1, len(f_late))),
+            "velocity": float(sum(v_late) / max(1, len(v_late))),
+        })
+
     config_blocks = []
     for r in results:
         s = r["scenario"]
@@ -442,6 +471,8 @@ def render_html(results: list, bigraph_uri: str | None) -> str:
         else '<p style="color:#9ca3af">(bigraph-viz unavailable)</p>'
     )
 
+    fv_data_json = json.dumps(fv_points)
+
     return f"""<!doctype html>
 <html><head>
 <meta charset="utf-8"/>
@@ -452,7 +483,7 @@ def render_html(results: list, bigraph_uri: str | None) -> str:
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
 </head>
 <body>
-<nav><a href="#top">Overview</a>{nav_links}<a href="#architecture">Architecture</a></nav>
+<nav><a href="#top">Overview</a><a href="#staircase">Staircase comparison</a>{nav_links}<a href="#architecture">Architecture</a></nav>
 
 <div class="hero" id="top">
   <h1>pbg-membrane-actin-composite</h1>
@@ -462,13 +493,74 @@ def render_html(results: list, bigraph_uri: str | None) -> str:
 <section id="architecture">
   <h2>Architecture</h2>
   {diagram_html}
-  <p class="note">ReaDDy publishes <code>positions</code>; Mem3DG publishes <code>vertex_positions</code>. The coupler reads both, computes contact_force, and publishes back into <code>control.wall_z</code> (read by ReaDDy on its next interval) and <code>control.osmotic_strength_offset</code> (read by Mem3DG). Each publication triggers a wrapper rebuild on the consuming side.</p>
+  <p class="note">ReaDDy publishes <code>positions</code>; Mem3DG publishes <code>vertex_positions</code>. The coupler reads both, computes contact_force, and publishes back into <code>control.wall_z</code> (read by ReaDDy on its next interval) and <code>control.osmotic_strength_offset</code> (read by Mem3DG). Mem3DG is included only on Rung 3.</p>
+</section>
+
+<section id="staircase">
+  <h2>Cross-scenario comparison — the boundary-condition staircase</h2>
+  <p style="color:#374151;line-height:1.55">
+    Per the
+    <a href="https://github.com/vivarium-collective/pbg-membrane-actin-composite/blob/main/docs/spec.md">spec §2.2</a>,
+    the same actin model is run against three boundary regimes —
+    fixed, movable rigid (Peskin 1993), and flexible Mem3DG mesh —
+    so the F-V relationship can be compared across them. The two
+    panels below are the central spec-aligned comparison: one
+    overlays barrier displacement vs time across all three rungs;
+    the other lands a single F-V scatter point per rung as a
+    starting hook for full Inoue 2015 reproduction.
+  </p>
+  <div id="chart-displacement-overlay" class="chart" style="height:380px"></div>
+  <div id="chart-fv-scatter" class="chart" style="height:380px"></div>
+  <p class="note">
+    Spec §1.2's headline benchmark — Inoue 2015's concave→convex F-V
+    transition as polymerization rate varies — requires a
+    polymerization-rate sweep with statistical aggregation, plus
+    Cytosim-style fiber-scale actin (which this composite does not yet
+    wrap). The F-V point per scenario here is the v0.1 hook the
+    rate-sweep micropub will fill in.
+  </p>
 </section>
 
 {''.join(config_blocks)}
 
 <script>
 const SCENARIOS = {chart_data_json};
+const FV_POINTS = {fv_data_json};
+
+// Cross-scenario displacement overlay — barrier_z vs time, all rungs.
+Plotly.newPlot("chart-displacement-overlay",
+  SCENARIOS.map(s => ({{
+    x: s.times, y: s.barrier_z, mode: "lines+markers",
+    name: s.title, line: {{color: s.accent, width: 2.5}},
+  }})),
+  {{
+    title: "Barrier displacement vs time (spec §5.1: same actin, 3 boundary regimes)",
+    margin: {{t: 50, b: 50, l: 60, r: 30}},
+    xaxis: {{title: "global time (sim units)"}},
+    yaxis: {{title: "barrier_z (or radius for spherical rung)"}},
+    paper_bgcolor: "#fff", plot_bgcolor: "#f8fafc",
+    legend: {{orientation: "h", y: -0.18}},
+  }},
+  {{displayModeBar: false, responsive: true}}
+);
+
+// F-V scatter — one point per rung. mean_contact_force on x, barrier_velocity on y.
+Plotly.newPlot("chart-fv-scatter",
+  FV_POINTS.map(p => ({{
+    x: [p.force], y: [p.velocity], mode: "markers+text",
+    name: p.title, text: [p.title], textposition: "top center",
+    marker: {{size: 18, color: p.accent, line: {{color: "#1f2937", width: 1}}}}
+  }})),
+  {{
+    title: "F-V scatter (one point per rung — late-run mean)",
+    margin: {{t: 50, b: 50, l: 70, r: 30}},
+    xaxis: {{title: "mean contact force (sim units)"}},
+    yaxis: {{title: "mean barrier velocity (Δz / Δt)"}},
+    paper_bgcolor: "#fff", plot_bgcolor: "#f8fafc",
+    showlegend: false,
+  }},
+  {{displayModeBar: false, responsive: true}}
+);
 
 SCENARIOS.forEach(s => {{
   // Headline coupling chart: actin tip + membrane bottom + contact force.
@@ -829,8 +921,9 @@ def main():
           f"to isolate ReaDDy state across runs)...")
     results = []
     for cfg in CONFIGS:
-        print(f"  • {cfg['id']} (closed_loop={cfg['doc_kwargs']['closed_loop']}, "
-              f"growth_rate={cfg['doc_kwargs']['growth_rate']})...", end="", flush=True)
+        kw = cfg['doc_kwargs']
+        print(f"  • {cfg['id']} (kind={kw.get('barrier_kind', 'flexible')}, "
+              f"mode={kw.get('coupling_mode', 'planar')})...", end="", flush=True)
         r = _run_scenario_in_subprocess(cfg["id"])
         print(f" {r['elapsed_seconds']:.1f}s, {r['final_ratchets']} ratchet steps, "
               f"final volume {r['final_volume']:.2f}")

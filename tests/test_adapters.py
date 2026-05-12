@@ -34,13 +34,18 @@ def test_inputs_outputs_shape(core):
         assert port in out
 
 
-def test_empty_inputs_emit_neutral(core):
-    """Before either upstream simulator publishes, coupler must emit a
-    safe no-op (None wall_z, zero offset). Otherwise the very first
-    composite step would push a phantom barrier into ReaDDy."""
-    c = BrownianRatchetCoupler(config={}, core=core)
+def test_empty_inputs_emit_initial_barrier(core):
+    """Before either upstream simulator publishes, coupler must publish
+    the barrier's *initial* position (`barrier_initial_z` - `wall_offset`)
+    so ReaDDy gets the correct confinement on the very first step. No
+    contact force, no osmotic offset (nothing to push against yet).
+    """
+    c = BrownianRatchetCoupler(
+        config={'barrier_initial_z': 5.0, 'wall_offset': 0.1},
+        core=core,
+    )
     r = c.update({'actin_positions': [], 'membrane_vertices': []}, interval=1.0)
-    assert r['wall_z'] is None
+    assert r['wall_z'] == pytest.approx(5.0 - 0.1)
     assert r['osmotic_strength_offset'] == 0.0
     assert r['contact_force'] == 0.0
     assert r['ratchet_steps'] == 0

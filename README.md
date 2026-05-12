@@ -1,13 +1,41 @@
 # pbg-membrane-actin-composite
 
-**[View Interactive Demo Report](https://vivarium-collective.github.io/pbg-membrane-actin-composite/)** — flat hexagonal membrane patch (decoupled), actin INSIDE a vesicle pushing radially outward (closed-loop ratchet), and a stressed-vesicle scenario with more filaments. Per-frame Three.js rendering of the real Mem3DG triangulated mesh + real ReaDDy bonded filament positions, Plotly coupling charts, and a bigraph-viz architecture diagram.
+**[View Interactive Demo Report](https://vivarium-collective.github.io/pbg-membrane-actin-composite/)** &nbsp;·&nbsp; **[Read the Specification](docs/spec.md)**
 
 A process-bigraph composite that wires
 [pbg-mem3dg](https://github.com/vivarium-collective/pbg-mem3dg) (lipid-membrane
 mechanics) and [pbg-readdy](https://github.com/vivarium-collective/pbg-readdy)
 (particle-based reaction-diffusion) together as a closed-loop **Brownian
-ratchet**: actin filaments push the membrane up, the membrane pushes back on
-the actin field, the actin grows and pushes harder.
+ratchet**: actin filaments push against a barrier, the barrier responds, the
+actin re-bends, the cycle continues.
+
+## Specification
+
+The simulation strategy is governed by an expert-curated multiscale spec
+([`docs/spec.md`](docs/spec.md)) anchored in the Akamatsu lab discourse graph
+and the AllenCell collaboration graph. Headline goals it imposes:
+
+- **Boundary-condition staircase** (spec §2.2): three regimes, climbed in
+  order — fixed boundary, movable rigid boundary (Peskin 1993), flexible
+  Mem3DG membrane (Phase 2 endpoint). Each demo scenario in this repo
+  occupies one rung.
+- **Three load-bearing hypotheses** (spec §1.1) — flexible-membrane
+  necessity, force/velocity divergence between rigid vs flexible, and the
+  Mullins-style surface-delivery question.
+- **Primary numerical benchmark** (spec §1.2): Inoue 2015's concave→convex
+  F-V transition as polymerization rate varies. The demo report includes
+  a single-point F-V scatter per boundary regime as a partial reproduction
+  hook; full rate-sweep + statistical reproduction is deferred to a
+  Cytosim-integrated micropub.
+- **Validation plan** (spec §5): same actin model run against each
+  boundary regime, compare F-V curve shapes.
+
+Demos in this repo currently land **rungs 1–3** of the staircase qualitatively;
+some logic for the bonded-filament actin model is borrowed from
+[`MatsulabUW/multiscale-actin`](https://github.com/MatsulabUW/multiscale-actin).
+Cytosim integration (fiber-scale) and force-dependent capping/tethering
+(spec §3.1.3, §3.1.4) are out of scope for this repo and live in
+sibling/upstream tooling.
 
 ## Science motivation
 

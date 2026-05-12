@@ -15,23 +15,35 @@ from __future__ import annotations
 
 # Default ReaDDy actin scenario: a band of monomers near the bottom of the
 # box, with a fusion reaction G + G -> F representing actin polymerization.
-def _planar_actin_config(box_size=(8.0, 8.0, 8.0), n_filaments=6,
-                         monomers_per_filament=5, growth_rate=4.0):
-    """Bonded actin filaments at the BOTTOM of the box, growing upward
-    toward a flat membrane patch above. Used by the planar (hexagon)
-    membrane scenario."""
-    half = [s / 2.0 for s in box_size]
-    spacing = 1.2
+def _planar_actin_config(box_size=(4.0, 4.0, 4.0), n_filaments=6,
+                         monomers_per_filament=5, growth_rate=4.0,
+                         barrier_z=0.0):
+    """Bonded actin filaments below a planar barrier, growing upward.
+
+    Filaments are stacked vertically with their HEADS placed close to the
+    barrier (within ~0.3 of barrier_z) so the head Brownian fluctuations
+    actually probe the contact zone within demo runtime — without true
+    polymerization growth (which would require ReaDDy spatial topology
+    reactions, deferred to v0.2), the heads just bend / diffuse against
+    the barrier rather than extending.
+
+    Inspired by the multiscale-actin layout: filaments distributed on a
+    grid in the xy plane, all oriented along +z, with the barrier
+    perpendicular to the filament axis.
+    """
+    bond_length = 0.4
+    spacing = 0.8
     grid_side = max(1, int(round(n_filaments ** 0.5)))
-    bond_length = 0.5
     initial_topologies = []
     for i in range(n_filaments):
         gx = (i % grid_side) - (grid_side - 1) / 2.0
         gy = (i // grid_side) - (grid_side - 1) / 2.0
         x = gx * spacing
         y = gy * spacing
+        # Top monomer (filament head) sits at barrier_z - small gap.
+        head_z = barrier_z - 0.3
         positions = [
-            [float(x), float(y), -half[2] + 0.5 + k * bond_length]
+            [float(x), float(y), float(head_z - (monomers_per_filament - 1 - k) * bond_length)]
             for k in range(monomers_per_filament)
         ]
         initial_topologies.append({
@@ -40,11 +52,15 @@ def _planar_actin_config(box_size=(8.0, 8.0, 8.0), n_filaments=6,
             'positions': positions,
         })
 
+    # Free G monomers — bath that supplies polymerization (in a future
+    # version with topology reactions wired in). For now they're just
+    # diffusing background.
+    half = [s / 2.0 for s in box_size]
     n_g = max(2, int(growth_rate * 2))
     g_initial = [
-        [float(((i % 4) - 1.5) * 0.7),
-         float(((i // 4) % 4 - 1.5) * 0.7),
-         float(-half[2] + 0.3 + 0.2 * (i // 16))]
+        [float(((i % 4) - 1.5) * 0.4),
+         float(((i // 4) % 4 - 1.5) * 0.4),
+         float(-half[2] + 0.2 + 0.15 * (i // 16))]
         for i in range(n_g)
     ]
 
@@ -170,27 +186,25 @@ def _vesicle_membrane_config(radius=2.0, subdivision=2):
     }
 
 
-def _hexagon_membrane_config(radius=2.0, subdivision=2):
-    """Flat hexagonal patch. Open mesh — no enclosed volume — so the
-    preferred-volume osmotic model is not viable; we use the constant-
-    pressure model with pressure=0. This means osmotic_strength_offset
-    won't bulge it (the patch can't physically respond to internal
-    pressure with no volume to contain), so this layout is intended for
-    the *decoupled* baseline scenario where no closed-loop coupling is
-    expected anyway."""
+def _hexagon_membrane_config(radius=2.0, subdivision=2, barrier_initial_z=0.5):
+    """Flat hexagonal membrane patch — used by the staircase's flexible
+    rung. The patch sits at z=`barrier_initial_z` initially and bulges
+    upward when osmotic_strength_offset (driven by the coupler) is
+    positive. The constant-pressure osmotic model applies a force normal
+    to each face, which on an upward-facing flat sheet pushes vertices
+    in +z — exactly the response the spec's HYP #1 requires."""
     return {
         'mesh_type': 'hexagon',
         'radius': radius,
         'subdivision': subdivision,
         'characteristic_timestep': 0.5,
         'tolerance': 1e-9,
-        # Constant-pressure osmotic model — works on open meshes.
         'osmotic_model': 'constant',
         'osmotic_pressure': 0.0,
-        # Disable the runtime-rebuild path entirely for this scenario:
-        # the hexagon's geometry doesn't engage with osmotic_strength_offset.
-        'osmotic_strength': 0.0,
-        'tension_modulus': 0.05,
+        # Stiff tension to bound out-of-plane bulging — without a
+        # preferred-volume setpoint, only tension prevents runaway flap.
+        'tension_modulus': 1.0,
+        'preferred_area_scale': 1.0,
     }
 
 
@@ -205,9 +219,12 @@ def build_document(
     closed_loop: bool = True,
     coupling_mode: str = 'planar',           # 'planar' or 'spherical'
     membrane_geometry: str = 'icosphere',     # 'icosphere' or 'hexagon'
+    barrier_kind: str = 'flexible',           # 'fixed' | 'rigid_movable' | 'flexible'
+    barrier_initial_z: float = 2.5,
+    barrier_drag: float = 5.0,
     contact_threshold: float = 0.5,
     force_constant: float = 1.0,
-    osmotic_force_scale: float = 0.5,
+    osmotic_force_scale: float = 0.02,
     growth_rate: float = 4.0,
     n_filaments: int = 6,
     monomers_per_filament: int = 5,
@@ -253,11 +270,17 @@ def build_document(
         actin_cfg = _planar_actin_config(
             n_filaments=n_filaments,
             monomers_per_filament=monomers_per_filament,
-            growth_rate=growth_rate)
+            growth_rate=growth_rate,
+            barrier_z=barrier_initial_z)
     if actin_config_overrides:
         actin_cfg.update(actin_config_overrides)
 
-    return {
+    # Mem3DG instance is included only on the flexible rung — the fixed
+    # and rigid_movable rungs of the staircase don't have a deformable
+    # membrane (the wall is just a plane the coupler tracks internally).
+    include_mem3dg = (barrier_kind == 'flexible')
+
+    doc = {
         'actin_sim': {
             '_type': 'process',
             'address': 'local:ReaDDyProcess',
@@ -275,32 +298,15 @@ def build_document(
                 'time': ['actin', 'time'],
             },
         },
-        'membrane_sim': {
-            '_type': 'process',
-            'address': 'local:Mem3DGProcess',
-            'config': membrane_cfg,
-            'interval': interval,
-            'inputs': {
-                'osmotic_strength_offset': ['control', 'osmotic_strength_offset'],
-            },
-            'outputs': {
-                'vertex_positions': ['membrane', 'vertex_positions'],
-                'mean_curvatures': ['membrane', 'mean_curvatures'],
-                'total_energy': ['membrane', 'total_energy'],
-                'bending_energy': ['membrane', 'bending_energy'],
-                'surface_energy': ['membrane', 'surface_energy'],
-                'pressure_energy': ['membrane', 'pressure_energy'],
-                'surface_area': ['membrane', 'surface_area'],
-                'volume': ['membrane', 'volume'],
-                'converged': ['membrane', 'converged'],
-            },
-        },
         'coupler': {
             '_type': 'process',
             'address': 'local:BrownianRatchetCoupler',
             'config': {
                 'closed_loop': closed_loop,
                 'coupling_mode': coupling_mode,
+                'barrier_kind': barrier_kind,
+                'barrier_initial_z': barrier_initial_z,
+                'barrier_drag': barrier_drag,
                 'contact_threshold': contact_threshold,
                 'force_constant': force_constant,
                 'osmotic_force_scale': osmotic_force_scale,
@@ -320,6 +326,9 @@ def build_document(
                 'actin_max_radius': ['coupling', 'actin_max_radius'],
                 'membrane_min_radius': ['coupling', 'membrane_min_radius'],
                 'gap': ['coupling', 'gap'],
+                'barrier_z': ['coupling', 'barrier_z'],
+                'barrier_velocity': ['coupling', 'barrier_velocity'],
+                'mean_contact_force': ['coupling', 'mean_contact_force'],
                 'ratchet_steps': ['coupling', 'ratchet_steps'],
             },
         },
@@ -353,6 +362,9 @@ def build_document(
             'actin_max_radius': 0.0,
             'membrane_min_radius': 0.0,
             'gap': 0.0,
+            'barrier_z': barrier_initial_z,
+            'barrier_velocity': 0.0,
+            'mean_contact_force': 0.0,
             'ratchet_steps': 0,
         },
         'emitter': {
@@ -372,14 +384,17 @@ def build_document(
                     'membrane_volume': 'float',
                     'membrane_energy': 'float',
                     'ratchet_steps': 'integer',
+                    # Barrier kinematics — published by the coupler every
+                    # step so the demo can plot displacement-vs-time and
+                    # F-V scatter across the staircase regimes.
+                    'barrier_z': 'float',
+                    'barrier_velocity': 'float',
+                    'mean_contact_force': 'float',
                     # Radial diagnostics — only meaningful in spherical mode
                     # but always emitted for consistent demo plotting.
                     'actin_max_radius': 'float',
                     'membrane_min_radius': 'float',
-                    # Per-step real geometry — used by the demo report's
-                    # Three.js viewer to render the actual mesh deforming
-                    # and the actual particles drifting, rather than a
-                    # schematic disk and sphere driven by aggregate stats.
+                    # Per-step real geometry.
                     'actin_positions': 'list',
                     'membrane_vertex_positions': 'list',
                 }
@@ -398,9 +413,38 @@ def build_document(
                 'wall_radius': ['control', 'wall_radius'],
                 'membrane_volume': ['membrane', 'volume'],
                 'membrane_energy': ['membrane', 'total_energy'],
+                'barrier_z': ['coupling', 'barrier_z'],
+                'barrier_velocity': ['coupling', 'barrier_velocity'],
+                'mean_contact_force': ['coupling', 'mean_contact_force'],
                 'ratchet_steps': ['coupling', 'ratchet_steps'],
                 'actin_positions': ['actin', 'positions'],
                 'membrane_vertex_positions': ['membrane', 'vertex_positions'],
             },
         },
     }
+
+    # Insert Mem3DG only on the flexible rung. The other two rungs of
+    # the staircase don't have a deformable membrane: the wall is a
+    # plane the coupler tracks and publishes from internally.
+    if include_mem3dg:
+        doc['membrane_sim'] = {
+            '_type': 'process',
+            'address': 'local:Mem3DGProcess',
+            'config': membrane_cfg,
+            'interval': interval,
+            'inputs': {
+                'osmotic_strength_offset': ['control', 'osmotic_strength_offset'],
+            },
+            'outputs': {
+                'vertex_positions': ['membrane', 'vertex_positions'],
+                'mean_curvatures': ['membrane', 'mean_curvatures'],
+                'total_energy': ['membrane', 'total_energy'],
+                'bending_energy': ['membrane', 'bending_energy'],
+                'surface_energy': ['membrane', 'surface_energy'],
+                'pressure_energy': ['membrane', 'pressure_energy'],
+                'surface_area': ['membrane', 'surface_area'],
+                'volume': ['membrane', 'volume'],
+                'converged': ['membrane', 'converged'],
+            },
+        }
+    return doc
