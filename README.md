@@ -1,5 +1,7 @@
 # pbg-membrane-actin-composite
 
+**[View Interactive Demo Report](https://vivarium-collective.github.io/pbg-membrane-actin-composite/)** — flat hexagonal membrane patch (decoupled), actin INSIDE a vesicle pushing radially outward (closed-loop ratchet), and a stressed-vesicle scenario with more filaments. Per-frame Three.js rendering of the real Mem3DG triangulated mesh + real ReaDDy bonded filament positions, Plotly coupling charts, and a bigraph-viz architecture diagram.
+
 A process-bigraph composite that wires
 [pbg-mem3dg](https://github.com/vivarium-collective/pbg-mem3dg) (lipid-membrane
 mechanics) and [pbg-readdy](https://github.com/vivarium-collective/pbg-readdy)
