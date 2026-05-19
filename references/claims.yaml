@@ -1,2 +1,4 @@
 # Maps named claims (e.g., "phase-2.dnaA-fires-at-threshold") to BibTeX keys.
-claims: {}
+claims:
+  flexible-membrane-necessity: butler2026actin-membrane
+  membrane-interface-stress-modulates-arp23-density: butler2026actin-membrane
