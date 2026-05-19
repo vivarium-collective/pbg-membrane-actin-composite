@@ -38,28 +38,21 @@ jobs:
         with:
           python-version: "3.11"
       - name: Install pymem3dg native build deps
-        # pymem3dg builds from source (no prebuilt wheel for Linux x86_64
-        # on PyPI yet). Eigen is fetched by CMake FetchContent; the apt
-        # packages cover the rest of the chain.
-        # We disable NetCDF via -DWITH_NETCDF=OFF below — Ubuntu's
-        # libnetcdf-cxx4-dev package isn't available on every release,
-        # and the workspace doesn't use the netcdf trajectory output
-        # (SQLiteEmitter handles persistence).
+        # pymem3dg is a scikit-build-core C++ extension that links against
+        # NetCDF + netcdf-cxx4 + Eigen. Eigen is fetched by CMake's
+        # FetchContent; NetCDF is not, so we install the apt packages.
+        # Without these the build fails at "Could NOT find netcdf-cxx4".
         run: |
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends \
             cmake \
+            libnetcdf-dev \
+            libnetcdf-c++4-dev \
             libeigen3-dev \
             libsuitesparse-dev
       - name: Install uv
         run: pip install uv
       - name: Set up venv and install
-        env:
-          # Disable pymem3dg's optional netcdf trajectory output so the
-          # build doesn't require libnetcdf-cxx4-dev (which isn't reliably
-          # available on Ubuntu runners). scikit-build-core forwards
-          # CMAKE_ARGS to its underlying CMake invocation.
-          CMAKE_ARGS: "-DWITH_NETCDF=OFF"
         run: |
           uv venv .venv
           source .venv/bin/activate
