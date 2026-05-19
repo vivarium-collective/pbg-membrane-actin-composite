@@ -50,9 +50,16 @@ expert_docs:
 - multiscale-brownian-ratchet-spec
 visualizations:
 - name: force-velocity-scatter
+  address: local:ForceVelocityScatter
 - name: coupling-trace
+  address: local:CouplingTrace
 - name: barrier-kinematics
+  address: local:BarrierKinematics
 - name: energy-budget
+  address: local:EnergyBudget
 - name: membrane-volume-strain
+  address: local:MembraneVolumeStrain
 - name: population-trace
+  address: local:PopulationTrace
 - name: ratchet-event-rate
+  address: local:RatchetEventRate

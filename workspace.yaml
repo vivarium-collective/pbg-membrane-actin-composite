@@ -3,7 +3,79 @@ name: pbg-membrane-actin-composite
 created: "2026-05-18"
 plugin_version: 0.4.16
 package_path: pbg_membrane_actin_composite
-observables: []
+observables:
+  - name: time
+    store_path: global_time
+    units: au
+    description: Composite-level simulation time.
+  - name: actin_total
+    store_path: actin.total_particles
+    units: count
+    description: Total number of actin particles in the ReaDDy simulation.
+  - name: actin_max_z
+    store_path: coupling.actin_max_z
+    units: au
+    description: z-coordinate of the highest-reaching actin tip.
+  - name: membrane_min_z
+    store_path: coupling.membrane_min_z
+    units: au
+    description: z-coordinate of the lowest membrane vertex above the actin field.
+  - name: gap
+    store_path: coupling.gap
+    units: au
+    description: Distance between the highest actin tip and the lowest membrane vertex.
+  - name: contact_force
+    store_path: coupling.contact_force
+    units: au · force
+    description: Per-step total force exerted by actin tips on the barrier.
+  - name: mean_contact_force
+    store_path: coupling.mean_contact_force
+    units: au · force
+    description: Rolling-mean contact force used by the BrownianRatchetCoupler.
+  - name: barrier_z
+    store_path: coupling.barrier_z
+    units: au
+    description: Current barrier position along z.
+  - name: barrier_velocity
+    store_path: coupling.barrier_velocity
+    units: au · t⁻¹
+    description: Instantaneous barrier expansion rate.
+  - name: ratchet_steps
+    store_path: coupling.ratchet_steps
+    units: count
+    description: Brownian-ratchet polymerization events fired this step.
+  - name: osmotic_offset
+    store_path: control.osmotic_strength_offset
+    units: au · pressure
+    description: Coupler's published osmotic-pressure offset into Mem3DG.
+  - name: wall_z
+    store_path: control.wall_z
+    units: au
+    description: Coupler's published wall position back to ReaDDy (planar mode).
+  - name: membrane_volume
+    store_path: membrane.volume
+    units: au³
+    description: Enclosed volume of the Mem3DG mesh.
+  - name: membrane_surface_area
+    store_path: membrane.surface_area
+    units: au²
+    description: Total surface area of the Mem3DG mesh.
+  - name: bending_energy
+    store_path: membrane.bending_energy
+    units: au · energy
+    description: Helfrich bending energy of the membrane mesh.
+  - name: surface_energy
+    store_path: membrane.surface_energy
+    units: au · energy
+    description: Surface-tension (harmonic preferred-area) energy of the mesh.
+  - name: pressure_energy
+    store_path: membrane.pressure_energy
+    units: au · energy
+    description: Osmotic-pressure energy of the mesh.
+  - name: total_energy
+    store_path: membrane.total_energy
+    units: au · energy
+    description: Sum of bending + surface + pressure energies (Mem3DG total).
 visualizations:
   - name: coupling-trace
     description: >-

@@ -35,7 +35,12 @@ expert_docs:
 - multiscale-brownian-ratchet-spec
 visualizations:
 - name: coupling-trace
+  address: local:CouplingTrace
 - name: population-trace
+  address: local:PopulationTrace
 - name: barrier-kinematics
+  address: local:BarrierKinematics
 - name: force-velocity-scatter
+  address: local:ForceVelocityScatter
 - name: ratchet-event-rate
+  address: local:RatchetEventRate

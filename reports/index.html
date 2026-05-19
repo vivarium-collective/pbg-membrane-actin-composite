@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en"><head>
 <meta charset="UTF-8"><title>pbg-membrane-actin-composite</title>
-<link rel="stylesheet" href="assets/style.css">
+<link rel="stylesheet" href="assets/style.css?v=1779159299_1779159299">
 <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
 <style>
 /* Modal overlay */
@@ -402,14 +402,26 @@
       </div>
     </div>
 
-    <!-- Footer: user identity + collapse toggle -->
-    <div class="viv-rail-footer">
-      <div class="viv-avatar viv-avatar-rail">—</div>
+    <!-- Footer: user identity + collapse toggle.
+         Workspace owner resolved from `gh api user` (preferred) or
+         `git config user.{name,email}` (fallback). When a GitHub login
+         is present the whole footer becomes a link to the profile;
+         otherwise it stays inert. -->
+    
+    
+    
+    <a class="viv-rail-footer viv-rail-footer-link" href="https://github.com/eagmon" target="_blank" rel="noopener" title="Open eagmon on GitHub ↗">
+    
+      
+        <img class="viv-avatar viv-avatar-rail viv-avatar-img" src="https://avatars.githubusercontent.com/u/6809431?v=4" alt="eagmon" loading="lazy" referrerpolicy="no-referrer">
+      
       <div class="viv-rail-footer-text">
-        <strong>Workspace owner</strong>
-        <small></small>
+        <strong>Eran Agmon</strong>
+        <small>@eagmon</small>
       </div>
-    </div>
+    
+    </a>
+    
 
     <button class="viv-rail-toggle" id="viv-rail-toggle" type="button" aria-label="Collapse rail" onclick="_vivToggleRail()">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="viv-rail-toggle-svg">
@@ -436,7 +448,7 @@
         </div>
         <span class="viv-btn viv-tooltip" data-tooltip="Coming soon — share workspace link">Share</span>
         <span class="viv-kebab viv-tooltip" data-tooltip="Workspace settings — coming soon">⋯</span>
-        <span class="viv-avatar viv-avatar-topbar" title="">—</span>
+        <span class="viv-avatar viv-avatar-topbar" title="agmon.eran@gmail.com">EA</span>
       </div>
     </header>
 
@@ -983,11 +995,34 @@
       <h3 id="investigation-detail-title" style="margin:0; flex:1"></h3>
       <span id="investigation-detail-status" class="status-pill planned" style="font-size:0.85em"></span>
       <button class="btn-mini" id="investigation-detail-refresh" onclick="_refreshInvestigationDetail()" title="Re-fetch the investigation + its studies from disk. Use after editing YAML files directly (which the dashboard can't see otherwise).">↻ Refresh</button>
+      <button class="btn-mini" id="investigation-run-unblocked" onclick="_runUnblockedSimulations()" title="Run every variant whose model_settings don't have any unset 'required-before-run' gates. Sequential — one variant at a time on a background thread. Progress shown in the panel below.">▶ Run unblocked</button>
       <button class="btn-mini" onclick="_generateInvestigationReport()" title="Generate a shareable HTML report (self-contained, attach to email)">Generate report 📄</button>
       <button class="btn-mini" onclick="_openCloneIsetModal()" title="Clone this investigation into a fresh planning state (no run results). Useful for a parallel attempt or a demo fixture.">Clone ⎘</button>
-      <button class="btn-mini" onclick="_popoutInvestigation()" title="Open in a separate window (investigation-only, no sidebar). If it opens as a tab, your browser's 'open new pages as tabs' preference is overriding the popup hint (Safari → Tabs → 'Open pages in tabs instead of windows' → set to 'Manually').">Pop out ↗</button>
     </div>
-    <p id="investigation-detail-description" class="muted" style="white-space:pre-wrap; margin: 0 0 12px 0;"></p>
+    <!-- Run-progress panel: rendered while a run-unblocked job is active. -->
+    <div id="investigation-run-progress" class="inv-run-progress" style="display:none"></div>
+
+    <div id="investigation-intro" class="inv-intro" style="margin: 0 0 16px 0;">
+      <!-- Lead paragraph (the abstract). Auto-styled as serif body type for readability. -->
+      <div id="investigation-detail-description" class="inv-lead"></div>
+      <!-- At-a-glance grid: one tile per study with a one-line role. Populated by JS. -->
+      <div id="investigation-at-a-glance" class="inv-at-a-glance" style="display:none"></div>
+      <!-- How to read this: ordered list of usage tips for the evaluator. -->
+      <div id="investigation-how-to-read" class="inv-how-to-read" style="display:none">
+        <strong>How to read this</strong>
+        <ol></ol>
+      </div>
+      <!-- Glossary: collapsible. -->
+      <details id="investigation-glossary" class="inv-glossary" style="display:none">
+        <summary>Glossary</summary>
+        <dl></dl>
+      </details>
+      <!-- Biology story (free-form prose). Hidden if the yaml omits it. -->
+      <div id="investigation-biology-story" class="inv-bio-story" style="display:none">
+        <strong class="inv-bio-story-label">Biology story</strong>
+        <div id="investigation-biology-story-text" class="inv-bio-story-text"></div>
+      </div>
+    </div>
     <div id="investigation-dag-shell"
          style="position: relative; border: 1px solid #e2e8f0; border-radius: 6px; background: #fafafa;
                 overflow-x: auto; overflow-y: hidden;">
@@ -1604,7 +1639,7 @@ Nothing on <code id="pr-base-display-2">main</code> changes until someone presse
 
 <script src="assets/render-helpers.js"></script>
 <script src="assets/client.js" onerror="/* live mode unavailable */"></script>
-<script src="assets/walkthrough.js" onerror="/* walkthrough unavailable */"></script>
+<script src="assets/walkthrough.js?v=1779159299_1779159299" onerror="/* walkthrough unavailable */"></script>
 <script src="assets/investigations.js" onerror="/* investigations unavailable */"></script>
 <!-- workspace-switcher.js is intentionally not loaded: the left-rail dropdown
      it used to drive has been repurposed into the investigation switcher
