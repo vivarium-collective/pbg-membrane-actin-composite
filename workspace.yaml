@@ -149,6 +149,16 @@ visualizations:
     class: SchematicVesicle3D
     type: time-series
     observables: [time, membrane_volume, actin_max_z, contact_force]
+  - name: particles-3d
+    description: >-
+      Real-data 3D scene — Mem3DG membrane vertices as an indigo point
+      cloud, ReaDDy actin particles as an accent-colored point cloud, and
+      a translucent barrier disk at z=barrier_z. Auto-fits the camera to
+      the data bounding box; orbit / pan / zoom with the mouse;
+      play/pause + frame slider in the HUD.
+    class: Particles3D
+    type: time-series
+    observables: [time, actin_positions, membrane_vertex_positions, barrier_z]
 simulations: []
 datasets: []
 expert_docs:

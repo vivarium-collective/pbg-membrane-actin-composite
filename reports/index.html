@@ -1304,6 +1304,23 @@ When done, summarize which entries got PDFs vs URLs only vs were unresolvable, a
       </td>
     </tr>
     
+    <tr id="viz-row-particles-3d">
+      <td><code>particles-3d</code><br><small style="color:#888">time-series: time, actin_positions, membrane_vertex_positions, barrier_z</small></td>
+      <td class="viz-description">
+        <strong>Particles3D</strong><br>
+        Real-data 3D scene — Mem3DG membrane vertices as an indigo point cloud, ReaDDy actin particles as an accent-colored point cloud, and a translucent barrier disk at z=barrier_z. Auto-fits the camera to the data bounding box; orbit / pan / zoom with the mouse; play/pause + frame slider in the HUD.
+      </td>
+      <td><small style="color:#666;font-family:monospace">—</small></td>
+      <td><span class="status-pill" id="viz-status-particles-3d">…</span></td>
+      <td class="viz-actions">
+        <button class="btn-mini" onclick="_vizPreview('particles-3d')">Preview</button>
+        
+        <button class="btn-mini" onclick="_vizAddToProject('particles-3d')">Add to project</button>
+        <button class="btn-mini" onclick="_vizCommit(['particles-3d'])">Commit</button>
+        <button class="btn-mini" onclick="_vizRemove('particles-3d')" style="color:#c00">Remove</button>
+      </td>
+    </tr>
+    
     </tbody></table>
     
   </div>
