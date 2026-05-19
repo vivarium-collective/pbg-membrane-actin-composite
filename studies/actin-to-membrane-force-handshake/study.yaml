@@ -1,40 +1,43 @@
 schema_version: 3
 name: actin-to-membrane-force-handshake
-created: "2026-05-18"
+created: '2026-05-18'
 status: draft
 phase: Design
 purpose:
-  question: >-
-    In the closed-loop flexible composite, is the force the actin side reports
-    at the interface equal-and-opposite to the force the membrane integrates
-    on its receiving vertices (Newton's 3rd law on the coupling interface)?
-  mechanism: >-
-    BrownianRatchetCoupler reads ReaDDy tip positions, computes per-contact
-    forces using contact_threshold + force_constant, and applies them as
-    osmotic_offset on Mem3DG. The same per-step force scalar must show up
-    in both the actin-side contact_force observable and the membrane-side
-    integrated impulse, up to numerical tolerance.
-  expected_outcome: >-
-    Per-step delta(membrane_momentum) ≈ -delta(actin_momentum) within 5%.
+  question: In the closed-loop flexible composite, is the force the actin side reports
+    at the interface equal-and-opposite to the force the membrane integrates on its
+    receiving vertices (Newton's 3rd law on the coupling interface)?
+  mechanism: BrownianRatchetCoupler reads ReaDDy tip positions, computes per-contact
+    forces using contact_threshold + force_constant, and applies them as osmotic_offset
+    on Mem3DG. The same per-step force scalar must show up in both the actin-side
+    contact_force observable and the membrane-side integrated impulse, up to numerical
+    tolerance.
+  expected_outcome: Per-step delta(membrane_momentum) ≈ -delta(actin_momentum) within
+    5%.
 baseline:
-  - name: handshake-flexible
-    composite: pbg_membrane_actin_composite.composites.rung3_flexible_mem3dg_boundary
-    params: {}
+- name: handshake-flexible
+  composite: pbg_membrane_actin_composite.composites.rung3_flexible_mem3dg_boundary
+  params: {}
 expected_behavior:
-  - name: newton-third-law-holds-on-interface
-    en: >-
-      Per-step (membrane integrated impulse + actin contact_force·dt) sums to
-      within 5% of zero, sample-by-sample.
-    given:
-      run: baseline
-      window: full
-    measure:
-      kind: listener_path
-      observable: contact_force
-      reduce: series
-    expect:
-      op: rolling_cv_below
-      threshold: 0.05
-    status: stub
+- name: newton-third-law-holds-on-interface
+  en: Per-step (membrane integrated impulse + actin contact_force·dt) sums to within
+    5% of zero, sample-by-sample.
+  given:
+    run: baseline
+    window: full
+  measure:
+    kind: listener_path
+    observable: contact_force
+    reduce: series
+  expect:
+    op: rolling_cv_below
+    threshold: 0.05
+  status: stub
 expert_docs:
-  - multiscale-brownian-ratchet-spec
+- multiscale-brownian-ratchet-spec
+visualizations:
+- name: coupling-trace
+- name: backpressure-trace
+- name: barrier-kinematics
+- name: energy-budget
+- name: ratchet-event-rate

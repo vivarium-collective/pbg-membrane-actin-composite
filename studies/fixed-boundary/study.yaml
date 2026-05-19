@@ -1,39 +1,40 @@
 schema_version: 3
 name: fixed-boundary
-created: "2026-05-18"
+created: '2026-05-18'
 status: draft
 phase: Design
 purpose:
-  question: >-
-    Does the composite reproduce the rigid-wall Peskin-1993 regime — Brownian-ratchet
-    kinetics against an immovable boundary — to within numerical tolerance, when
-    barrier_kind is "fixed"?
-  mechanism: >-
-    The coupler publishes a fixed wall_z to ReaDDy; actin filaments confined under
-    the wall accumulate contact_force; barrier_velocity stays at zero by construction.
-  expected_outcome: >-
-    contact_force builds up; barrier_velocity ≈ 0; the F-V scatter point sits at
-    velocity≈0, force=mean_contact_force.
+  question: Does the composite reproduce the rigid-wall Peskin-1993 regime — Brownian-ratchet
+    kinetics against an immovable boundary — to within numerical tolerance, when barrier_kind
+    is "fixed"?
+  mechanism: The coupler publishes a fixed wall_z to ReaDDy; actin filaments confined
+    under the wall accumulate contact_force; barrier_velocity stays at zero by construction.
+  expected_outcome: contact_force builds up; barrier_velocity ≈ 0; the F-V scatter
+    point sits at velocity≈0, force=mean_contact_force.
 baseline:
-  - name: rung1-fixed
-    composite: pbg_membrane_actin_composite.composites.rung1_fixed_boundary
-    params: {}
+- name: rung1-fixed
+  composite: pbg_membrane_actin_composite.composites.rung1_fixed_boundary
+  params: {}
 expected_behavior:
-  - name: fv-matches-mogilner-baseline
-    en: >-
-      Mean barrier velocity stays at zero (within 1e-3) and mean contact_force
-      is positive across the run, consistent with the rigid-wall ratchet regime.
-    given:
-      run: baseline
-      window: second_half
-    measure:
-      kind: listener_path
-      observable: barrier_velocity
-      reduce: mean
-    expect:
-      op: in_range
-      lo: -1.0e-3
-      hi: 1.0e-3
-    status: stub
+- name: fv-matches-mogilner-baseline
+  en: Mean barrier velocity stays at zero (within 1e-3) and mean contact_force is
+    positive across the run, consistent with the rigid-wall ratchet regime.
+  given:
+    run: baseline
+    window: second_half
+  measure:
+    kind: listener_path
+    observable: barrier_velocity
+    reduce: mean
+  expect:
+    op: in_range
+    lo: -0.001
+    hi: 0.001
+  status: stub
 expert_docs:
-  - multiscale-brownian-ratchet-spec
+- multiscale-brownian-ratchet-spec
+visualizations:
+- name: coupling-trace
+- name: population-trace
+- name: barrier-kinematics
+- name: ratchet-event-rate

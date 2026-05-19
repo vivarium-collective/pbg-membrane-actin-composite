@@ -14,19 +14,59 @@ visualizations:
     observables: [time, actin_max_z, membrane_min_z, contact_force]
   - name: backpressure-trace
     description: >-
-      Membrane back-pressure trace — membrane_volume, osmotic_offset, wall_z
-      vs time. Shows how the membrane is responding to the actin push.
+      Membrane back-pressure — membrane_volume + osmotic_offset + wall_z vs
+      time. Surfaces how the membrane is responding to the actin push.
     class: BackpressureTrace
     type: time-series
     observables: [time, membrane_volume, osmotic_offset, wall_z]
   - name: population-trace
     description: >-
-      Actin population trace — particle count plus cumulative ratchet steps.
-      Tells you whether the closed loop is firing the Brownian-ratchet
-      reaction or whether the actin pool has stalled.
+      Actin population — particle count + cumulative ratchet steps. Tells you
+      whether the closed loop is firing the Brownian-ratchet reaction or
+      whether the actin pool has stalled.
     class: PopulationTrace
     type: time-series
     observables: [time, actin_total, ratchet_steps]
+  - name: barrier-kinematics
+    description: >-
+      Barrier position (left axis) + barrier velocity (right axis). The
+      headline per-rung diagnostic: rung 1 v≡0, rung 2 v→steady, rung 3 v
+      fluctuates as the Mem3DG mesh redistributes force.
+    class: BarrierKinematics
+    type: time-series
+    observables: [time, barrier_z, barrier_velocity]
+  - name: force-velocity-scatter
+    description: >-
+      (F, V) trail colored by time — the primary numerical benchmark
+      (Inoue 2015 concave→convex transition). Overlay multiple runs across
+      the growth_rate sweep to surface the transition.
+    class: ForceVelocityScatter
+    type: phase-space
+    observables: [time, mean_contact_force, barrier_velocity]
+  - name: energy-budget
+    description: >-
+      Stacked area of Mem3DG bending / surface / pressure energies vs time.
+      Rung-3 only (the rigid rungs leave these at zero); shows the
+      energetic story behind the flexible-membrane ratchet.
+    class: EnergyBudget
+    type: time-series
+    observables: [time, bending_energy, surface_energy, pressure_energy]
+  - name: ratchet-event-rate
+    description: >-
+      Instantaneous + rolling-mean ratchet firing rate. Complements
+      population-trace's cumulative count by exposing transients
+      (initial burst, quasi-steady, stalling).
+    class: RatchetEventRate
+    type: time-series
+    observables: [time, ratchet_steps]
+  - name: membrane-volume-strain
+    description: >-
+      Normalized volume strain (V-V₀)/V₀ with a 10% reference line. Makes
+      "did the vesicle inflate?" answerable at a glance — rungs 1-2 sit at
+      zero, rung 3 climbs above the reference threshold.
+    class: MembraneVolumeStrain
+    type: time-series
+    observables: [time, membrane_volume]
 simulations: []
 datasets: []
 expert_docs:

@@ -1,39 +1,41 @@
 schema_version: 3
 name: rigid-movable-boundary
-created: "2026-05-18"
+created: '2026-05-18'
 status: draft
 phase: Design
 purpose:
-  question: >-
-    With barrier_kind="rigid_movable", does the wall translate at a velocity
-    proportional to the mean contact force (drag-balance Peskin 1993 setup),
-    and does the stall force remain bounded?
-  mechanism: >-
-    The wall obeys dz/dt = F/drag while staying planar (no deformation). Same
-    actin model as the fixed-boundary rung; only the barrier's response changes.
-  expected_outcome: >-
-    barrier_velocity stabilizes at a non-zero value over the second half of
-    the run; stall force ≤ Peskin closed-form upper bound at this drag.
+  question: With barrier_kind="rigid_movable", does the wall translate at a velocity
+    proportional to the mean contact force (drag-balance Peskin 1993 setup), and does
+    the stall force remain bounded?
+  mechanism: The wall obeys dz/dt = F/drag while staying planar (no deformation).
+    Same actin model as the fixed-boundary rung; only the barrier's response changes.
+  expected_outcome: barrier_velocity stabilizes at a non-zero value over the second
+    half of the run; stall force ≤ Peskin closed-form upper bound at this drag.
 baseline:
-  - name: rung2-rigid-movable
-    composite: pbg_membrane_actin_composite.composites.rung2_rigid_movable_boundary
-    params: {}
+- name: rung2-rigid-movable
+  composite: pbg_membrane_actin_composite.composites.rung2_rigid_movable_boundary
+  params: {}
 expected_behavior:
-  - name: stall-force-within-peskin-bound
-    en: >-
-      Mean barrier_velocity over the second half is positive (wall is moving) and
-      below the zero-load Peskin velocity ceiling.
-    given:
-      run: baseline
-      window: second_half
-    measure:
-      kind: listener_path
-      observable: barrier_velocity
-      reduce: mean
-    expect:
-      op: in_range
-      lo: 1.0e-3
-      hi: 5.0
-    status: stub
+- name: stall-force-within-peskin-bound
+  en: Mean barrier_velocity over the second half is positive (wall is moving) and
+    below the zero-load Peskin velocity ceiling.
+  given:
+    run: baseline
+    window: second_half
+  measure:
+    kind: listener_path
+    observable: barrier_velocity
+    reduce: mean
+  expect:
+    op: in_range
+    lo: 0.001
+    hi: 5.0
+  status: stub
 expert_docs:
-  - multiscale-brownian-ratchet-spec
+- multiscale-brownian-ratchet-spec
+visualizations:
+- name: coupling-trace
+- name: population-trace
+- name: barrier-kinematics
+- name: force-velocity-scatter
+- name: ratchet-event-rate

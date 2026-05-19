@@ -1,39 +1,41 @@
 schema_version: 3
 name: membrane-to-actin-displacement-feedback
-created: "2026-05-18"
+created: '2026-05-18'
 status: draft
 phase: Design
 purpose:
-  question: >-
-    Does per-step mesh-position feedback from Mem3DG to ReaDDy preserve mesh
-    quality (no vertex inversion or degenerate triangles) and keep tip
-    particles within their box-potential bounds?
-  mechanism: >-
-    After every Mem3DG step the coupler publishes updated wall_radius (planar)
-    or membrane_vertex_positions (spherical) to ReaDDy as the new boundary.
-    Aggressive force_constant or osmotic_force_scale can push the boundary
-    past actin tips in one step, violating bond/box potentials.
-  expected_outcome: >-
-    Min triangle area stays above a small positive threshold for the full run;
-    no actin tip overshoots the membrane boundary by more than contact_threshold.
+  question: Does per-step mesh-position feedback from Mem3DG to ReaDDy preserve mesh
+    quality (no vertex inversion or degenerate triangles) and keep tip particles within
+    their box-potential bounds?
+  mechanism: After every Mem3DG step the coupler publishes updated wall_radius (planar)
+    or membrane_vertex_positions (spherical) to ReaDDy as the new boundary. Aggressive
+    force_constant or osmotic_force_scale can push the boundary past actin tips in
+    one step, violating bond/box potentials.
+  expected_outcome: Min triangle area stays above a small positive threshold for the
+    full run; no actin tip overshoots the membrane boundary by more than contact_threshold.
 baseline:
-  - name: feedback-flexible
-    composite: pbg_membrane_actin_composite.composites.rung3_flexible_mem3dg_boundary
-    params: {}
+- name: feedback-flexible
+  composite: pbg_membrane_actin_composite.composites.rung3_flexible_mem3dg_boundary
+  params: {}
 expected_behavior:
-  - name: mesh-quality-preserved-over-coupling-steps
-    en: >-
-      Min triangle area on the membrane mesh stays positive across the full run
-      (no degenerate triangles or vertex inversion).
-    given:
-      run: baseline
-      window: full
-    measure:
-      kind: listener_path
-      observable: membrane_min_z
-      reduce: series
-    expect:
-      op: monotonic_decreasing
-    status: stub
+- name: mesh-quality-preserved-over-coupling-steps
+  en: Min triangle area on the membrane mesh stays positive across the full run (no
+    degenerate triangles or vertex inversion).
+  given:
+    run: baseline
+    window: full
+  measure:
+    kind: listener_path
+    observable: membrane_min_z
+    reduce: series
+  expect:
+    op: monotonic_decreasing
+  status: stub
 expert_docs:
-  - multiscale-brownian-ratchet-spec
+- multiscale-brownian-ratchet-spec
+visualizations:
+- name: coupling-trace
+- name: backpressure-trace
+- name: membrane-volume-strain
+- name: barrier-kinematics
+- name: energy-budget

@@ -658,7 +658,7 @@
       <td><code>backpressure-trace</code><br><small style="color:#888">time-series: time, membrane_volume, osmotic_offset, wall_z</small></td>
       <td class="viz-description">
         <strong>BackpressureTrace</strong><br>
-        Membrane back-pressure trace — membrane_volume, osmotic_offset, wall_z vs time. Shows how the membrane is responding to the actin push.
+        Membrane back-pressure — membrane_volume + osmotic_offset + wall_z vs time. Surfaces how the membrane is responding to the actin push.
       </td>
       <td><small style="color:#666;font-family:monospace">—</small></td>
       <td><span class="status-pill" id="viz-status-backpressure-trace">…</span></td>
@@ -675,7 +675,7 @@
       <td><code>population-trace</code><br><small style="color:#888">time-series: time, actin_total, ratchet_steps</small></td>
       <td class="viz-description">
         <strong>PopulationTrace</strong><br>
-        Actin population trace — particle count plus cumulative ratchet steps. Tells you whether the closed loop is firing the Brownian-ratchet reaction or whether the actin pool has stalled.
+        Actin population — particle count + cumulative ratchet steps. Tells you whether the closed loop is firing the Brownian-ratchet reaction or whether the actin pool has stalled.
       </td>
       <td><small style="color:#666;font-family:monospace">—</small></td>
       <td><span class="status-pill" id="viz-status-population-trace">…</span></td>
@@ -685,6 +685,91 @@
         <button class="btn-mini" onclick="_vizAddToProject('population-trace')">Add to project</button>
         <button class="btn-mini" onclick="_vizCommit(['population-trace'])">Commit</button>
         <button class="btn-mini" onclick="_vizRemove('population-trace')" style="color:#c00">Remove</button>
+      </td>
+    </tr>
+    
+    <tr id="viz-row-barrier-kinematics">
+      <td><code>barrier-kinematics</code><br><small style="color:#888">time-series: time, barrier_z, barrier_velocity</small></td>
+      <td class="viz-description">
+        <strong>BarrierKinematics</strong><br>
+        Barrier position (left axis) + barrier velocity (right axis). The headline per-rung diagnostic: rung 1 v≡0, rung 2 v→steady, rung 3 v fluctuates as the Mem3DG mesh redistributes force.
+      </td>
+      <td><small style="color:#666;font-family:monospace">—</small></td>
+      <td><span class="status-pill" id="viz-status-barrier-kinematics">…</span></td>
+      <td class="viz-actions">
+        <button class="btn-mini" onclick="_vizPreview('barrier-kinematics')">Preview</button>
+        
+        <button class="btn-mini" onclick="_vizAddToProject('barrier-kinematics')">Add to project</button>
+        <button class="btn-mini" onclick="_vizCommit(['barrier-kinematics'])">Commit</button>
+        <button class="btn-mini" onclick="_vizRemove('barrier-kinematics')" style="color:#c00">Remove</button>
+      </td>
+    </tr>
+    
+    <tr id="viz-row-force-velocity-scatter">
+      <td><code>force-velocity-scatter</code><br><small style="color:#888">phase-space: time, mean_contact_force, barrier_velocity</small></td>
+      <td class="viz-description">
+        <strong>ForceVelocityScatter</strong><br>
+        (F, V) trail colored by time — the primary numerical benchmark (Inoue 2015 concave→convex transition). Overlay multiple runs across the growth_rate sweep to surface the transition.
+      </td>
+      <td><small style="color:#666;font-family:monospace">—</small></td>
+      <td><span class="status-pill" id="viz-status-force-velocity-scatter">…</span></td>
+      <td class="viz-actions">
+        <button class="btn-mini" onclick="_vizPreview('force-velocity-scatter')">Preview</button>
+        
+        <button class="btn-mini" onclick="_vizAddToProject('force-velocity-scatter')">Add to project</button>
+        <button class="btn-mini" onclick="_vizCommit(['force-velocity-scatter'])">Commit</button>
+        <button class="btn-mini" onclick="_vizRemove('force-velocity-scatter')" style="color:#c00">Remove</button>
+      </td>
+    </tr>
+    
+    <tr id="viz-row-energy-budget">
+      <td><code>energy-budget</code><br><small style="color:#888">time-series: time, bending_energy, surface_energy, pressure_energy</small></td>
+      <td class="viz-description">
+        <strong>EnergyBudget</strong><br>
+        Stacked area of Mem3DG bending / surface / pressure energies vs time. Rung-3 only (the rigid rungs leave these at zero); shows the energetic story behind the flexible-membrane ratchet.
+      </td>
+      <td><small style="color:#666;font-family:monospace">—</small></td>
+      <td><span class="status-pill" id="viz-status-energy-budget">…</span></td>
+      <td class="viz-actions">
+        <button class="btn-mini" onclick="_vizPreview('energy-budget')">Preview</button>
+        
+        <button class="btn-mini" onclick="_vizAddToProject('energy-budget')">Add to project</button>
+        <button class="btn-mini" onclick="_vizCommit(['energy-budget'])">Commit</button>
+        <button class="btn-mini" onclick="_vizRemove('energy-budget')" style="color:#c00">Remove</button>
+      </td>
+    </tr>
+    
+    <tr id="viz-row-ratchet-event-rate">
+      <td><code>ratchet-event-rate</code><br><small style="color:#888">time-series: time, ratchet_steps</small></td>
+      <td class="viz-description">
+        <strong>RatchetEventRate</strong><br>
+        Instantaneous + rolling-mean ratchet firing rate. Complements population-trace's cumulative count by exposing transients (initial burst, quasi-steady, stalling).
+      </td>
+      <td><small style="color:#666;font-family:monospace">—</small></td>
+      <td><span class="status-pill" id="viz-status-ratchet-event-rate">…</span></td>
+      <td class="viz-actions">
+        <button class="btn-mini" onclick="_vizPreview('ratchet-event-rate')">Preview</button>
+        
+        <button class="btn-mini" onclick="_vizAddToProject('ratchet-event-rate')">Add to project</button>
+        <button class="btn-mini" onclick="_vizCommit(['ratchet-event-rate'])">Commit</button>
+        <button class="btn-mini" onclick="_vizRemove('ratchet-event-rate')" style="color:#c00">Remove</button>
+      </td>
+    </tr>
+    
+    <tr id="viz-row-membrane-volume-strain">
+      <td><code>membrane-volume-strain</code><br><small style="color:#888">time-series: time, membrane_volume</small></td>
+      <td class="viz-description">
+        <strong>MembraneVolumeStrain</strong><br>
+        Normalized volume strain (V-V₀)/V₀ with a 10% reference line. Makes "did the vesicle inflate?" answerable at a glance — rungs 1-2 sit at zero, rung 3 climbs above the reference threshold.
+      </td>
+      <td><small style="color:#666;font-family:monospace">—</small></td>
+      <td><span class="status-pill" id="viz-status-membrane-volume-strain">…</span></td>
+      <td class="viz-actions">
+        <button class="btn-mini" onclick="_vizPreview('membrane-volume-strain')">Preview</button>
+        
+        <button class="btn-mini" onclick="_vizAddToProject('membrane-volume-strain')">Add to project</button>
+        <button class="btn-mini" onclick="_vizCommit(['membrane-volume-strain'])">Commit</button>
+        <button class="btn-mini" onclick="_vizRemove('membrane-volume-strain')" style="color:#c00">Remove</button>
       </td>
     </tr>
     

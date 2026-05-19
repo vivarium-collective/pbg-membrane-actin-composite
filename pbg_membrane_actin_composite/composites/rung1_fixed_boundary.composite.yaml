@@ -381,3 +381,167 @@ state:
       membrane_vertex_positions:
       - membrane
       - vertex_positions
+  stores:
+    viz_coupling_html: ''
+    viz_backpressure_html: ''
+    viz_population_html: ''
+    viz_barrier_kinematics_html: ''
+    viz_fv_scatter_html: ''
+    viz_energy_budget_html: ''
+    viz_ratchet_rate_html: ''
+    viz_volume_strain_html: ''
+  viz_coupling:
+    _type: step
+    address: local:CouplingTrace
+    config:
+      title: CouplingTrace — Rung 1 — Fixed boundary
+      accent: '#94a3b8'
+    inputs:
+      time:
+      - global_time
+      actin_max_z:
+      - coupling
+      - actin_max_z
+      membrane_min_z:
+      - coupling
+      - membrane_min_z
+      contact_force:
+      - coupling
+      - contact_force
+    outputs:
+      html:
+      - stores
+      - viz_coupling_html
+  viz_backpressure:
+    _type: step
+    address: local:BackpressureTrace
+    config:
+      title: BackpressureTrace — Rung 1 — Fixed boundary
+      accent: '#94a3b8'
+    inputs:
+      time:
+      - global_time
+      membrane_volume:
+      - membrane
+      - volume
+      osmotic_offset:
+      - control
+      - osmotic_strength_offset
+      wall_z:
+      - control
+      - wall_z
+    outputs:
+      html:
+      - stores
+      - viz_backpressure_html
+  viz_population:
+    _type: step
+    address: local:PopulationTrace
+    config:
+      title: PopulationTrace — Rung 1 — Fixed boundary
+      accent: '#94a3b8'
+    inputs:
+      time:
+      - global_time
+      actin_total:
+      - actin
+      - total_particles
+      ratchet_steps:
+      - coupling
+      - ratchet_steps
+    outputs:
+      html:
+      - stores
+      - viz_population_html
+  viz_barrier_kinematics:
+    _type: step
+    address: local:BarrierKinematics
+    config:
+      title: BarrierKinematics — Rung 1 — Fixed boundary
+      accent: '#94a3b8'
+    inputs:
+      time:
+      - global_time
+      barrier_z:
+      - coupling
+      - barrier_z
+      barrier_velocity:
+      - coupling
+      - barrier_velocity
+    outputs:
+      html:
+      - stores
+      - viz_barrier_kinematics_html
+  viz_fv_scatter:
+    _type: step
+    address: local:ForceVelocityScatter
+    config:
+      title: ForceVelocityScatter — Rung 1 — Fixed boundary
+      accent: '#94a3b8'
+    inputs:
+      time:
+      - global_time
+      mean_contact_force:
+      - coupling
+      - mean_contact_force
+      barrier_velocity:
+      - coupling
+      - barrier_velocity
+    outputs:
+      html:
+      - stores
+      - viz_fv_scatter_html
+  viz_energy_budget:
+    _type: step
+    address: local:EnergyBudget
+    config:
+      title: EnergyBudget — Rung 1 — Fixed boundary
+      accent: '#94a3b8'
+    inputs:
+      time:
+      - global_time
+      bending_energy:
+      - membrane
+      - bending_energy
+      surface_energy:
+      - membrane
+      - surface_energy
+      pressure_energy:
+      - membrane
+      - pressure_energy
+    outputs:
+      html:
+      - stores
+      - viz_energy_budget_html
+  viz_ratchet_rate:
+    _type: step
+    address: local:RatchetEventRate
+    config:
+      title: RatchetEventRate — Rung 1 — Fixed boundary
+      accent: '#94a3b8'
+    inputs:
+      time:
+      - global_time
+      ratchet_steps:
+      - coupling
+      - ratchet_steps
+    outputs:
+      html:
+      - stores
+      - viz_ratchet_rate_html
+  viz_volume_strain:
+    _type: step
+    address: local:MembraneVolumeStrain
+    config:
+      title: MembraneVolumeStrain — Rung 1 — Fixed boundary
+      accent: '#94a3b8'
+    inputs:
+      time:
+      - global_time
+      membrane_volume:
+      - membrane
+      - volume
+    outputs:
+      html:
+      - stores
+      - viz_volume_strain_html

@@ -1,40 +1,45 @@
 schema_version: 3
 name: flexible-mem3dg-boundary
-created: "2026-05-18"
+created: '2026-05-18'
 status: draft
 phase: Design
 purpose:
-  question: >-
-    With barrier_kind="flexible" (closed-icosphere Mem3DG mesh inside-pushed by
-    bonded actin filaments), does the membrane deform under actin pressure and
+  question: With barrier_kind="flexible" (closed-icosphere Mem3DG mesh inside-pushed
+    by bonded actin filaments), does the membrane deform under actin pressure and
     relax the contact-force burden compared to the rigid_movable rung?
-  mechanism: >-
-    Spec §2.2 rung 3. The coupler runs full Mem3DG: actin tip positions raise
-    contact_force on the inner surface; mem3dg integrates the resulting
-    osmotic_offset; the vesicle inflates, distributing load across the mesh
-    and shifting the F-V scatter point off the rigid-wall curve.
-  expected_outcome: >-
-    Vesicle volume grows visibly (≥10%) over the run; mean barrier expansion
-    rate is positive; F-V scatter lies clearly off the rung-2 line.
+  mechanism: 'Spec §2.2 rung 3. The coupler runs full Mem3DG: actin tip positions
+    raise contact_force on the inner surface; mem3dg integrates the resulting osmotic_offset;
+    the vesicle inflates, distributing load across the mesh and shifting the F-V scatter
+    point off the rigid-wall curve.'
+  expected_outcome: Vesicle volume grows visibly (≥10%) over the run; mean barrier
+    expansion rate is positive; F-V scatter lies clearly off the rung-2 line.
 baseline:
-  - name: rung3-flexible
-    composite: pbg_membrane_actin_composite.composites.rung3_flexible_mem3dg_boundary
-    params: {}
+- name: rung3-flexible
+  composite: pbg_membrane_actin_composite.composites.rung3_flexible_mem3dg_boundary
+  params: {}
 expected_behavior:
-  - name: membrane-curvature-relaxes-load
-    en: >-
-      Membrane volume increases by ≥10% over the run (vesicle inflates under
-      actin pressure) and final mean contact_force is below the rung-1 mean.
-    given:
-      run: baseline
-      window: full
-    measure:
-      kind: listener_path
-      observable: membrane_volume
-      reduce: first_and_last
-    expect:
-      op: ratio_at_least
-      ratio: 1.10
-    status: stub
+- name: membrane-curvature-relaxes-load
+  en: Membrane volume increases by ≥10% over the run (vesicle inflates under actin
+    pressure) and final mean contact_force is below the rung-1 mean.
+  given:
+    run: baseline
+    window: full
+  measure:
+    kind: listener_path
+    observable: membrane_volume
+    reduce: first_and_last
+  expect:
+    op: ratio_at_least
+    ratio: 1.1
+  status: stub
 expert_docs:
-  - multiscale-brownian-ratchet-spec
+- multiscale-brownian-ratchet-spec
+visualizations:
+- name: coupling-trace
+- name: backpressure-trace
+- name: population-trace
+- name: barrier-kinematics
+- name: energy-budget
+- name: membrane-volume-strain
+- name: ratchet-event-rate
+- name: force-velocity-scatter
