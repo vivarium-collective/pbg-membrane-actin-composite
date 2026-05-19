@@ -113,10 +113,10 @@ _SHARED_PARAMS: dict[str, dict] = {
     parameters=_SHARED_PARAMS,
     default_n_steps=16,
     visualizations=[
-        {"name": "coupling-trace"},
-        {"name": "population-trace"},
-        {"name": "barrier-kinematics"},
-        {"name": "ratchet-event-rate"},
+        {"name": "coupling-trace", "address": "local:CouplingTrace"},
+        {"name": "population-trace", "address": "local:PopulationTrace"},
+        {"name": "barrier-kinematics", "address": "local:BarrierKinematics"},
+        {"name": "ratchet-event-rate", "address": "local:RatchetEventRate"},
     ],
 )
 def rung1_fixed_boundary(core=None, **kwargs: Any) -> dict:
@@ -144,11 +144,11 @@ def rung1_fixed_boundary(core=None, **kwargs: Any) -> dict:
     }},
     default_n_steps=16,
     visualizations=[
-        {"name": "coupling-trace"},
-        {"name": "population-trace"},
-        {"name": "barrier-kinematics"},
-        {"name": "force-velocity-scatter"},
-        {"name": "ratchet-event-rate"},
+        {"name": "coupling-trace", "address": "local:CouplingTrace"},
+        {"name": "population-trace", "address": "local:PopulationTrace"},
+        {"name": "barrier-kinematics", "address": "local:BarrierKinematics"},
+        {"name": "force-velocity-scatter", "address": "local:ForceVelocityScatter"},
+        {"name": "ratchet-event-rate", "address": "local:RatchetEventRate"},
     ],
 )
 def rung2_rigid_movable_boundary(core=None, **kwargs: Any) -> dict:
@@ -177,14 +177,14 @@ def rung2_rigid_movable_boundary(core=None, **kwargs: Any) -> dict:
     }},
     default_n_steps=16,
     visualizations=[
-        {"name": "coupling-trace"},
-        {"name": "backpressure-trace"},
-        {"name": "population-trace"},
-        {"name": "barrier-kinematics"},
-        {"name": "energy-budget"},
-        {"name": "membrane-volume-strain"},
-        {"name": "ratchet-event-rate"},
-        {"name": "force-velocity-scatter"},
+        {"name": "coupling-trace", "address": "local:CouplingTrace"},
+        {"name": "backpressure-trace", "address": "local:BackpressureTrace"},
+        {"name": "population-trace", "address": "local:PopulationTrace"},
+        {"name": "barrier-kinematics", "address": "local:BarrierKinematics"},
+        {"name": "energy-budget", "address": "local:EnergyBudget"},
+        {"name": "membrane-volume-strain", "address": "local:MembraneVolumeStrain"},
+        {"name": "ratchet-event-rate", "address": "local:RatchetEventRate"},
+        {"name": "force-velocity-scatter", "address": "local:ForceVelocityScatter"},
     ],
 )
 def rung3_flexible_mem3dg_boundary(core=None, **kwargs: Any) -> dict:

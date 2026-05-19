@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en"><head>
 <meta charset="UTF-8"><title>pbg-membrane-actin-composite</title>
-<link rel="stylesheet" href="assets/style.css?v=1779159299_1779160913">
+<link rel="stylesheet" href="assets/style.css?v=1779159299_1779161631">
 <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
 <style>
 /* Modal overlay */
@@ -403,14 +403,10 @@
     </div>
 
     <!-- Footer: user identity + collapse toggle.
-         Workspace owner is resolved from `gh api user` (which requires
-         the user to have authenticated `gh auth login`). When that
-         succeeds, `owner_login` is the GitHub username and we link to
-         their profile. When it doesn't, we fall back to a GENERIC
-         "Connect GitHub" prompt — never to git-config name/email —
-         so a workspace shown on screen / shared in a screenshot
-         doesn't leak the local user's personal git identity. -->
-    
+         Workspace owner resolved from `gh api user` (preferred) or
+         `git config user.{name,email}` (fallback). When a GitHub login
+         is present the whole footer becomes a link to the profile;
+         otherwise it stays inert. -->
     
     
     
@@ -425,7 +421,6 @@
       </div>
     
     </a>
-    
     
 
     <button class="viv-rail-toggle" id="viv-rail-toggle" type="button" aria-label="Collapse rail" onclick="_vivToggleRail()">
@@ -453,13 +448,7 @@
         </div>
         <span class="viv-btn viv-tooltip" data-tooltip="Coming soon — share workspace link">Share</span>
         <span class="viv-kebab viv-tooltip" data-tooltip="Workspace settings — coming soon">⋯</span>
-        
-        
-        <a class="viv-avatar viv-avatar-topbar viv-avatar-link"
-           href="https://github.com/eagmon"
-           target="_blank" rel="noopener"
-           title="eagmon · agmon.eran@gmail.com">EA</a>
-        
+        <span class="viv-avatar viv-avatar-topbar" title="agmon.eran@gmail.com">EA</span>
       </div>
     </header>
 
@@ -2169,7 +2158,7 @@ Nothing on <code id="pr-base-display-2">main</code> changes until someone presse
 
 <script src="assets/render-helpers.js"></script>
 <script src="assets/client.js" onerror="/* live mode unavailable */"></script>
-<script src="assets/walkthrough.js?v=1779159299_1779160913" onerror="/* walkthrough unavailable */"></script>
+<script src="assets/walkthrough.js?v=1779159299_1779161631" onerror="/* walkthrough unavailable */"></script>
 <script src="assets/investigations.js" onerror="/* investigations unavailable */"></script>
 <!-- workspace-switcher.js is intentionally not loaded: the left-rail dropdown
      it used to drive has been repurposed into the investigation switcher

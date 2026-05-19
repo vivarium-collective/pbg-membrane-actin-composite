@@ -86,15 +86,15 @@ class SchematicVesicle3D(Visualization):
         # Self-contained Three.js scene. Uses string templating (NOT f-string)
         # for the JS body so braces don't need escaping.
         js = """
-(function() {{
+(function() {
   const FRAMES = __FRAMES__;
   const ACCENT = "__ACCENT__";
   const FRAME_DELAY = __FRAME_DELAY__;
   const containerId = "__DIV_ID__";
 
-  function init() {{
+  function init() {
     const container = document.getElementById(containerId);
-    if (!container || !window.THREE) {{ setTimeout(init, 50); return; }}
+    if (!container || !window.THREE) { setTimeout(init, 50); return; }
     const w = container.clientWidth || 600;
     const h = 380;
 
@@ -105,7 +105,7 @@ class SchematicVesicle3D(Visualization):
     camera.position.set(5.5, 2.0, 5.5);
     camera.lookAt(0, 0, 0);
 
-    const renderer = new THREE.WebGLRenderer({{ antialias: true }});
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setPixelRatio(window.devicePixelRatio || 1);
     renderer.setSize(w, h);
     container.insertBefore(renderer.domElement, container.firstChild);
@@ -124,10 +124,10 @@ class SchematicVesicle3D(Visualization):
 
     // Vesicle — translucent sphere whose radius tracks (V/V0)^(1/3).
     const sphereGeom = new THREE.SphereGeometry(1.0, 32, 24);
-    const sphereMat = new THREE.MeshStandardMaterial({{
+    const sphereMat = new THREE.MeshStandardMaterial({
       color: 0x6366f1, roughness: 0.45, metalness: 0.1,
       transparent: true, opacity: 0.42,
-    }});
+    });
     const vesicle = new THREE.Mesh(sphereGeom, sphereMat);
     scene.add(vesicle);
 
@@ -135,16 +135,16 @@ class SchematicVesicle3D(Visualization):
     const refGeom = new THREE.SphereGeometry(1.0, 24, 18);
     const refWire = new THREE.LineSegments(
       new THREE.WireframeGeometry(refGeom),
-      new THREE.LineBasicMaterial({{ color: 0x9ca3af, transparent: true, opacity: 0.4 }}));
+      new THREE.LineBasicMaterial({ color: 0x9ca3af, transparent: true, opacity: 0.4 }));
     scene.add(refWire);
 
     // Actin disk — a thin cylinder at z = actin_max_z + colored by accent.
     const actinGeom = new THREE.CylinderGeometry(0.7, 0.7, 0.08, 24);
-    const actinMat = new THREE.MeshStandardMaterial({{
+    const actinMat = new THREE.MeshStandardMaterial({
       color: new THREE.Color(ACCENT),
       roughness: 0.5, metalness: 0.1,
       transparent: true, opacity: 0.85,
-    }});
+    });
     const actin = new THREE.Mesh(actinGeom, actinMat);
     actin.position.set(0, -1.6, 0);
     scene.add(actin);
@@ -162,7 +162,7 @@ class SchematicVesicle3D(Visualization):
     let playing = true;
     let lastStep = performance.now();
 
-    function applyFrame(i) {{
+    function applyFrame(i) {
       if (i < 0 || i >= FRAMES.length) return;
       const f = FRAMES[i];
       vesicle.scale.set(f.r, f.r, f.r);
@@ -175,7 +175,7 @@ class SchematicVesicle3D(Visualization):
       arrowHelper.setLength(arrowLen, 0.18, 0.12);
       arrowHelper.position.set(0, puckY + 0.05, 0);
       hud.textContent = "t = " + f.t.toFixed(2) + "    V/V₀ = " + (f.r*f.r*f.r).toFixed(3);
-    }}
+    }
 
     // HUD overlay.
     const hud = document.createElement("div");
@@ -201,55 +201,55 @@ class SchematicVesicle3D(Visualization):
     controls.appendChild(btn); controls.appendChild(slider); controls.appendChild(label);
     container.appendChild(controls);
 
-    btn.onclick = function() {{
+    btn.onclick = function() {
       playing = !playing;
       btn.textContent = playing ? "⏸" : "▶";
-    }};
-    slider.oninput = function() {{
+    };
+    slider.oninput = function() {
       playing = false; btn.textContent = "▶";
       frame = parseInt(slider.value);
       applyFrame(frame);
       label.textContent = frame + " / " + (FRAMES.length - 1);
-    }};
+    };
 
     // OrbitControls if available, else static camera.
     let orbit = null;
-    if (THREE.OrbitControls) {{
+    if (THREE.OrbitControls) {
       orbit = new THREE.OrbitControls(camera, renderer.domElement);
       orbit.enableDamping = true; orbit.dampingFactor = 0.08;
-    }}
+    }
 
-    function tick(now) {{
-      if (playing && now - lastStep >= FRAME_DELAY) {{
+    function tick(now) {
+      if (playing && now - lastStep >= FRAME_DELAY) {
         frame = (frame + 1) % FRAMES.length;
         slider.value = frame;
         label.textContent = frame + " / " + (FRAMES.length - 1);
         applyFrame(frame);
         lastStep = now;
-      }}
+      }
       if (orbit) orbit.update();
       renderer.render(scene, camera);
       requestAnimationFrame(tick);
-    }}
+    }
 
     applyFrame(0);
     requestAnimationFrame(tick);
-  }}
+  }
 
   if (window.THREE) init();
-  else {{
+  else {
     const s1 = document.createElement("script");
     s1.src = "__THREE_CDN__";
-    s1.onload = function() {{
+    s1.onload = function() {
       const s2 = document.createElement("script");
       s2.src = "__ORBIT_CDN__";
       s2.onload = init;
       s2.onerror = init;  // fall back without OrbitControls
       document.head.appendChild(s2);
-    }};
+    };
     document.head.appendChild(s1);
-  }}
-}})();
+  }
+})();
 """
         js = (js
               .replace("__FRAMES__", frames)

@@ -14,16 +14,25 @@ from typing import Any
 def coerce_series(value: Any) -> list[float]:
     """Normalize a viz input to a list[float] regardless of upstream path.
 
-    The dashboard's auto-render path (`render_visualizations` against
-    runs.db) hands each input port a full *list* of per-step values
-    aggregated across the run. The inline composite path (the viz Step
-    wired into a `composite.run(steps)` loop) hands each port a *scalar*
-    per step. This helper covers both: pass-through for sequences,
-    single-element list for scalars, empty list for None.
+    Handles three shapes the dashboard's auto-render path may hand us:
+
+    - scalar         (single-call composite Step path)         → `[value]`
+    - list[float]    (one run, port_type='list[float]')        → pass-through
+    - list[list[float]]
+                     (multiple runs accumulated in runs.db)    → take latest
+                     run (last element), since overlay semantics aren't
+                     defined for our scalar-series vizzes. Multi-run
+                     overlay is a separate concern and would need a viz
+                     that explicitly accepts the nested shape.
+    - None / unparseable                                        → `[]`
     """
     if value is None:
         return []
     if isinstance(value, (list, tuple)):
+        if value and isinstance(value[0], (list, tuple)):
+            # Nested — pick the last (most recent) run.
+            inner = value[-1] if value else []
+            return [float(v) if v is not None else 0.0 for v in inner]
         return [float(v) if v is not None else 0.0 for v in value]
     try:
         return [float(value)]
