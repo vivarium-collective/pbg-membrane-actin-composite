@@ -48,3 +48,6 @@ visualizations:
   address: local:Particles3D
   config:
     study_slug: rigid-movable-boundary
+pipeline_gate:
+  prerequisites:
+  - fixed-boundary

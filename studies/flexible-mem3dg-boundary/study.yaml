@@ -57,3 +57,6 @@ visualizations:
   address: local:Particles3D
   config:
     study_slug: flexible-mem3dg-boundary
+pipeline_gate:
+  prerequisites:
+  - rigid-movable-boundary

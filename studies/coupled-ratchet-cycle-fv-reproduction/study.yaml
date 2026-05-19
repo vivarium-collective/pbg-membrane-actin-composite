@@ -69,3 +69,7 @@ visualizations:
   address: local:Particles3D
   config:
     study_slug: coupled-ratchet-cycle-fv-reproduction
+pipeline_gate:
+  prerequisites:
+  - actin-to-membrane-force-handshake
+  - membrane-to-actin-displacement-feedback
