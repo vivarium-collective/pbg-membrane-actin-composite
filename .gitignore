@@ -12,6 +12,7 @@ output/
 .idea/
 
 # Workspace runtime artifacts
+.pbg/dashboard/
 .pbg/server/
 .pbg/state.json
 .pbg/composite-runs.db

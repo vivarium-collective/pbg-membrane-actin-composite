@@ -4,7 +4,29 @@ created: "2026-05-18"
 plugin_version: 0.4.16
 package_path: pbg_membrane_actin_composite
 observables: []
-visualizations: []
+visualizations:
+  - name: coupling-trace
+    description: >-
+      Headline coupling chart — actin_max_z, membrane_min_z, and contact_force
+      on a shared time axis. Mirrors the per-scenario panel in demo/report.html.
+    class: CouplingTrace
+    type: time-series
+    observables: [time, actin_max_z, membrane_min_z, contact_force]
+  - name: backpressure-trace
+    description: >-
+      Membrane back-pressure trace — membrane_volume, osmotic_offset, wall_z
+      vs time. Shows how the membrane is responding to the actin push.
+    class: BackpressureTrace
+    type: time-series
+    observables: [time, membrane_volume, osmotic_offset, wall_z]
+  - name: population-trace
+    description: >-
+      Actin population trace — particle count plus cumulative ratchet steps.
+      Tells you whether the closed loop is firing the Brownian-ratchet
+      reaction or whether the actin pool has stalled.
+    class: PopulationTrace
+    type: time-series
+    observables: [time, actin_total, ratchet_steps]
 simulations: []
 datasets: []
 expert_docs:

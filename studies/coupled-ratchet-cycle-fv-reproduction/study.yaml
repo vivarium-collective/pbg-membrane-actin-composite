@@ -1,0 +1,54 @@
+schema_version: 3
+name: coupled-ratchet-cycle-fv-reproduction
+created: "2026-05-18"
+status: draft
+phase: Design
+purpose:
+  question: >-
+    Does the closed-loop coupled cycle reproduce the Inoue-2015 concave→convex
+    F-V transition as polymerization rate varies — the headline numerical
+    benchmark for a flexible-membrane ratchet (spec §1.2)?
+  mechanism: >-
+    Sweep growth_rate across the regime where the F-V curve shape flips:
+    at low rates the curve is concave (monomer-delivery limited); at high
+    rates it goes convex (filament-dominated). The flexible barrier is the
+    only rung where this transition can emerge — rigid rungs give a single
+    F-V scatter point per growth_rate, not the transition.
+  expected_outcome: >-
+    Across the sweep, the (F, V) scatter cloud is non-monotonic in curvature:
+    concave at low growth_rate, convex at high growth_rate.
+baseline:
+  - name: coupled-cycle-flexible
+    composite: pbg_membrane_actin_composite.composites.rung3_flexible_mem3dg_boundary
+    params: {}
+variants:
+  - name: low-growth
+    description: Low polymerization rate — expect concave F-V branch.
+    params:
+      growth_rate: 1.0
+  - name: high-growth
+    description: High polymerization rate — expect convex F-V branch.
+    params:
+      growth_rate: 8.0
+expected_behavior:
+  - name: concave-to-convex-fv-transition-emerges
+    en: >-
+      The (force, velocity) scatter cloud crosses from concave to convex as
+      growth_rate increases across the variants, matching Inoue 2015 fig. 5.
+    given:
+      run: variant
+      variant: high-growth
+      window: second_half
+    measure:
+      kind: listener_path
+      observable: barrier_velocity
+      reduce: mean
+    expect:
+      op: ratio_at_least
+      ratio: 2.0
+      compared_to:
+        run: variant
+        variant: low-growth
+    status: stub
+expert_docs:
+  - multiscale-brownian-ratchet-spec

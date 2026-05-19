@@ -1,0 +1,384 @@
+name: rung2-rigid-movable-boundary
+description: 'Wall translates under integrated contact force using drag-balance kinematics.
+  Reproduces Peskin 1993 setup (spec §2.2 #2).'
+tags:
+- brownian-ratchet
+- rigid-movable
+- peskin-1993
+- spec-2.2-rung2
+state:
+  actin_sim:
+    _type: process
+    address: local:ReaDDyProcess
+    config:
+      box_size:
+      - 4.0
+      - 4.0
+      - 4.0
+      periodic:
+      - false
+      - false
+      - false
+      species:
+        G: 0.5
+      reactions: []
+      potentials:
+      - type: harmonic_repulsion
+        species1: G
+        species2: G
+        force_constant: 10.0
+        interaction_distance: 0.4
+      initial_particles:
+        G:
+        - - -0.6000000000000001
+          - -0.6000000000000001
+          - -1.8
+        - - -0.2
+          - -0.6000000000000001
+          - -1.8
+        - - 0.2
+          - -0.6000000000000001
+          - -1.8
+        - - 0.6000000000000001
+          - -0.6000000000000001
+          - -1.8
+        - - -0.6000000000000001
+          - -0.2
+          - -1.8
+        - - -0.2
+          - -0.2
+          - -1.8
+        - - 0.2
+          - -0.2
+          - -1.8
+        - - 0.6000000000000001
+          - -0.2
+          - -1.8
+      topology_species:
+        F: 0.05
+      topology_types:
+      - filament
+      topology_bonds:
+      - type1: F
+        type2: F
+        force_constant: 200.0
+        length: 0.4
+      topology_angles:
+      - type1: F
+        type2: F
+        type3: F
+        force_constant: 30.0
+        equilibrium_angle: 3.14159
+      initial_topologies:
+      - type: filament
+        particle_types:
+        - F
+        - F
+        - F
+        - F
+        positions:
+        - - -0.4
+          - -0.4
+          - -1.5000000000000002
+        - - -0.4
+          - -0.4
+          - -1.1
+        - - -0.4
+          - -0.4
+          - -0.7
+        - - -0.4
+          - -0.4
+          - -0.3
+      - type: filament
+        particle_types:
+        - F
+        - F
+        - F
+        - F
+        positions:
+        - - 0.4
+          - -0.4
+          - -1.5000000000000002
+        - - 0.4
+          - -0.4
+          - -1.1
+        - - 0.4
+          - -0.4
+          - -0.7
+        - - 0.4
+          - -0.4
+          - -0.3
+      - type: filament
+        particle_types:
+        - F
+        - F
+        - F
+        - F
+        positions:
+        - - -0.4
+          - 0.4
+          - -1.5000000000000002
+        - - -0.4
+          - 0.4
+          - -1.1
+        - - -0.4
+          - 0.4
+          - -0.7
+        - - -0.4
+          - 0.4
+          - -0.3
+      - type: filament
+        particle_types:
+        - F
+        - F
+        - F
+        - F
+        positions:
+        - - 0.4
+          - 0.4
+          - -1.5000000000000002
+        - - 0.4
+          - 0.4
+          - -1.1
+        - - 0.4
+          - 0.4
+          - -0.7
+        - - 0.4
+          - 0.4
+          - -0.3
+      - type: filament
+        particle_types:
+        - F
+        - F
+        - F
+        - F
+        positions:
+        - - -0.4
+          - 1.2000000000000002
+          - -1.5000000000000002
+        - - -0.4
+          - 1.2000000000000002
+          - -1.1
+        - - -0.4
+          - 1.2000000000000002
+          - -0.7
+        - - -0.4
+          - 1.2000000000000002
+          - -0.3
+      - type: filament
+        particle_types:
+        - F
+        - F
+        - F
+        - F
+        positions:
+        - - 0.4
+          - 1.2000000000000002
+          - -1.5000000000000002
+        - - 0.4
+          - 1.2000000000000002
+          - -1.1
+        - - 0.4
+          - 1.2000000000000002
+          - -0.7
+        - - 0.4
+          - 1.2000000000000002
+          - -0.3
+      timestep: 0.005
+      observe_stride: 10
+    interval: 0.5
+    inputs:
+      wall_z:
+      - control
+      - wall_z
+      wall_radius:
+      - control
+      - wall_radius
+    outputs:
+      particle_counts:
+      - actin
+      - particle_counts
+      total_particles:
+      - actin
+      - total_particles
+      positions:
+      - actin
+      - positions
+      energy:
+      - actin
+      - energy
+      time:
+      - actin
+      - time
+  coupler:
+    _type: process
+    address: local:BrownianRatchetCoupler
+    config:
+      closed_loop: true
+      coupling_mode: planar
+      barrier_kind: rigid_movable
+      barrier_initial_z: 0.0
+      barrier_drag: 8.0
+      contact_threshold: 0.4
+      force_constant: 2.0
+      osmotic_force_scale: 0.02
+    interval: 0.5
+    inputs:
+      actin_positions:
+      - actin
+      - positions
+      membrane_vertices:
+      - membrane
+      - vertex_positions
+    outputs:
+      wall_z:
+      - control
+      - wall_z
+      wall_radius:
+      - control
+      - wall_radius
+      osmotic_strength_offset:
+      - control
+      - osmotic_strength_offset
+      contact_force:
+      - coupling
+      - contact_force
+      actin_max_z:
+      - coupling
+      - actin_max_z
+      membrane_min_z:
+      - coupling
+      - membrane_min_z
+      actin_max_radius:
+      - coupling
+      - actin_max_radius
+      membrane_min_radius:
+      - coupling
+      - membrane_min_radius
+      gap:
+      - coupling
+      - gap
+      barrier_z:
+      - coupling
+      - barrier_z
+      barrier_velocity:
+      - coupling
+      - barrier_velocity
+      mean_contact_force:
+      - coupling
+      - mean_contact_force
+      ratchet_steps:
+      - coupling
+      - ratchet_steps
+  control:
+    wall_z: null
+    wall_radius: null
+    osmotic_strength_offset: 0.0
+  actin:
+    particle_counts: {}
+    total_particles: 0
+    positions: []
+    energy: 0.0
+    time: 0.0
+  membrane:
+    vertex_positions: []
+    mean_curvatures: []
+    total_energy: 0.0
+    bending_energy: 0.0
+    surface_energy: 0.0
+    pressure_energy: 0.0
+    surface_area: 0.0
+    volume: 0.0
+    converged: false
+  coupling:
+    contact_force: 0.0
+    actin_max_z: 0.0
+    membrane_min_z: 0.0
+    actin_max_radius: 0.0
+    membrane_min_radius: 0.0
+    gap: 0.0
+    barrier_z: 0.0
+    barrier_velocity: 0.0
+    mean_contact_force: 0.0
+    ratchet_steps: 0
+  emitter:
+    _type: step
+    address: local:ram-emitter
+    config:
+      emit:
+        time: float
+        actin_total: integer
+        actin_max_z: float
+        membrane_min_z: float
+        gap: float
+        contact_force: float
+        osmotic_offset: float
+        wall_z: maybe[float]
+        wall_radius: maybe[float]
+        membrane_volume: float
+        membrane_energy: float
+        ratchet_steps: integer
+        barrier_z: float
+        barrier_velocity: float
+        mean_contact_force: float
+        actin_max_radius: float
+        membrane_min_radius: float
+        actin_positions: list
+        membrane_vertex_positions: list
+    inputs:
+      time:
+      - global_time
+      actin_total:
+      - actin
+      - total_particles
+      actin_max_z:
+      - coupling
+      - actin_max_z
+      membrane_min_z:
+      - coupling
+      - membrane_min_z
+      actin_max_radius:
+      - coupling
+      - actin_max_radius
+      membrane_min_radius:
+      - coupling
+      - membrane_min_radius
+      gap:
+      - coupling
+      - gap
+      contact_force:
+      - coupling
+      - contact_force
+      osmotic_offset:
+      - control
+      - osmotic_strength_offset
+      wall_z:
+      - control
+      - wall_z
+      wall_radius:
+      - control
+      - wall_radius
+      membrane_volume:
+      - membrane
+      - volume
+      membrane_energy:
+      - membrane
+      - total_energy
+      barrier_z:
+      - coupling
+      - barrier_z
+      barrier_velocity:
+      - coupling
+      - barrier_velocity
+      mean_contact_force:
+      - coupling
+      - mean_contact_force
+      ratchet_steps:
+      - coupling
+      - ratchet_steps
+      actin_positions:
+      - actin
+      - positions
+      membrane_vertex_positions:
+      - membrane
+      - vertex_positions
