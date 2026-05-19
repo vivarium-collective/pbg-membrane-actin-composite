@@ -60,3 +60,32 @@ visualizations:
 pipeline_gate:
   prerequisites:
   - rigid-movable-boundary
+model_change:
+  base_model: pbg_membrane_actin_composite.composites.rung3_flexible_mem3dg_boundary
+  new_processes:
+  - name: Mem3DGProcess
+    kind: Process
+    requirement_id: mem3dg-vesicle
+  - name: BrownianRatchetCoupler
+    kind: Process
+    requirement_id: coupler-flexible
+  new_parameters:
+  - name: barrier_kind
+    default: flexible
+    units: categorical
+  - name: membrane_geometry
+    default: icosphere
+  - name: osmotic_force_scale
+    default: 0.05
+    units: au · pressure
+  - name: force_constant
+    default: 5.0
+    units: au · force/length
+  notes: Spec §2.2 rung 3 (Phase-2 endpoint). Closed Mem3DG icosphere vesicle inflates
+    under actin contact force translated through osmotic_strength_offset.
+simulation_set:
+- kind: single
+  name: rung3-flexible
+  base_model: pbg_membrane_actin_composite.composites.rung3_flexible_mem3dg_boundary
+  description: 'Closed-loop coupled run: ReaDDy actin pushes against a Mem3DG icosphere;
+    coupler publishes osmotic_offset every step.'

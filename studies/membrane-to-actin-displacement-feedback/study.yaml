@@ -50,3 +50,16 @@ visualizations:
   address: local:Particles3D
   config:
     study_slug: membrane-to-actin-displacement-feedback
+model_change:
+  base_model: pbg_membrane_actin_composite.composites.rung3_flexible_mem3dg_boundary
+  modified_processes:
+  - 'BrownianRatchetCoupler: instrument the mesh-position publication path so we can
+    verify ReaDDy''s tip constraints are updated cleanly per coupling tick.'
+  notes: Tests that per-step mesh-position feedback from Mem3DG to ReaDDy preserves
+    mesh quality (no degenerate triangles) and keeps tip particles within their bond/box
+    potentials.
+simulation_set:
+- kind: single
+  name: feedback-flexible
+  base_model: pbg_membrane_actin_composite.composites.rung3_flexible_mem3dg_boundary
+  description: Same rung-3 composite, run for handshake-direction-B verification.

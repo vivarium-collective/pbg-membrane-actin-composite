@@ -51,3 +51,27 @@ visualizations:
 pipeline_gate:
   prerequisites:
   - fixed-boundary
+model_change:
+  base_model: pbg_membrane_actin_composite.composites.rung2_rigid_movable_boundary
+  new_processes:
+  - name: BrownianRatchetCoupler
+    kind: Process
+    requirement_id: coupler-rigid-movable
+  new_parameters:
+  - name: barrier_kind
+    default: rigid_movable
+    units: categorical
+  - name: barrier_drag
+    default: 8.0
+    units: au · drag
+  modified_processes:
+  - 'BrownianRatchetCoupler: integrate barrier_z via dz/dt = F/drag while keeping
+    the wall planar.'
+  notes: Spec §2.2 rung 2. Same actin model as rung 1; wall now translates under integrated
+    contact force per Peskin 1993.
+simulation_set:
+- kind: single
+  name: rung2-rigid-movable
+  base_model: pbg_membrane_actin_composite.composites.rung2_rigid_movable_boundary
+  description: Single closed-loop run; wall translates under drag balance with the
+    actin contact force.

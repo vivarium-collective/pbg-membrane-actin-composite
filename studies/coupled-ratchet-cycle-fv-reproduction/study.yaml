@@ -73,3 +73,29 @@ pipeline_gate:
   prerequisites:
   - actin-to-membrane-force-handshake
   - membrane-to-actin-displacement-feedback
+model_change:
+  base_model: pbg_membrane_actin_composite.composites.rung3_flexible_mem3dg_boundary
+  new_parameters:
+  - name: growth_rate
+    default: 4.0
+    units: events/time
+    description: Actin polymerization rate. Sweep this to surface the Inoue 2015 concave→convex
+      F-V transition.
+  notes: Sweep growth_rate across the regime where the F-V curve shape flips. Reproduces
+    the spec §1.2 primary numerical benchmark.
+simulation_set:
+- kind: single
+  name: coupled-cycle-flexible
+  base_model: pbg_membrane_actin_composite.composites.rung3_flexible_mem3dg_boundary
+  description: Baseline run at growth_rate=4.0 (mid-regime).
+- kind: sweep
+  name: growth-rate-fv-sweep
+  base_model: pbg_membrane_actin_composite.composites.rung3_flexible_mem3dg_boundary
+  axes:
+  - parameter: growth_rate
+    values:
+    - 1.0
+    - 4.0
+    - 8.0
+  description: Three-point growth_rate sweep to surface the concave→convex F-V transition
+    (Inoue 2015 fig. 5).

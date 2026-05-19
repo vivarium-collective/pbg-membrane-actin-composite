@@ -46,3 +46,29 @@ visualizations:
   address: local:Particles3D
   config:
     study_slug: fixed-boundary
+model_change:
+  base_model: pbg_membrane_actin_composite.composites.rung1_fixed_boundary
+  new_processes:
+  - name: BrownianRatchetCoupler
+    kind: Process
+    requirement_id: coupler-fixed
+  - name: ReaDDyProcess
+    kind: Process
+  new_parameters:
+  - name: barrier_kind
+    default: fixed
+    units: categorical
+  - name: force_constant
+    default: 2.0
+    units: au · force/length
+  - name: contact_threshold
+    default: 0.4
+    units: au
+  notes: Spec §2.2 rung 1. Wall held at fixed z; no membrane process. ReaDDy actin
+    filaments push against the wall via the coupler.
+simulation_set:
+- kind: single
+  name: rung1-fixed
+  base_model: pbg_membrane_actin_composite.composites.rung1_fixed_boundary
+  description: Single closed-loop run with the wall held fixed at z=0. 16 composite
+    steps, interval=0.5.

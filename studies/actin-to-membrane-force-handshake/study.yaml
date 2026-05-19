@@ -52,3 +52,16 @@ visualizations:
   address: local:Particles3D
   config:
     study_slug: actin-to-membrane-force-handshake
+model_change:
+  base_model: pbg_membrane_actin_composite.composites.rung3_flexible_mem3dg_boundary
+  modified_processes:
+  - 'BrownianRatchetCoupler: instrument the force-publication path to expose per-contact
+    force magnitudes for handshake verification.'
+  notes: Tests that the force the ReaDDy side reports equals the force Mem3DG receives
+    at the interface (Newton's 3rd law) within numerical tolerance.
+simulation_set:
+- kind: single
+  name: handshake-flexible
+  base_model: pbg_membrane_actin_composite.composites.rung3_flexible_mem3dg_boundary
+  description: Same rung-3 composite as flexible-mem3dg-boundary, run for handshake-direction-A
+    verification.
