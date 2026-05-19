@@ -1,0 +1,70 @@
+schema_version: 1
+name: mem3dg-readdy-coupling
+title: Mem3DG ↔ ReaDDy coupling — bidirectional handshake for the Phase-2 endpoint
+created: "2026-05-18"
+status: planned
+question: >-
+  Does the BrownianRatchetCoupler (in this repo's composite) implement a
+  physically faithful bidirectional handshake between particle-based actin
+  (ReaDDy) and a mesh-based deformable membrane (Mem3DG), such that
+  (a) actin tip positions translate to membrane vertex forces with momentum
+  conservation, (b) membrane displacements feed back as updated actin
+  tip constraints without destroying ReaDDy's reaction balance, and
+  (c) closed-loop runs reach the Inoue 2015 F-V regime that distinguishes
+  flexible from rigid boundary models?
+hypothesis: >-
+  The coupler can be made faithful if the per-step handshake satisfies
+  three properties: (1) the force the actin side exerts on the membrane
+  equals the force the membrane reports back to the actin side (Newton's
+  3rd law on the interface), (2) membrane displacements within a coupler
+  tick are bounded so ReaDDy's tip-particle constraints don't violate the
+  bond/box potentials, and (3) the coupled system reproduces the
+  concave→convex F-V transition that flat fixed/rigid boundaries cannot.
+  If any of (1)-(3) fail, the failure mode tells us which side of the
+  interface needs a finer time-step or a different update rule.
+description: |
+  This investigation focuses on the **coupling mechanism itself** — distinct
+  from the `boundary-condition-staircase` investigation, which uses the
+  coupler as one of three rungs to compare boundary realism. Here the
+  coupler is the object under study; we examine the handshake at three
+  levels of integration:
+
+  1. **Force handshake direction A (actin → membrane).** Verify that the
+     force vector ReaDDy reports at each filament tip is correctly
+     mapped onto the Mem3DG mesh vertices the tip is in contact with,
+     and that energy/momentum bookkeeping closes within numerical
+     tolerance per step.
+  2. **Displacement feedback direction B (membrane → actin).** Verify
+     that after a Mem3DG step the updated vertex positions translate
+     to constraints on the ReaDDy tip particles that don't violate the
+     bond/box potentials or break reaction acceptance ratios.
+  3. **Closed-loop cycle.** Run both directions in lock-step and confirm
+     the system reaches the F-V regime predicted by Inoue 2015 — the
+     hallmark of a flexible-membrane ratchet.
+
+  Spec anchors:
+  - HYP #1 (flexible-membrane necessity): `flexible-membrane-necessity`
+  - Spec §2.2 rung 3 (flexible responsive boundary).
+  - Spec §2.3 "inputs that must be passed across simulator boundaries"
+    (force on filament end, barrier geometry, local monomer availability,
+    tether occupancy).
+  - Spec §3.2.2 (Vivarium↔Mem3DG wrapper; pbg-mem3dg v1 already shipped
+    [Apr 27 2026]).
+
+  This investigation will use the existing `BrownianRatchetCoupler`
+  process in `pbg_membrane_actin_composite/processes.py` as the unit
+  under test; member studies populate it with concrete simulation_sets
+  via `/pbg-study`.
+expert_docs:
+  - multiscale-brownian-ratchet-spec
+studies:
+  - actin-to-membrane-force-handshake
+  - membrane-to-actin-displacement-feedback
+  - coupled-ratchet-cycle-fv-reproduction
+acceptance_criteria:
+  - study: actin-to-membrane-force-handshake
+    behavior: newton-third-law-holds-on-interface
+  - study: membrane-to-actin-displacement-feedback
+    behavior: mesh-quality-preserved-over-coupling-steps
+  - study: coupled-ratchet-cycle-fv-reproduction
+    behavior: concave-to-convex-fv-transition-emerges

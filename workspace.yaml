@@ -7,6 +7,21 @@ observables: []
 visualizations: []
 simulations: []
 datasets: []
+expert_docs:
+  - name: multiscale-brownian-ratchet-spec
+    path: docs/spec.md
+    sha256: 3e587c317c51d8a3368da7ff42574fc9fded54fdc5c13b76a2b458ba13a2df9d
+    contributor: Eran Agmon
+    description: >-
+      Multiscale specification for actin / membrane feedback (Brownian ratchet),
+      anchored in the Akamatsu lab discourse graph and AllenCell collaboration
+      graph. Defines the three load-bearing hypotheses, the boundary-condition
+      staircase, the primary numerical benchmark (Inoue 2015 concave→convex
+      F-V transition), and the per-issue engineering targets for the
+      ReaDDy + Mem3DG Phase-2 coupling.
+    claims_supported:
+      - flexible-membrane-necessity
+      - membrane-interface-stress-modulates-arp23-density
 references_bib: references/papers.bib
 server:
   enabled: false
