@@ -30,3 +30,4 @@ investigations/*/.run.lock
 reports/assets/*
 !reports/assets/.keep
 .superpowers/brainstorm/
+_pages/
