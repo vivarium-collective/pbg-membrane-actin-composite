@@ -37,6 +37,19 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
+      - name: Install pymem3dg native build deps
+        # pymem3dg is a scikit-build-core C++ extension that links against
+        # NetCDF + netcdf-cxx4 + Eigen. Eigen is fetched by CMake's
+        # FetchContent; NetCDF is not, so we install the apt packages.
+        # Without these the build fails at "Could NOT find netcdf-cxx4".
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            cmake \
+            libnetcdf-dev \
+            libnetcdf-c++4-dev \
+            libeigen3-dev \
+            libsuitesparse-dev
       - name: Install uv
         run: pip install uv
       - name: Set up venv and install
