@@ -44,3 +44,7 @@ visualizations:
   address: local:ForceVelocityScatter
 - name: ratchet-event-rate
   address: local:RatchetEventRate
+- name: particles-3d
+  address: local:Particles3D
+  config:
+    study_slug: rigid-movable-boundary

@@ -53,3 +53,7 @@ visualizations:
   address: local:ForceVelocityScatter
 - name: schematic-vesicle-3d
   address: local:SchematicVesicle3D
+- name: particles-3d
+  address: local:Particles3D
+  config:
+    study_slug: flexible-mem3dg-boundary
