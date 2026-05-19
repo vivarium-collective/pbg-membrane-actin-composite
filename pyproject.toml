@@ -41,3 +41,13 @@ Issues = "https://github.com/vivarium-collective/pbg-membrane-actin-composite/is
 
 [tool.setuptools.packages.find]
 include = ["pbg_membrane_actin_composite*"]
+
+[tool.uv.sources]
+# These four sibling packages aren't on PyPI yet. For CI and any non-local
+# install, uv fetches them from GitHub. For local development with sibling
+# checkouts, override these in a per-user `.env` or with --refresh after
+# editing this file. See notes/friction/2026-05-18-workspace-onboarding-from-composite.md
+# §6 for the underlying issue.
+pbg-mem3dg = { git = "https://github.com/vivarium-collective/pbg-mem3dg.git" }
+pbg-readdy = { git = "https://github.com/vivarium-collective/pbg-readdy.git" }
+vivarium-dashboard = { git = "https://github.com/vivarium-collective/vivarium-dashboard.git" }
