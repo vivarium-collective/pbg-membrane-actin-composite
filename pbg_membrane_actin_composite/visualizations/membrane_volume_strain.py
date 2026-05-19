@@ -6,7 +6,7 @@ import json
 from pbg_superpowers.visualization import Visualization
 
 from pbg_membrane_actin_composite.visualizations._plotly_helpers import (
-    _AUTOSIZE_SCRIPT,
+    _autosize_script,
     PALETTE, _BASE_LAYOUT, _axis_style, PLOTLY_CDN, coerce_series,
 )
 
@@ -74,4 +74,4 @@ class MembraneVolumeStrain(Visualization):
             f'"{div_id}",{json.dumps([trace_strain, trace_ref])},{json.dumps(layout)},'
             f'{{responsive:true,displayModeBar:false}});</script>'
         )
-        return {'html': html + _AUTOSIZE_SCRIPT}
+        return {'html': html + _autosize_script(320)}

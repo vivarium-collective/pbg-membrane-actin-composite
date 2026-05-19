@@ -12,7 +12,7 @@ import json
 from pbg_superpowers.visualization import Visualization
 
 from pbg_membrane_actin_composite.visualizations._plotly_helpers import (
-    _AUTOSIZE_SCRIPT,
+    _autosize_script,
     PALETTE, coerce_series,
 )
 
@@ -268,4 +268,4 @@ class SchematicVesicle3D(Visualization):
             f'border-radius:8px;position:relative;overflow:hidden"></div>'
             f'<script>{js}</script>'
         )
-        return {'html': html + _AUTOSIZE_SCRIPT}
+        return {'html': html + _autosize_script(380)}

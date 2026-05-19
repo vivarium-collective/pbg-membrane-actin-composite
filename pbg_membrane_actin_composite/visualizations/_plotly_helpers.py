@@ -43,40 +43,38 @@ def coerce_series(value: Any) -> list[float]:
 PLOTLY_CDN = "https://cdn.plot.ly/plotly-2.27.0.min.js"
 
 
-# Tiny JS shim — the dashboard wraps each viz HTML in an iframe with
-# `min-height: 1600px` and an `onload` resizer that sets `style.height`
-# only. The min-height keeps the iframe at 1600px regardless of how
-# small our content is, leaving the empty band you see below most
-# Plotly charts. Same-origin, so we reach up, clear the min-height,
-# and trigger a re-measure after Plotly settles its async render.
-_AUTOSIZE_SCRIPT = """
+# Fixed-height iframe shim — the dashboard wraps each viz HTML in an
+# iframe with `min-height: 1600px`, leaving a huge blank band below the
+# chart. We can't just measure scrollHeight in a loop because Plotly's
+# responsive-resize machinery + a `resize` listener creates feedback:
+# each height bump triggers a re-measure that bumps the height further,
+# so the iframe grows monotonically. Instead, set a known height ONCE
+# (no listener, no retry) that matches the chart container + chrome.
+def _autosize_script(content_height: int) -> str:
+    target = int(content_height) + 90  # accent bar + title + legend + padding
+    return f"""
 <script>
-(function autosize(retries) {
-  try {
+(function() {{
+  try {{
     if (window.parent === window) return;
     var iframes = window.parent.document.querySelectorAll('iframe');
-    var self = null;
-    for (var i = 0; i < iframes.length; i++) {
-      if (iframes[i].contentWindow === window) { self = iframes[i]; break; }
-    }
-    if (!self) { if (retries > 0) setTimeout(function(){autosize(retries-1);}, 80); return; }
-    self.style.minHeight = '0px';
-    function fit() {
-      var h = Math.max(
-        document.documentElement.scrollHeight,
-        document.body ? document.body.scrollHeight : 0
-      );
-      if (h > 60) self.style.height = (h + 16) + 'px';
-    }
-    fit();
-    setTimeout(fit, 120);
-    setTimeout(fit, 400);
-    setTimeout(fit, 900);
-    window.addEventListener('resize', fit);
-  } catch (e) {}
-})(20);
+    for (var i = 0; i < iframes.length; i++) {{
+      if (iframes[i].contentWindow === window) {{
+        iframes[i].style.minHeight = '0px';
+        iframes[i].style.height = '{target}px';
+        break;
+      }}
+    }}
+  }} catch (e) {{}}
+}})();
 </script>
 """
+
+
+# Back-compat alias — old helpers concatenated a shared constant.
+# Now superseded by per-helper `_autosize_script(height)` calls; this
+# constant remains so any not-yet-migrated callers still resolve.
+_AUTOSIZE_SCRIPT = _autosize_script(320)
 
 # Shared palette — three-rung accent + neutral grays. Index matches the
 # demo/report.html accent assignments so workspace charts and the legacy
@@ -176,7 +174,7 @@ def render_lines_html(
         f'<script>Plotly.newPlot('
         f'"{div_id}",{json.dumps(traces)},{json.dumps(layout)},'
         f'{{responsive:true,displayModeBar:false}});</script>'
-    ) + _AUTOSIZE_SCRIPT
+    ) + _autosize_script(height)
 
 
 def render_dual_axis_html(
@@ -221,7 +219,7 @@ def render_dual_axis_html(
         f'<script>Plotly.newPlot('
         f'"{div_id}",{json.dumps(traces)},{json.dumps(layout)},'
         f'{{responsive:true,displayModeBar:false}});</script>'
-    ) + _AUTOSIZE_SCRIPT
+    ) + _autosize_script(height)
 
 
 def render_scatter_html(
@@ -267,7 +265,7 @@ def render_scatter_html(
         f'<script>Plotly.newPlot('
         f'"{div_id}",{json.dumps([trace])},{json.dumps(layout)},'
         f'{{responsive:true,displayModeBar:false}});</script>'
-    ) + _AUTOSIZE_SCRIPT
+    ) + _autosize_script(height)
 
 
 def render_stacked_area_html(
@@ -306,4 +304,4 @@ def render_stacked_area_html(
         f'<script>Plotly.newPlot('
         f'"{div_id}",{json.dumps(traces)},{json.dumps(layout)},'
         f'{{responsive:true,displayModeBar:false}});</script>'
-    ) + _AUTOSIZE_SCRIPT
+    ) + _autosize_script(height)
