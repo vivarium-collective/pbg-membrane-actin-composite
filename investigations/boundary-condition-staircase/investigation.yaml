@@ -1,0 +1,46 @@
+schema_version: 1
+name: boundary-condition-staircase
+title: Boundary-condition staircase — fixed → rigid → flexible Mem3DG
+created: "2026-05-18"
+status: planned
+question: >-
+  How does the actin-polymerization force/velocity relationship change as the
+  barrier the filaments push against transitions from a fixed wall, to a
+  movable rigid object (Peskin 1993), to a flexible Mem3DG membrane patch?
+  Where in this staircase do flexible-membrane effects become qualitatively
+  necessary (vs. quantitative corrections to the rigid case)?
+hypothesis: >-
+  The fixed-boundary baseline reproduces classical Brownian-ratchet kinetics.
+  The rigid-movable boundary introduces a load-dependent stalling regime
+  consistent with Peskin (1993). The flexible Mem3DG boundary qualitatively
+  diverges in the high-density / high-load regime because membrane curvature
+  redistributes force across nearby filaments and breaks the per-filament
+  independence assumption that the rigid models rely on.
+description: |
+  Three rungs of a staircase of increasing boundary realism, each
+  occupying one demo scenario in this repo (see README + docs/spec.md §2.2).
+  All three rungs run the **same** actin Brownian-ratchet ReaDDy model.
+  Only the barrier changes:
+
+  1. **fixed-boundary** — actin pushes against a wall held at fixed position.
+     Pure ratchet kinetics; closed-form expectations from Peskin/Mogilner.
+  2. **rigid-movable-boundary** — barrier is a single rigid body with mass +
+     friction; obeys Peskin (1993) force/velocity for a load-bearing object.
+  3. **flexible-mem3dg-boundary** — barrier is a Mem3DG membrane patch
+     wired through the BrownianRatchetCoupler. Phase-2 endpoint.
+
+  Each rung becomes its own **study** (`/pbg-study <rung-slug>`). The
+  investigation completes when all three studies are in the `Decide`
+  phase with passing acceptance criteria, plus the cross-rung F-V
+  comparison (see acceptance_criteria below).
+studies:
+  - fixed-boundary
+  - rigid-movable-boundary
+  - flexible-mem3dg-boundary
+acceptance_criteria:
+  - study: fixed-boundary
+    behavior: fv-matches-mogilner-baseline
+  - study: rigid-movable-boundary
+    behavior: stall-force-within-peskin-bound
+  - study: flexible-mem3dg-boundary
+    behavior: membrane-curvature-relaxes-load

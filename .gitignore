@@ -10,3 +10,22 @@ demo/_bigraph_tmp/
 output/
 *.nc
 .idea/
+
+# Workspace runtime artifacts
+.pbg/server/
+.pbg/state.json
+.pbg/composite-runs.db
+.pbg/runs/
+.pbg/study-test-results/
+.pbg/viz-requests/
+.pbg/viz-responses/
+.pbg/agent-requests/
+.pbg/agent-responses/
+.pbg/visualizations-staged/
+investigations/*/runs.db
+investigations/*/viz/
+investigations/*/.run.lock
+# Dashboard-copied report assets
+reports/assets/*
+!reports/assets/.keep
+.superpowers/brainstorm/
