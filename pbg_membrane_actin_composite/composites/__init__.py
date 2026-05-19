@@ -73,16 +73,17 @@ _VIZ_STEPS = [
 
 
 def _attach_viz_steps(state: dict, accent: str, rung_title: str) -> dict:
-    state.setdefault("stores", {})
-    for key, cls, html_store, inputs in _VIZ_STEPS:
-        state["stores"][html_store] = ""
-        state[key] = {
-            "_type": "step",
-            "address": f"local:{cls}",
-            "config": {"title": f"{cls} — {rung_title}", "accent": accent},
-            "inputs": {wire: list(path) for wire, path in inputs.items()},
-            "outputs": {"html": ["stores", html_store]},
-        }
+    """No-op: viz Steps now render against runs.db post-run, not inline.
+
+    Earlier versions wired Visualization Steps directly into the composite
+    so they fired every step. After switching declared inputs to
+    ``list[float]`` (so the dashboard's auto-render path passes the full
+    time series), inline wiring no longer type-checks against the scalar
+    stores. The auto-render path (``_render_study_visualizations`` →
+    ``render_visualizations``) reads runs.db, instantiates each viz, and
+    writes ``studies/<name>/viz/*.html``. That is now the sole render
+    path, eliminating the type-check conflict.
+    """
     return state
 
 

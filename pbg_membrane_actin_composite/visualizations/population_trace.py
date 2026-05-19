@@ -1,20 +1,14 @@
-"""Actin population + ratchet-step counter — third-row panel from demo/report.html.
-
-Consumes actin_total (current particle count) and ratchet_steps (per-step
-event count) and surfaces the cumulative ratchet count. The cumulative
-curve is what tells you whether the closed loop is actually firing the
-Brownian-ratchet reaction or whether the actin pool has stalled.
-"""
+"""Actin population — particle count + cumulative ratchet steps."""
 from __future__ import annotations
 
 from pbg_superpowers.visualization import Visualization
 
-from pbg_membrane_actin_composite.visualizations._plotly_helpers import render_lines_html
+from pbg_membrane_actin_composite.visualizations._plotly_helpers import (
+    render_lines_html, coerce_series,
+)
 
 
 class PopulationTrace(Visualization):
-    """Actin particle count + cumulative ratchet steps vs time."""
-
     config_schema = {
         'title': {'_type': 'string', '_default': 'Actin population — particle count + cumulative ratchet steps'},
         'accent': {'_type': 'string', '_default': '#94a3b8'},
@@ -23,29 +17,38 @@ class PopulationTrace(Visualization):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.times: list[float] = []
-        self._cum_ratchets: int = 0
-        self.history: dict[str, list[float]] = {
-            'actin_total': [],
-            'cumulative_ratchet_steps': [],
-        }
+        self.actin_total: list[float] = []
+        self.cumulative_ratchets: list[float] = []
 
     def inputs(self):
-        return {
-            'time': 'float',
-            'actin_total': 'float',
-            'ratchet_steps': 'float',
-        }
+        return {'time': 'list[float]', 'actin_total': 'list[float]',
+                'ratchet_steps': 'list[float]'}
 
     def update(self, state, interval=1.0):
-        self.times.append(float(state.get('time', len(self.times) * (interval or 1.0))))
-        self.history['actin_total'].append(float(state.get('actin_total', 0) or 0))
-        self._cum_ratchets += int(state.get('ratchet_steps', 0) or 0)
-        self.history['cumulative_ratchet_steps'].append(float(self._cum_ratchets))
+        t = coerce_series(state.get('time'))
+        rs = coerce_series(state.get('ratchet_steps'))
+        ac = coerce_series(state.get('actin_total'))
+        if len(t) > 1:
+            self.times = t
+            self.actin_total = ac if len(ac) == len(t) else [0.0] * len(t)
+            cum = []
+            running = 0.0
+            for r in (rs if len(rs) == len(t) else [0.0] * len(t)):
+                running += r
+                cum.append(running)
+            self.cumulative_ratchets = cum
+        else:
+            self.times.append(t[0] if t else len(self.times) * (interval or 1.0))
+            self.actin_total.append(ac[0] if ac else 0.0)
+            running = (self.cumulative_ratchets[-1] if self.cumulative_ratchets else 0.0)
+            running += (rs[0] if rs else 0.0)
+            self.cumulative_ratchets.append(running)
         cfg = self.config or {}
         html = render_lines_html(
             div_id=f'population-trace-{id(self)}',
             times=self.times,
-            series=self.history,
+            series={'actin_total': self.actin_total,
+                    'cumulative_ratchet_steps': self.cumulative_ratchets},
             title=cfg.get('title', 'Actin population'),
             y_title='count',
             accent=cfg.get('accent', '#94a3b8'),

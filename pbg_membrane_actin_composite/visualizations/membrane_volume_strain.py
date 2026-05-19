@@ -1,10 +1,4 @@
-"""Membrane volume strain — (V(t) - V(0)) / V(0) vs time, with a reference
-horizontal line at the 10% inflation threshold used by the
-`membrane-curvature-relaxes-load` acceptance criterion.
-
-Makes "did the vesicle inflate?" answerable at a glance — rung 1 and
-rung 2 sit at zero strain; rung 3 should climb above the reference line.
-"""
+"""Membrane volume strain — (V(t) - V(0)) / V(0) with 10% reference line."""
 from __future__ import annotations
 
 import json
@@ -12,13 +6,11 @@ import json
 from pbg_superpowers.visualization import Visualization
 
 from pbg_membrane_actin_composite.visualizations._plotly_helpers import (
-    PALETTE, _BASE_LAYOUT, _axis_style, PLOTLY_CDN,
+    PALETTE, _BASE_LAYOUT, _axis_style, PLOTLY_CDN, coerce_series,
 )
 
 
 class MembraneVolumeStrain(Visualization):
-    """Volume strain (V-V0)/V0 vs time with a 10% reference line."""
-
     config_schema = {
         'title': {'_type': 'string', '_default': 'Membrane volume strain'},
         'accent': {'_type': 'string', '_default': '#10b981'},
@@ -32,22 +24,25 @@ class MembraneVolumeStrain(Visualization):
         self._v0: float | None = None
 
     def inputs(self):
-        return {
-            'time': 'float',
-            'membrane_volume': 'float',
-        }
+        return {'time': 'list[float]', 'membrane_volume': 'list[float]'}
 
     def update(self, state, interval=1.0):
-        v = float(state.get('membrane_volume', 0.0) or 0.0)
-        if self._v0 is None or self._v0 == 0.0:
-            self._v0 = v if v > 0.0 else 1.0
-        self.times.append(float(state.get('time', len(self.times) * (interval or 1.0))))
-        self.strain.append((v - self._v0) / self._v0)
+        t = coerce_series(state.get('time'))
+        v = coerce_series(state.get('membrane_volume'))
+        if len(t) > 1:
+            self.times = t
+            v0 = next((x for x in v if x > 0.0), 1.0) if v else 1.0
+            self.strain = [(x - v0) / v0 for x in v] if v else [0.0] * len(t)
+        else:
+            x = v[0] if v else 0.0
+            if self._v0 is None or self._v0 == 0.0:
+                self._v0 = x if x > 0.0 else 1.0
+            self.times.append(t[0] if t else len(self.times) * (interval or 1.0))
+            self.strain.append((x - self._v0) / self._v0)
         cfg = self.config or {}
         ref = float(cfg.get('reference_strain', 0.10))
         accent = cfg.get('accent', '#10b981')
         div_id = f'volume-strain-{id(self)}'
-
         trace_strain = {
             'x': self.times, 'y': self.strain, 'type': 'scatter', 'mode': 'lines',
             'name': '(V - V₀) / V₀', 'line': {'color': accent, 'width': 2.6},

@@ -369,7 +369,7 @@ def build_document(
         },
         'emitter': {
             '_type': 'step',
-            'address': 'local:ram-emitter',
+            'address': 'local:RAMEmitter',
             'config': {
                 'emit': {
                     'time': 'float',
