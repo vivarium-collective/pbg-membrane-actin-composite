@@ -51,3 +51,5 @@ visualizations:
   address: local:RatchetEventRate
 - name: force-velocity-scatter
   address: local:ForceVelocityScatter
+- name: schematic-vesicle-3d
+  address: local:SchematicVesicle3D

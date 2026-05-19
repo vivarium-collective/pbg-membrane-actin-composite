@@ -1,4 +1,54 @@
-# Maps named claims (e.g., "phase-2.dnaA-fires-at-threshold") to BibTeX keys.
+# Maps named claims (used in study expected_behavior, investigation
+# acceptance_criteria, and expert_doc claims_supported) to one or more
+# BibTeX keys in references/papers.bib. Many claims have multiple
+# supporting papers; list them as YAML sequences.
 claims:
-  flexible-membrane-necessity: butler2026actin-membrane
-  membrane-interface-stress-modulates-arp23-density: butler2026actin-membrane
+  # HYP #1 — flexible membrane is necessary to recapitulate the elastic
+  # Brownian ratchet (spec §1.1).
+  flexible-membrane-necessity:
+    - butler2026actin-membrane
+    - mogilner1996cell
+    - peskin1993cellular
+  # Butler/Bear 2026 directly evidences that interface stress modulates
+  # Arp2/3 density.
+  membrane-interface-stress-modulates-arp23-density:
+    - butler2026actin-membrane
+  # The classic Peskin closed-form ratchet kinetics (spec §1.3).
+  peskin-1993-closed-form-ratchet:
+    - peskin1993cellular
+  # Elastic-ratchet (Mogilner/Oster 1996) extends Peskin by accounting
+  # for thermal filament fluctuations.
+  elastic-ratchet-from-filament-fluctuations:
+    - mogilner1996cell
+  # Listeria step-fluctuations disprove naive Brownian ratchet.
+  listeria-step-fluctuations-constrain-ratchet:
+    - kuo2000steps
+  # Symmetry-breaking requires significant subunit off-rate.
+  symmetry-breaking-requires-koff:
+    - vanoudenaarden1999cooperative
+  # Surface-delivery theory (Mullins/Skruber 2024) — HYP #3.
+  surface-delivery-theory:
+    - mullins2024actin
+  # Inoue 2015 — primary numerical benchmark for spec §1.2.
+  inoue-2015-fv-transition:
+    - inoue2015brownian
+  # Tethered-ratchet variant (Mogilner/Oster 2003).
+  tethered-ratchet-mechanism:
+    - mogilner2003force
+    - funk2021barbed
+  # Force-dependent capping (Li 2022) — extends ratchet to capping.
+  force-dependent-capping-li-2022:
+    - li2022molecular
+  # Mem3DG numerical model.
+  mem3dg-helfrich-discrete-differential-geometry:
+    - zhu2022mem3dg
+  # Cross-validation simulations.
+  fv-simulation-cross-validation:
+    - lee2009forcevelocity
+    - schreiber2010simulation
+  # Persistence-length parameterization queue.
+  actin-persistence-length-parameterization:
+    - bibeau2023twist
+  # Prior-art comparator.
+  alternative-membrane-actin-stack:
+    - ni2021membrane

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en"><head>
 <meta charset="UTF-8"><title>pbg-membrane-actin-composite</title>
-<link rel="stylesheet" href="assets/style.css?v=1779159299_1779160750">
+<link rel="stylesheet" href="assets/style.css?v=1779159299_1779160913">
 <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
 <style>
 /* Modal overlay */
@@ -403,10 +403,14 @@
     </div>
 
     <!-- Footer: user identity + collapse toggle.
-         Workspace owner resolved from `gh api user` (preferred) or
-         `git config user.{name,email}` (fallback). When a GitHub login
-         is present the whole footer becomes a link to the profile;
-         otherwise it stays inert. -->
+         Workspace owner is resolved from `gh api user` (which requires
+         the user to have authenticated `gh auth login`). When that
+         succeeds, `owner_login` is the GitHub username and we link to
+         their profile. When it doesn't, we fall back to a GENERIC
+         "Connect GitHub" prompt — never to git-config name/email —
+         so a workspace shown on screen / shared in a screenshot
+         doesn't leak the local user's personal git identity. -->
+    
     
     
     
@@ -421,6 +425,7 @@
       </div>
     
     </a>
+    
     
 
     <button class="viv-rail-toggle" id="viv-rail-toggle" type="button" aria-label="Collapse rail" onclick="_vivToggleRail()">
@@ -448,7 +453,13 @@
         </div>
         <span class="viv-btn viv-tooltip" data-tooltip="Coming soon — share workspace link">Share</span>
         <span class="viv-kebab viv-tooltip" data-tooltip="Workspace settings — coming soon">⋯</span>
-        <span class="viv-avatar viv-avatar-topbar" title="agmon.eran@gmail.com">EA</span>
+        
+        
+        <a class="viv-avatar viv-avatar-topbar viv-avatar-link"
+           href="https://github.com/eagmon"
+           target="_blank" rel="noopener"
+           title="eagmon · agmon.eran@gmail.com">EA</a>
+        
       </div>
     </header>
 
@@ -512,7 +523,7 @@
 
   <!-- References panel — papers.bib explorer + PDF status + add-reference action -->
   <div class="panel">
-    <h3>References <span class="muted" style="font-size:0.75em;font-weight:normal">(1 entries, 0 PDFs in references/papers.bib)</span></h3>
+    <h3>References <span class="muted" style="font-size:0.75em;font-weight:normal">(16 entries, 0 PDFs in references/papers.bib)</span></h3>
     <p class="panel-lead">Formal publications cited across the studies, plus the PDFs committed alongside them. Click any card to expand its details; click <em>Open ↗</em> to access the paper. Reading notes (if present) live at <code>references/notes/&lt;bib-key&gt;.md</code>. Adds entries to <code>references/papers.bib</code> and <code>references/claims.yaml</code>.</p>
 
     <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:10px">
@@ -528,7 +539,93 @@
     
       
     
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+        
+      
+    
+      
+        
+      
+    
+      
+        
+      
+    
+      
+        
+      
+    
+      
+    
+      
+        
+      
+    
+      
+        
+      
+    
+      
+        
+      
+    
+      
+        
+      
+    
 
+    
+    <details style="margin-bottom:14px;background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:10px 14px">
+      <summary style="cursor:pointer;font-weight:600;color:#1e40af">
+        🤖 Hand off 8 unresolved references to a Claude Code session
+      </summary>
+      <p style="margin:10px 0 6px 0;font-size:0.88em;color:#1e3a8a">
+        These entries have no committed PDF, no open-access link, and no DOI/publisher URL. Copy the prompt below into <strong>any Claude Code session running in this workspace</strong>; it will search for each paper, download PDFs where openly available, and add DOI / URL fields to <code>references/papers.bib</code>.
+      </p>
+      <textarea id="refs-ai-prompt" readonly
+                style="width:100%;min-height:200px;padding:10px;border:1px solid #cbd5e1;border-radius:4px;font-family:ui-monospace,monospace;font-size:0.82em;background:#fff;resize:vertical">For each of the bib entries listed below in `references/papers.bib`, do the following — work entry by entry, committing as you go:
+
+1. Search the web for the paper using its title + first author + year. Use WebSearch / WebFetch to find the canonical publisher page.
+2. Note the DOI and the publisher URL.
+3. If an open-access PDF is available (publisher, arXiv, bioRxiv, PubMed Central, author's site, institutional repository, etc.), download it to `references/{bib_key}.pdf` and add the entry to `workspace.yaml.references_pdfs` with the sha256 of the downloaded file.
+4. Edit the entry in `references/papers.bib` to add `doi = {...}` and `url = {...}` fields where missing. Preserve the existing entry structure.
+5. If you cannot find a freely-available PDF but can identify a stable URL (publisher page, paywall landing page, indexed search result), just add the `url` / `doi` and skip the PDF download.
+6. After updating papers.bib + workspace.yaml, run `python scripts/lint-workspace.py` to confirm nothing is broken.
+
+You can also short-circuit DOI + Unpaywall lookup by calling the dashboard's existing endpoint:
+    curl -X POST -H 'Content-Type: application/json' -d '{"key":"<bibkey>"}' http://localhost:8765/api/references-fetch
+
+…but treat that as a fallback — manual search usually finds links Unpaywall misses (paywalled DOIs the publisher hosts a free PDF for, preprint servers, etc.).
+
+Entries to research:
+
+- mullins2024actin — "Distributive polymerases clustered on membrane surfaces produce actin networks of mechanically tunable density" (Mullins, R Dyche and Skruber, Kristen and others, 2024, Nature Cell Biology)
+- inoue2015brownian — "Brownian dynamics simulations of actin polymerization against a fluctuating membrane reveal a force-velocity relationship" (Inoue, Yasuhiro and Deji, T and Adachi, Taiji, 2015, Biomechanics and Modeling in Mechanobiology)
+- li2022molecular — "Molecular mechanism of force generation and load adaptation by branched actin networks" (Li, Tai-De and Bieling, Peter and Weichsel, Julian and Mullins, R Dyche and Fletcher, Daniel A, 2022, eLife)
+- funk2021barbed — "Profilin and formin constitute a pacemaker system for robust actin filament growth" (Funk, Johanna and Merino, Felipe and Schaks, Matthias and Rottner, Klemens and Raunser, Stefan and Bieling, Peter, 2021, eLife)
+- lee2009forcevelocity — "New proposed mechanism of actin-polymerization-driven motility" (Lee, K J and Liu, A J, 2009, Biophysical Journal)
+- schreiber2010simulation — "Simulation of the kinetics of actin-membrane attachment" (Schreiber, Christof H and Stewart, Murray and Duke, Tom, 2010, Proceedings of the National Academy of Sciences)
+- bibeau2023twist — "Twist in F-actin controls structural dynamics and persistence length" (Bibeau, James P and others, 2023)
+- ni2021membrane — "Membrane-MEDYAN: coupling the active actin cortex to deformable membranes" (Ni, Haoran and Papoian, Garegin A, 2021)
+
+When done, summarize which entries got PDFs vs URLs only vs were unresolvable, and commit the workspace changes on the active workstream branch.</textarea>
+      <div style="margin-top:8px;display:flex;gap:8px;align-items:center">
+        <button class="btn-mini" onclick="_copyRefsAiPrompt(this)" title="Copy prompt to clipboard">📋 Copy prompt</button>
+        <span class="muted" style="font-size:0.78em">Paste into a Claude Code session running in this workspace.</span>
+      </div>
+    </details>
     
 
     
@@ -559,6 +656,422 @@
           
           
           <p style="margin:6px 0;padding:6px 10px;background:#fef9c3;border-left:3px solid #facc15;border-radius:3px;font-size:0.85em"><strong>Note:</strong> Reviewed preprint, v1; PDF at references/papers/butler2026actin-membrane.pdf</p>
+          
+          
+        </div>
+      </details>
+    
+      <details class="bib-entry" data-key="peskin1993cellular" data-title="cellular motions and thermal fluctuations: the brownian ratchet" data-author="peskin, charles s and odell, garrett m and oster, george f" data-year="1993"
+               style="background:#fff;border:1px solid #e5e7eb;border-radius:8px;padding:10px 14px">
+        <summary style="cursor:pointer;list-style:none">
+          <div style="display:flex;align-items:baseline;gap:8px;flex-wrap:wrap">
+            <code style="background:#f1f5f9;padding:1px 6px;border-radius:3px;font-size:0.82em">peskin1993cellular</code>
+            <span class="muted" style="font-size:0.82em">1993</span>
+            <span style="font-size:0.85em">Biophysical Journal</span>
+            
+            
+            
+          </div>
+          <div style="margin-top:5px;font-weight:500">Cellular motions and thermal fluctuations: the Brownian ratchet</div>
+          <div class="muted" style="font-size:0.85em;margin-top:3px">Peskin, Charles S and Odell, Garrett M and Oster, George F</div>
+        </summary>
+        <div style="margin-top:10px;padding-top:8px;border-top:1px solid #f1f5f9;font-size:0.88em">
+          
+          <p style="margin:4px 0"><em>Biophysical Journal</em> 65(1), pp. 316--324 (1993).</p>
+          
+          
+          <p style="margin:4px 0"><strong>DOI:</strong> <a href="https://doi.org/10.1016/S0006-3495(93)81035-X" target="_blank">10.1016/S0006-3495(93)81035-X</a></p>
+          
+          
+          <p style="margin:6px 0;padding:6px 10px;background:#fef9c3;border-left:3px solid #facc15;border-radius:3px;font-size:0.85em"><strong>Note:</strong> Original Brownian-ratchet equation; closed-form when v_poly,v_depoly << ideal ratchet velocity; exponential force-dependence of polymerization velocity.</p>
+          
+          
+        </div>
+      </details>
+    
+      <details class="bib-entry" data-key="mogilner1996cell" data-title="cell motility driven by actin polymerization" data-author="mogilner, alex and oster, george" data-year="1996"
+               style="background:#fff;border:1px solid #e5e7eb;border-radius:8px;padding:10px 14px">
+        <summary style="cursor:pointer;list-style:none">
+          <div style="display:flex;align-items:baseline;gap:8px;flex-wrap:wrap">
+            <code style="background:#f1f5f9;padding:1px 6px;border-radius:3px;font-size:0.82em">mogilner1996cell</code>
+            <span class="muted" style="font-size:0.82em">1996</span>
+            <span style="font-size:0.85em">Biophysical Journal</span>
+            
+            
+            
+          </div>
+          <div style="margin-top:5px;font-weight:500">Cell motility driven by actin polymerization</div>
+          <div class="muted" style="font-size:0.85em;margin-top:3px">Mogilner, Alex and Oster, George</div>
+        </summary>
+        <div style="margin-top:10px;padding-top:8px;border-top:1px solid #f1f5f9;font-size:0.88em">
+          
+          <p style="margin:4px 0"><em>Biophysical Journal</em> 71(6), pp. 3030--3045 (1996).</p>
+          
+          
+          <p style="margin:4px 0"><strong>DOI:</strong> <a href="https://doi.org/10.1016/S0006-3495(96)79496-1" target="_blank">10.1016/S0006-3495(96)79496-1</a></p>
+          
+          
+          <p style="margin:6px 0;padding:6px 10px;background:#fef9c3;border-left:3px solid #facc15;border-radius:3px;font-size:0.85em"><strong>Note:</strong> Elastic Brownian ratchet — thermal fluctuations of filaments, not just the load. Quantitatively explains Listeria + lamellipodia.</p>
+          
+          
+        </div>
+      </details>
+    
+      <details class="bib-entry" data-key="mogilner2003force" data-title="force generation by actin polymerization ii: the elastic ratchet and tethered filaments" data-author="mogilner, alex and oster, george" data-year="2003"
+               style="background:#fff;border:1px solid #e5e7eb;border-radius:8px;padding:10px 14px">
+        <summary style="cursor:pointer;list-style:none">
+          <div style="display:flex;align-items:baseline;gap:8px;flex-wrap:wrap">
+            <code style="background:#f1f5f9;padding:1px 6px;border-radius:3px;font-size:0.82em">mogilner2003force</code>
+            <span class="muted" style="font-size:0.82em">2003</span>
+            <span style="font-size:0.85em">Biophysical Journal</span>
+            
+            
+            
+          </div>
+          <div style="margin-top:5px;font-weight:500">Force generation by actin polymerization II: the elastic ratchet and tethered filaments</div>
+          <div class="muted" style="font-size:0.85em;margin-top:3px">Mogilner, Alex and Oster, George</div>
+        </summary>
+        <div style="margin-top:10px;padding-top:8px;border-top:1px solid #f1f5f9;font-size:0.88em">
+          
+          <p style="margin:4px 0"><em>Biophysical Journal</em> 84(3), pp. 1591--1605 (2003).</p>
+          
+          
+          <p style="margin:4px 0"><strong>DOI:</strong> <a href="https://doi.org/10.1016/S0006-3495(03)74969-8" target="_blank">10.1016/S0006-3495(03)74969-8</a></p>
+          
+          
+          <p style="margin:6px 0;padding:6px 10px;background:#fef9c3;border-left:3px solid #facc15;border-radius:3px;font-size:0.85em"><strong>Note:</strong> Tethered-ratchet model: filaments transiently bound to the surface by a nucleation complex. Rationale for transient barbed-end tethering in cytosim.</p>
+          
+          
+        </div>
+      </details>
+    
+      <details class="bib-entry" data-key="kuo2000steps" data-title="steps and fluctuations of listeria monocytogenes during actin-based motility" data-author="kuo, scot c and mcgrath, james l" data-year="2000"
+               style="background:#fff;border:1px solid #e5e7eb;border-radius:8px;padding:10px 14px">
+        <summary style="cursor:pointer;list-style:none">
+          <div style="display:flex;align-items:baseline;gap:8px;flex-wrap:wrap">
+            <code style="background:#f1f5f9;padding:1px 6px;border-radius:3px;font-size:0.82em">kuo2000steps</code>
+            <span class="muted" style="font-size:0.82em">2000</span>
+            <span style="font-size:0.85em">Nature</span>
+            
+            
+            
+          </div>
+          <div style="margin-top:5px;font-weight:500">Steps and fluctuations of Listeria monocytogenes during actin-based motility</div>
+          <div class="muted" style="font-size:0.85em;margin-top:3px">Kuo, Scot C and McGrath, James L</div>
+        </summary>
+        <div style="margin-top:10px;padding-top:8px;border-top:1px solid #f1f5f9;font-size:0.88em">
+          
+          <p style="margin:4px 0"><em>Nature</em> 407(6807), pp. 1026--1029 (2000).</p>
+          
+          
+          <p style="margin:4px 0"><strong>DOI:</strong> <a href="https://doi.org/10.1038/35039544" target="_blank">10.1038/35039544</a></p>
+          
+          
+          <p style="margin:6px 0;padding:6px 10px;background:#fef9c3;border-left:3px solid #facc15;border-radius:3px;font-size:0.85em"><strong>Note:</strong> Step-like motion at ~5.4 nm (F-actin spatial periodicity); positional fluctuations ~20x less than lipid droplets. Disproves naive Brownian ratchet, constrains elastic/molecular ratchet variants.</p>
+          
+          
+        </div>
+      </details>
+    
+      <details class="bib-entry" data-key="theriot2000polymerization" data-title="the polymerization motor" data-author="theriot, julie a" data-year="2000"
+               style="background:#fff;border:1px solid #e5e7eb;border-radius:8px;padding:10px 14px">
+        <summary style="cursor:pointer;list-style:none">
+          <div style="display:flex;align-items:baseline;gap:8px;flex-wrap:wrap">
+            <code style="background:#f1f5f9;padding:1px 6px;border-radius:3px;font-size:0.82em">theriot2000polymerization</code>
+            <span class="muted" style="font-size:0.82em">2000</span>
+            <span style="font-size:0.85em">Traffic</span>
+            
+            
+            
+          </div>
+          <div style="margin-top:5px;font-weight:500">The polymerization motor</div>
+          <div class="muted" style="font-size:0.85em;margin-top:3px">Theriot, Julie A</div>
+        </summary>
+        <div style="margin-top:10px;padding-top:8px;border-top:1px solid #f1f5f9;font-size:0.88em">
+          
+          <p style="margin:4px 0"><em>Traffic</em> 1(1), pp. 19--28 (2000).</p>
+          
+          
+          <p style="margin:4px 0"><strong>DOI:</strong> <a href="https://doi.org/10.1034/j.1600-0854.2000.010104.x" target="_blank">10.1034/j.1600-0854.2000.010104.x</a></p>
+          
+          
+          <p style="margin:6px 0;padding:6px 10px;background:#fef9c3;border-left:3px solid #facc15;border-radius:3px;font-size:0.85em"><strong>Note:</strong> Review tying thermodynamic free-energy to mechanical force; energetics sanity-check.</p>
+          
+          
+        </div>
+      </details>
+    
+      <details class="bib-entry" data-key="vanoudenaarden1999cooperative" data-title="cooperative symmetry-breaking by actin polymerization in a model for cell motility" data-author="van oudenaarden, alexander and theriot, julie a" data-year="1999"
+               style="background:#fff;border:1px solid #e5e7eb;border-radius:8px;padding:10px 14px">
+        <summary style="cursor:pointer;list-style:none">
+          <div style="display:flex;align-items:baseline;gap:8px;flex-wrap:wrap">
+            <code style="background:#f1f5f9;padding:1px 6px;border-radius:3px;font-size:0.82em">vanoudenaarden1999cooperative</code>
+            <span class="muted" style="font-size:0.82em">1999</span>
+            <span style="font-size:0.85em">Nature Cell Biology</span>
+            
+            
+            
+          </div>
+          <div style="margin-top:5px;font-weight:500">Cooperative symmetry-breaking by actin polymerization in a model for cell motility</div>
+          <div class="muted" style="font-size:0.85em;margin-top:3px">van Oudenaarden, Alexander and Theriot, Julie A</div>
+        </summary>
+        <div style="margin-top:10px;padding-top:8px;border-top:1px solid #f1f5f9;font-size:0.88em">
+          
+          <p style="margin:4px 0"><em>Nature Cell Biology</em> 1(8), pp. 493--499 (1999).</p>
+          
+          
+          <p style="margin:4px 0"><strong>DOI:</strong> <a href="https://doi.org/10.1038/70281" target="_blank">10.1038/70281</a></p>
+          
+          
+          <p style="margin:6px 0;padding:6px 10px;background:#fef9c3;border-left:3px solid #facc15;border-radius:3px;font-size:0.85em"><strong>Note:</strong> Bead motility assay; stochastic elastic-ratchet theory; symmetry-breaking requires significant subunit off-rate (k_off). Basis for the k_off issue in spec §3.1.2.</p>
+          
+          
+        </div>
+      </details>
+    
+      <details class="bib-entry" data-key="mullins2024actin" data-title="distributive polymerases clustered on membrane surfaces produce actin networks of mechanically tunable density" data-author="mullins, r dyche and skruber, kristen and others" data-year="2024"
+               style="background:#fff;border:1px solid #e5e7eb;border-radius:8px;padding:10px 14px">
+        <summary style="cursor:pointer;list-style:none">
+          <div style="display:flex;align-items:baseline;gap:8px;flex-wrap:wrap">
+            <code style="background:#f1f5f9;padding:1px 6px;border-radius:3px;font-size:0.82em">mullins2024actin</code>
+            <span class="muted" style="font-size:0.82em">2024</span>
+            <span style="font-size:0.85em">Nature Cell Biology</span>
+            
+            
+            
+          </div>
+          <div style="margin-top:5px;font-weight:500">Distributive polymerases clustered on membrane surfaces produce actin networks of mechanically tunable density</div>
+          <div class="muted" style="font-size:0.85em;margin-top:3px">Mullins, R Dyche and Skruber, Kristen and others</div>
+        </summary>
+        <div style="margin-top:10px;padding-top:8px;border-top:1px solid #f1f5f9;font-size:0.88em">
+          
+          <p style="margin:4px 0"><em>Nature Cell Biology</em> (2024).</p>
+          
+          
+          
+          
+          
+          <p style="margin:6px 0;padding:6px 10px;background:#fef9c3;border-left:3px solid #facc15;border-radius:3px;font-size:0.85em"><strong>Note:</strong> Surface-delivery theory. At low [actin], elongation is monomer-delivery-limited; at high [actin], set by how fast fluctuating filaments search the surface. Load forces amplify the advantage of surface polymerases. Anchor for spec HYP #3.</p>
+          
+          
+        </div>
+      </details>
+    
+      <details class="bib-entry" data-key="inoue2015brownian" data-title="brownian dynamics simulations of actin polymerization against a fluctuating membrane reveal a force-velocity relationship" data-author="inoue, yasuhiro and deji, t and adachi, taiji" data-year="2015"
+               style="background:#fff;border:1px solid #e5e7eb;border-radius:8px;padding:10px 14px">
+        <summary style="cursor:pointer;list-style:none">
+          <div style="display:flex;align-items:baseline;gap:8px;flex-wrap:wrap">
+            <code style="background:#f1f5f9;padding:1px 6px;border-radius:3px;font-size:0.82em">inoue2015brownian</code>
+            <span class="muted" style="font-size:0.82em">2015</span>
+            <span style="font-size:0.85em">Biomechanics and Modeling in Mechanobiology</span>
+            
+            
+            
+          </div>
+          <div style="margin-top:5px;font-weight:500">Brownian dynamics simulations of actin polymerization against a fluctuating membrane reveal a force-velocity relationship</div>
+          <div class="muted" style="font-size:0.85em;margin-top:3px">Inoue, Yasuhiro and Deji, T and Adachi, Taiji</div>
+        </summary>
+        <div style="margin-top:10px;padding-top:8px;border-top:1px solid #f1f5f9;font-size:0.88em">
+          
+          <p style="margin:4px 0"><em>Biomechanics and Modeling in Mechanobiology</em> (2015).</p>
+          
+          
+          
+          
+          
+          <p style="margin:6px 0;padding:6px 10px;background:#fef9c3;border-left:3px solid #facc15;border-radius:3px;font-size:0.85em"><strong>Note:</strong> Direct target paper for spec §1.2. Concave/convex F-V transition; polymerization angle criterion phi_c and direction vector d_p for asymmetric monomer accessibility; F-tilde = F/F_s, V-tilde = V/V(0).</p>
+          
+          
+        </div>
+      </details>
+    
+      <details class="bib-entry" data-key="li2022molecular" data-title="molecular mechanism of force generation and load adaptation by branched actin networks" data-author="li, tai-de and bieling, peter and weichsel, julian and mullins, r dyche and fletcher, daniel a" data-year="2022"
+               style="background:#fff;border:1px solid #e5e7eb;border-radius:8px;padding:10px 14px">
+        <summary style="cursor:pointer;list-style:none">
+          <div style="display:flex;align-items:baseline;gap:8px;flex-wrap:wrap">
+            <code style="background:#f1f5f9;padding:1px 6px;border-radius:3px;font-size:0.82em">li2022molecular</code>
+            <span class="muted" style="font-size:0.82em">2022</span>
+            <span style="font-size:0.85em">eLife</span>
+            
+            
+            
+          </div>
+          <div style="margin-top:5px;font-weight:500">Molecular mechanism of force generation and load adaptation by branched actin networks</div>
+          <div class="muted" style="font-size:0.85em;margin-top:3px">Li, Tai-De and Bieling, Peter and Weichsel, Julian and Mullins, R Dyche and Fletcher, Daniel A</div>
+        </summary>
+        <div style="margin-top:10px;padding-top:8px;border-top:1px solid #f1f5f9;font-size:0.88em">
+          
+          <p style="margin:4px 0"><em>eLife</em> (2022).</p>
+          
+          
+          
+          
+          
+          <p style="margin:6px 0;padding:6px 10px;background:#fef9c3;border-left:3px solid #facc15;border-radius:3px;font-size:0.85em"><strong>Note:</strong> Per-filament force-dependent capping (extends Brownian ratchet from elongation to capping). Canonical parameterization for force-dependent rates; engineered CP-size variants.</p>
+          
+          
+        </div>
+      </details>
+    
+      <details class="bib-entry" data-key="funk2021barbed" data-title="profilin and formin constitute a pacemaker system for robust actin filament growth" data-author="funk, johanna and merino, felipe and schaks, matthias and rottner, klemens and raunser, stefan and bieling, peter" data-year="2021"
+               style="background:#fff;border:1px solid #e5e7eb;border-radius:8px;padding:10px 14px">
+        <summary style="cursor:pointer;list-style:none">
+          <div style="display:flex;align-items:baseline;gap:8px;flex-wrap:wrap">
+            <code style="background:#f1f5f9;padding:1px 6px;border-radius:3px;font-size:0.82em">funk2021barbed</code>
+            <span class="muted" style="font-size:0.82em">2021</span>
+            <span style="font-size:0.85em">eLife</span>
+            
+            
+            
+          </div>
+          <div style="margin-top:5px;font-weight:500">Profilin and formin constitute a pacemaker system for robust actin filament growth</div>
+          <div class="muted" style="font-size:0.85em;margin-top:3px">Funk, Johanna and Merino, Felipe and Schaks, Matthias and Rottner, Klemens and Raunser, Stefan and Bieling, Peter</div>
+        </summary>
+        <div style="margin-top:10px;padding-top:8px;border-top:1px solid #f1f5f9;font-size:0.88em">
+          
+          <p style="margin:4px 0"><em>eLife</em> (2021).</p>
+          
+          
+          
+          
+          
+          <p style="margin:6px 0;padding:6px 10px;background:#fef9c3;border-left:3px solid #facc15;border-radius:3px;font-size:0.85em"><strong>Note:</strong> NPF tethering to filament tips; mechanism for surface-association picture in HYP #3 + transient tethering ISS.</p>
+          
+          
+        </div>
+      </details>
+    
+      <details class="bib-entry" data-key="zhu2022mem3dg" data-title="mem3dg: modeling membrane mechanochemical dynamics in 3d using discrete differential geometry" data-author="zhu, cuncheng and lee, christopher t and rangamani, padmini" data-year="2022"
+               style="background:#fff;border:1px solid #e5e7eb;border-radius:8px;padding:10px 14px">
+        <summary style="cursor:pointer;list-style:none">
+          <div style="display:flex;align-items:baseline;gap:8px;flex-wrap:wrap">
+            <code style="background:#f1f5f9;padding:1px 6px;border-radius:3px;font-size:0.82em">zhu2022mem3dg</code>
+            <span class="muted" style="font-size:0.82em">2022</span>
+            <span style="font-size:0.85em">Biophysical Reports</span>
+            
+            
+            
+          </div>
+          <div style="margin-top:5px;font-weight:500">Mem3DG: modeling membrane mechanochemical dynamics in 3D using discrete differential geometry</div>
+          <div class="muted" style="font-size:0.85em;margin-top:3px">Zhu, Cuncheng and Lee, Christopher T and Rangamani, Padmini</div>
+        </summary>
+        <div style="margin-top:10px;padding-top:8px;border-top:1px solid #f1f5f9;font-size:0.88em">
+          
+          <p style="margin:4px 0"><em>Biophysical Reports</em> (2022).</p>
+          
+          
+          <p style="margin:4px 0"><strong>DOI:</strong> <a href="https://doi.org/10.1016/j.bpr.2022.100062" target="_blank">10.1016/j.bpr.2022.100062</a></p>
+          
+          
+          <p style="margin:6px 0;padding:6px 10px;background:#fef9c3;border-left:3px solid #facc15;border-radius:3px;font-size:0.85em"><strong>Note:</strong> The membrane simulator. Helfrich-Canham-Evans + discrete differential geometry on triangulated meshes; per-vertex bending rigidity / spontaneous curvature; CME budding worked example.</p>
+          
+          
+        </div>
+      </details>
+    
+      <details class="bib-entry" data-key="lee2009forcevelocity" data-title="new proposed mechanism of actin-polymerization-driven motility" data-author="lee, k j and liu, a j" data-year="2009"
+               style="background:#fff;border:1px solid #e5e7eb;border-radius:8px;padding:10px 14px">
+        <summary style="cursor:pointer;list-style:none">
+          <div style="display:flex;align-items:baseline;gap:8px;flex-wrap:wrap">
+            <code style="background:#f1f5f9;padding:1px 6px;border-radius:3px;font-size:0.82em">lee2009forcevelocity</code>
+            <span class="muted" style="font-size:0.82em">2009</span>
+            <span style="font-size:0.85em">Biophysical Journal</span>
+            
+            
+            
+          </div>
+          <div style="margin-top:5px;font-weight:500">New proposed mechanism of actin-polymerization-driven motility</div>
+          <div class="muted" style="font-size:0.85em;margin-top:3px">Lee, K J and Liu, A J</div>
+        </summary>
+        <div style="margin-top:10px;padding-top:8px;border-top:1px solid #f1f5f9;font-size:0.88em">
+          
+          <p style="margin:4px 0"><em>Biophysical Journal</em> (2009).</p>
+          
+          
+          
+          
+          
+          <p style="margin:6px 0;padding:6px 10px;background:#fef9c3;border-left:3px solid #facc15;border-radius:3px;font-size:0.85em"><strong>Note:</strong> F-V simulation to cross-validate against (alongside Schreiber 2010).</p>
+          
+          
+        </div>
+      </details>
+    
+      <details class="bib-entry" data-key="schreiber2010simulation" data-title="simulation of the kinetics of actin-membrane attachment" data-author="schreiber, christof h and stewart, murray and duke, tom" data-year="2010"
+               style="background:#fff;border:1px solid #e5e7eb;border-radius:8px;padding:10px 14px">
+        <summary style="cursor:pointer;list-style:none">
+          <div style="display:flex;align-items:baseline;gap:8px;flex-wrap:wrap">
+            <code style="background:#f1f5f9;padding:1px 6px;border-radius:3px;font-size:0.82em">schreiber2010simulation</code>
+            <span class="muted" style="font-size:0.82em">2010</span>
+            <span style="font-size:0.85em">Proceedings of the National Academy of Sciences</span>
+            
+            
+            
+          </div>
+          <div style="margin-top:5px;font-weight:500">Simulation of the kinetics of actin-membrane attachment</div>
+          <div class="muted" style="font-size:0.85em;margin-top:3px">Schreiber, Christof H and Stewart, Murray and Duke, Tom</div>
+        </summary>
+        <div style="margin-top:10px;padding-top:8px;border-top:1px solid #f1f5f9;font-size:0.88em">
+          
+          <p style="margin:4px 0"><em>Proceedings of the National Academy of Sciences</em> (2010).</p>
+          
+          
+          
+          
+          
+          <p style="margin:6px 0;padding:6px 10px;background:#fef9c3;border-left:3px solid #facc15;border-radius:3px;font-size:0.85em"><strong>Note:</strong> F-V simulation cross-validation reference (alongside Lee 2009).</p>
+          
+          
+        </div>
+      </details>
+    
+      <details class="bib-entry" data-key="bibeau2023twist" data-title="twist in f-actin controls structural dynamics and persistence length" data-author="bibeau, james p and others" data-year="2023"
+               style="background:#fff;border:1px solid #e5e7eb;border-radius:8px;padding:10px 14px">
+        <summary style="cursor:pointer;list-style:none">
+          <div style="display:flex;align-items:baseline;gap:8px;flex-wrap:wrap">
+            <code style="background:#f1f5f9;padding:1px 6px;border-radius:3px;font-size:0.82em">bibeau2023twist</code>
+            <span class="muted" style="font-size:0.82em">2023</span>
+            <span style="font-size:0.85em"></span>
+            
+            
+            
+          </div>
+          <div style="margin-top:5px;font-weight:500">Twist in F-actin controls structural dynamics and persistence length</div>
+          <div class="muted" style="font-size:0.85em;margin-top:3px">Bibeau, James P and others</div>
+        </summary>
+        <div style="margin-top:10px;padding-top:8px;border-top:1px solid #f1f5f9;font-size:0.88em">
+          
+          
+          
+          
+          
+          <p style="margin:6px 0;padding:6px 10px;background:#fef9c3;border-left:3px solid #facc15;border-radius:3px;font-size:0.85em"><strong>Note:</strong> Queued for persistence-length parameterization of bonded filaments.</p>
+          
+          
+        </div>
+      </details>
+    
+      <details class="bib-entry" data-key="ni2021membrane" data-title="membrane-medyan: coupling the active actin cortex to deformable membranes" data-author="ni, haoran and papoian, garegin a" data-year="2021"
+               style="background:#fff;border:1px solid #e5e7eb;border-radius:8px;padding:10px 14px">
+        <summary style="cursor:pointer;list-style:none">
+          <div style="display:flex;align-items:baseline;gap:8px;flex-wrap:wrap">
+            <code style="background:#f1f5f9;padding:1px 6px;border-radius:3px;font-size:0.82em">ni2021membrane</code>
+            <span class="muted" style="font-size:0.82em">2021</span>
+            <span style="font-size:0.85em"></span>
+            
+            
+            
+          </div>
+          <div style="margin-top:5px;font-weight:500">Membrane-MEDYAN: coupling the active actin cortex to deformable membranes</div>
+          <div class="muted" style="font-size:0.85em;margin-top:3px">Ni, Haoran and Papoian, Garegin A</div>
+        </summary>
+        <div style="margin-top:10px;padding-top:8px;border-top:1px solid #f1f5f9;font-size:0.88em">
+          
+          
+          
+          
+          
+          <p style="margin:6px 0;padding:6px 10px;background:#fef9c3;border-left:3px solid #facc15;border-radius:3px;font-size:0.85em"><strong>Note:</strong> Prior-art comparator flagged by Atsushi for the membrane-actin coupling problem; alternative to the Mem3DG+ReaDDy stack.</p>
           
           
         </div>
@@ -782,6 +1295,23 @@
         <button class="btn-mini" onclick="_vizAddToProject('membrane-volume-strain')">Add to project</button>
         <button class="btn-mini" onclick="_vizCommit(['membrane-volume-strain'])">Commit</button>
         <button class="btn-mini" onclick="_vizRemove('membrane-volume-strain')" style="color:#c00">Remove</button>
+      </td>
+    </tr>
+    
+    <tr id="viz-row-schematic-vesicle-3d">
+      <td><code>schematic-vesicle-3d</code><br><small style="color:#888">time-series: time, membrane_volume, actin_max_z, contact_force</small></td>
+      <td class="viz-description">
+        <strong>SchematicVesicle3D</strong><br>
+        Animated Three.js scene — translucent vesicle whose radius tracks (V/V₀)^(1/3); an accent-colored actin "puck" rising with actin_max_z; a red contact-force arrow whose length scales with contact_force. Ported from demo/report.html. Frozen reference shell shows initial geometry so even small deformations are visible.
+      </td>
+      <td><small style="color:#666;font-family:monospace">—</small></td>
+      <td><span class="status-pill" id="viz-status-schematic-vesicle-3d">…</span></td>
+      <td class="viz-actions">
+        <button class="btn-mini" onclick="_vizPreview('schematic-vesicle-3d')">Preview</button>
+        
+        <button class="btn-mini" onclick="_vizAddToProject('schematic-vesicle-3d')">Add to project</button>
+        <button class="btn-mini" onclick="_vizCommit(['schematic-vesicle-3d'])">Commit</button>
+        <button class="btn-mini" onclick="_vizRemove('schematic-vesicle-3d')" style="color:#c00">Remove</button>
       </td>
     </tr>
     
@@ -1639,7 +2169,7 @@ Nothing on <code id="pr-base-display-2">main</code> changes until someone presse
 
 <script src="assets/render-helpers.js"></script>
 <script src="assets/client.js" onerror="/* live mode unavailable */"></script>
-<script src="assets/walkthrough.js?v=1779159299_1779160750" onerror="/* walkthrough unavailable */"></script>
+<script src="assets/walkthrough.js?v=1779159299_1779160913" onerror="/* walkthrough unavailable */"></script>
 <script src="assets/investigations.js" onerror="/* investigations unavailable */"></script>
 <!-- workspace-switcher.js is intentionally not loaded: the left-rail dropdown
      it used to drive has been repurposed into the investigation switcher

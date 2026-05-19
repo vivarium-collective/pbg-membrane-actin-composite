@@ -28,6 +28,7 @@ from pbg_membrane_actin_composite.visualizations.force_velocity_scatter import F
 from pbg_membrane_actin_composite.visualizations.energy_budget import EnergyBudget
 from pbg_membrane_actin_composite.visualizations.ratchet_event_rate import RatchetEventRate
 from pbg_membrane_actin_composite.visualizations.membrane_volume_strain import MembraneVolumeStrain
+from pbg_membrane_actin_composite.visualizations.schematic_vesicle_3d import SchematicVesicle3D
 
 __all__ = [
     "CouplingTrace",
@@ -38,4 +39,5 @@ __all__ = [
     "EnergyBudget",
     "RatchetEventRate",
     "MembraneVolumeStrain",
+    "SchematicVesicle3D",
 ]

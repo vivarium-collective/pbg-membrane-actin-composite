@@ -63,3 +63,5 @@ visualizations:
   address: local:PopulationTrace
 - name: ratchet-event-rate
   address: local:RatchetEventRate
+- name: schematic-vesicle-3d
+  address: local:SchematicVesicle3D

@@ -1,0 +1,166 @@
+<div style="height:3px;background:#10b981;margin-bottom:6px;border-radius:2px"></div><div style="font:600 14px/1.3 'Inter',sans-serif;color:#1f2937;margin:4px 0 8px 0">Schematic vesicle + actin front</div><div id="schematic-3d-4606078816" style="height:380px;background:#f8fafc;border-radius:8px;position:relative;overflow:hidden"></div><script>
+(function() {{
+  const FRAMES = [{"t": 0.0, "r": 0.06759645958098631, "z": 0.0, "f": 0.0}, {"t": 0.5, "r": 1.0, "z": 0.0, "f": 0.0}, {"t": 1.0, "r": 1.0000001237206988, "z": 1.1603635411241333, "f": 0.33720129528424825}, {"t": 1.5, "r": 1.0000002419050125, "z": 2.0306505278359728, "f": 1.3699895916326572}, {"t": 2.0, "r": 1.0012710171412549, "z": 1.7170826277108726, "f": 1.5474999050887048}, {"t": 2.5, "r": 1.0062525578732433, "z": 2.3845361011715833, "f": 3.2827044649607986}, {"t": 3.0, "r": 1.0111939624490902, "z": 2.682541785296371, "f": 3.7418338396813446}, {"t": 3.5, "r": 1.02210482371955, "z": 3.0927191357427426, "f": 4.533069923834433}, {"t": 4.0, "r": 1.0333428585927518, "z": 2.9789025704678425, "f": 5.500184752767859}, {"t": 4.5, "r": 1.0462202955142084, "z": 3.0935394562803404, "f": 6.172640278218357}, {"t": 5.0, "r": 1.0613230125420616, "z": 2.4394879685169593, "f": 6.000435527325055}, {"t": 5.5, "r": 1.077226914190989, "z": 2.9505918942207985, "f": 4.665493252718773}, {"t": 6.0, "r": 1.090185214907981, "z": 2.205906580798061, "f": 6.202358586906073}, {"t": 6.5, "r": 1.0952752667307717, "z": 1.9698291257574605, "f": 3.6827626162431404}, {"t": 7.0, "r": 1.0952753536662383, "z": 3.1479140131236774, "f": 3.9690789364880947}, {"t": 7.5, "r": 1.0951199765693138, "z": 3.0438404091585975, "f": 2.8133014849112516}, {"t": 8.0, "r": 1.0951199857637173, "z": 3.688933434925193, "f": 4.142796801616245}, {"t": 8.5, "r": 1.0951199545439587, "z": 3.660408568912018, "f": 7.809373171285328}, {"t": 9.0, "r": 1.0970949575609725, "z": 4.430957389577799, "f": 5.329531680967199}, {"t": 9.5, "r": 1.1153980645599213, "z": 1.3123180999764432, "f": 5.8262129313929245}, {"t": 10.0, "r": 1.1194781556272133, "z": 1.469159976220163, "f": 6.636776037255043}, {"t": 10.5, "r": 1.1252477037265602, "z": 1.3364543810701366, "f": 7.98172909523754}, {"t": 11.0, "r": 1.1339511209063204, "z": 1.3354453397658796, "f": 0.0}, {"t": 11.5, "r": 1.1339512278241846, "z": 1.4266298223960485, "f": 0.11669191302907689}, {"t": 12.0, "r": 1.1090708407737038, "z": 1.2229299956216861, "f": 0.222903669137114}, {"t": 12.5, "r": 1.0900984443257429, "z": 1.3237188613905269, "f": 0.2210531079615652}, {"t": 13.0, "r": 1.0754154885785818, "z": 1.3961948985675943, "f": 0.39735032890865063}, {"t": 13.5, "r": 1.063526983458003, "z": 1.300667883664042, "f": 0.5248893256012119}, {"t": 14.0, "r": 1.0545777275852493, "z": 1.4454134001662944, "f": 0.671518447070641}, {"t": 14.5, "r": 1.0477502828976448, "z": 1.6461220806150516, "f": 0.7852221489165958}, {"t": 15.0, "r": 1.0427072287925725, "z": 1.2375176759448296, "f": 0.8996864270101963}, {"t": 15.5, "r": 1.0389798479565249, "z": 1.1616002098724216, "f": 1.0788817316682426}, {"t": 16.0, "r": 1.0363352968169321, "z": 1.153081078858609, "f": 1.2264925474184365}];
+  const ACCENT = "#10b981";
+  const FRAME_DELAY = 600;
+  const containerId = "schematic-3d-4606078816";
+
+  function init() {{
+    const container = document.getElementById(containerId);
+    if (!container || !window.THREE) {{ setTimeout(init, 50); return; }}
+    const w = container.clientWidth || 600;
+    const h = 380;
+
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0xf8fafc);
+
+    const camera = new THREE.PerspectiveCamera(40, w / h, 0.01, 200);
+    camera.position.set(5.5, 2.0, 5.5);
+    camera.lookAt(0, 0, 0);
+
+    const renderer = new THREE.WebGLRenderer({{ antialias: true }});
+    renderer.setPixelRatio(window.devicePixelRatio || 1);
+    renderer.setSize(w, h);
+    container.insertBefore(renderer.domElement, container.firstChild);
+
+    scene.add(new THREE.AmbientLight(0xffffff, 0.55));
+    const key = new THREE.DirectionalLight(0xffffff, 0.85);
+    key.position.set(5, 7, 4); scene.add(key);
+    const fill = new THREE.DirectionalLight(0xffffff, 0.3);
+    fill.position.set(-3, -2, -2); scene.add(fill);
+
+    // Floor grid.
+    const grid = new THREE.GridHelper(6, 6, 0xd1d5db, 0xe5e7eb);
+    grid.material.transparent = true; grid.material.opacity = 0.4;
+    grid.position.y = -2.5;
+    scene.add(grid);
+
+    // Vesicle — translucent sphere whose radius tracks (V/V0)^(1/3).
+    const sphereGeom = new THREE.SphereGeometry(1.0, 32, 24);
+    const sphereMat = new THREE.MeshStandardMaterial({{
+      color: 0x6366f1, roughness: 0.45, metalness: 0.1,
+      transparent: true, opacity: 0.42,
+    }});
+    const vesicle = new THREE.Mesh(sphereGeom, sphereMat);
+    scene.add(vesicle);
+
+    // Reference shell — initial radius, frozen as dotted wireframe.
+    const refGeom = new THREE.SphereGeometry(1.0, 24, 18);
+    const refWire = new THREE.LineSegments(
+      new THREE.WireframeGeometry(refGeom),
+      new THREE.LineBasicMaterial({{ color: 0x9ca3af, transparent: true, opacity: 0.4 }}));
+    scene.add(refWire);
+
+    // Actin disk — a thin cylinder at z = actin_max_z + colored by accent.
+    const actinGeom = new THREE.CylinderGeometry(0.7, 0.7, 0.08, 24);
+    const actinMat = new THREE.MeshStandardMaterial({{
+      color: new THREE.Color(ACCENT),
+      roughness: 0.5, metalness: 0.1,
+      transparent: true, opacity: 0.85,
+    }});
+    const actin = new THREE.Mesh(actinGeom, actinMat);
+    actin.position.set(0, -1.6, 0);
+    scene.add(actin);
+
+    // Contact-force arrow — points up at the vesicle from the actin puck.
+    const arrowHelper = new THREE.ArrowHelper(
+      new THREE.Vector3(0, 1, 0),
+      new THREE.Vector3(0, -1.6, 0),
+      1.0, 0xdc2626, 0.18, 0.12,
+    );
+    scene.add(arrowHelper);
+
+    // Frame indicator and controls.
+    let frame = 0;
+    let playing = true;
+    let lastStep = performance.now();
+
+    function applyFrame(i) {{
+      if (i < 0 || i >= FRAMES.length) return;
+      const f = FRAMES[i];
+      vesicle.scale.set(f.r, f.r, f.r);
+      // Actin puck floats from the floor (y=-2.5) toward the vesicle as z grows.
+      // Map actin_max_z (typically [-3, +0.5]) into the scene's y axis.
+      const puckY = Math.max(-2.4, Math.min(-0.2, f.z));
+      actin.position.set(0, puckY, 0);
+      // Arrow length grows with contact_force; clamp to keep it on-scene.
+      const arrowLen = Math.max(0.2, Math.min(1.6, 0.4 + f.f * 0.3));
+      arrowHelper.setLength(arrowLen, 0.18, 0.12);
+      arrowHelper.position.set(0, puckY + 0.05, 0);
+      hud.textContent = "t = " + f.t.toFixed(2) + "    V/V₀ = " + (f.r*f.r*f.r).toFixed(3);
+    }}
+
+    // HUD overlay.
+    const hud = document.createElement("div");
+    hud.style.cssText = "position:absolute;top:8px;left:12px;background:rgba(255,255,255,0.85);"
+      + "padding:4px 10px;border-radius:4px;font:12px/1.2 'Inter', sans-serif;color:#1f2937;";
+    container.style.position = "relative";
+    container.appendChild(hud);
+
+    // Play/pause + slider.
+    const controls = document.createElement("div");
+    controls.style.cssText = "position:absolute;bottom:8px;left:12px;right:12px;"
+      + "background:rgba(255,255,255,0.92);padding:6px 10px;border-radius:6px;"
+      + "display:flex;gap:10px;align-items:center;font:12px 'Inter',sans-serif;";
+    const btn = document.createElement("button");
+    btn.textContent = "⏸";
+    btn.style.cssText = "padding:2px 10px;cursor:pointer;border:1px solid #d1d5db;"
+      + "background:#fff;border-radius:4px;";
+    const slider = document.createElement("input");
+    slider.type = "range"; slider.min = 0; slider.max = FRAMES.length - 1;
+    slider.value = 0; slider.style.cssText = "flex:1;";
+    const label = document.createElement("span");
+    label.textContent = "0 / " + (FRAMES.length - 1);
+    controls.appendChild(btn); controls.appendChild(slider); controls.appendChild(label);
+    container.appendChild(controls);
+
+    btn.onclick = function() {{
+      playing = !playing;
+      btn.textContent = playing ? "⏸" : "▶";
+    }};
+    slider.oninput = function() {{
+      playing = false; btn.textContent = "▶";
+      frame = parseInt(slider.value);
+      applyFrame(frame);
+      label.textContent = frame + " / " + (FRAMES.length - 1);
+    }};
+
+    // OrbitControls if available, else static camera.
+    let orbit = null;
+    if (THREE.OrbitControls) {{
+      orbit = new THREE.OrbitControls(camera, renderer.domElement);
+      orbit.enableDamping = true; orbit.dampingFactor = 0.08;
+    }}
+
+    function tick(now) {{
+      if (playing && now - lastStep >= FRAME_DELAY) {{
+        frame = (frame + 1) % FRAMES.length;
+        slider.value = frame;
+        label.textContent = frame + " / " + (FRAMES.length - 1);
+        applyFrame(frame);
+        lastStep = now;
+      }}
+      if (orbit) orbit.update();
+      renderer.render(scene, camera);
+      requestAnimationFrame(tick);
+    }}
+
+    applyFrame(0);
+    requestAnimationFrame(tick);
+  }}
+
+  if (window.THREE) init();
+  else {{
+    const s1 = document.createElement("script");
+    s1.src = "https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js";
+    s1.onload = function() {{
+      const s2 = document.createElement("script");
+      s2.src = "https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/controls/OrbitControls.js";
+      s2.onload = init;
+      s2.onerror = init;  // fall back without OrbitControls
+      document.head.appendChild(s2);
+    }};
+    document.head.appendChild(s1);
+  }}
+}})();
+</script>

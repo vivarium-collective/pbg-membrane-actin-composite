@@ -44,3 +44,5 @@ visualizations:
   address: local:BarrierKinematics
 - name: energy-budget
   address: local:EnergyBudget
+- name: schematic-vesicle-3d
+  address: local:SchematicVesicle3D

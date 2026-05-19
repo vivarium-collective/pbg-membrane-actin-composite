@@ -139,6 +139,16 @@ visualizations:
     class: MembraneVolumeStrain
     type: time-series
     observables: [time, membrane_volume]
+  - name: schematic-vesicle-3d
+    description: >-
+      Animated Three.js scene — translucent vesicle whose radius tracks
+      (V/V₀)^(1/3); an accent-colored actin "puck" rising with actin_max_z;
+      a red contact-force arrow whose length scales with contact_force.
+      Ported from demo/report.html. Frozen reference shell shows initial
+      geometry so even small deformations are visible.
+    class: SchematicVesicle3D
+    type: time-series
+    observables: [time, membrane_volume, actin_max_z, contact_force]
 simulations: []
 datasets: []
 expert_docs:

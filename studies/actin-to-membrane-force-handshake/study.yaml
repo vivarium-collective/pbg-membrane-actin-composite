@@ -46,3 +46,5 @@ visualizations:
   address: local:EnergyBudget
 - name: ratchet-event-rate
   address: local:RatchetEventRate
+- name: schematic-vesicle-3d
+  address: local:SchematicVesicle3D
