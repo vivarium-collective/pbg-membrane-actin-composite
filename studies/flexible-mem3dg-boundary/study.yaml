@@ -53,5 +53,3 @@ visualizations:
   address: local:ForceVelocityScatter
 - name: schematic-vesicle-3d
   address: local:SchematicVesicle3D
-- name: particles-3d
-  address: local:Particles3D

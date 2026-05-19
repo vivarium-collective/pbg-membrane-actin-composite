@@ -20,6 +20,7 @@ import json
 from typing import Any
 
 from pbg_superpowers.visualization import Visualization
+from pbg_membrane_actin_composite.visualizations._plotly_helpers import _AUTOSIZE_SCRIPT
 
 
 _THREE_CDN = "https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"
@@ -366,4 +367,4 @@ class Particles3D(Visualization):
             f'border-radius:8px;position:relative;overflow:hidden"></div>'
             f'<script>{js}</script>'
         )
-        return {'html': html}
+        return {'html': html + _AUTOSIZE_SCRIPT}
