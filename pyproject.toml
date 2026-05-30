@@ -41,3 +41,6 @@ Issues = "https://github.com/vivarium-collective/pbg-membrane-actin-composite/is
 
 [tool.setuptools.packages.find]
 include = ["pbg_membrane_actin_composite*"]
+
+[tool.uv.sources]
+vivarium-dashboard = { git = "https://github.com/vivarium-collective/vivarium-dashboard.git", branch = "main" }
