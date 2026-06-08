@@ -2,8 +2,12 @@ schema_version: 4
 name: fixed-boundary
 investigation: membrane-actin-ratchet
 title: "Rung 1 · Fixed boundary"
-claim: "Against an immovable wall the barrier velocity holds at zero while contact force accumulates — the classical rigid-wall Brownian ratchet."
+claim: "OBSERVED: against an immovable wall the barrier velocity holds at ~0 while contact force accumulates. Ratchet-kinetics match to Peskin theory NOT yet quantified."
 confidence: Investigating
+evidence_status: observed-partial
+decision_figure: "tip–wall gap distribution + contact-force accumulation, with Peskin (1993) expected ratchet rate overlaid"
+expected_pattern: "barrier_velocity ≈ 0; contact_force accumulates; tip–wall gap distribution consistent with thermal-fluctuation ratchet"
+acceptance_threshold: "mean barrier_velocity within ±1e-3 AND contact_force > 0 and rising; gap stats within Peskin band"
 parent_studies: []
 created: '2026-05-18'
 question: Does the composite reproduce the rigid-wall Peskin-1993 regime — Brownian-ratchet kinetics against
@@ -13,7 +17,7 @@ design_status: drafted
 implementation_status: complete
 simulation_status: ran
 evaluation_status: not_evaluated
-gate_status: blocked
+gate_status: null
 expert_review_status: not_requested
 purpose:
   question: Does the composite reproduce the rigid-wall Peskin-1993 regime — Brownian-ratchet kinetics

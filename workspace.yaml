@@ -115,6 +115,15 @@ visualizations:
     class: ForceVelocityScatter
     type: phase-space
     observables: [time, mean_contact_force, barrier_velocity]
+  - name: force-velocity-benchmark
+    description: >-
+      DECISION FIGURE for coupled-ratchet-cycle-fv-reproduction. Steady-state
+      (F, V) point per growth-rate condition with an Expected-Pattern box, the
+      acceptance threshold, a labelled (schematic, pending) Inoue 2015 reference
+      curve, and provenance. Reads runs.db directly to overlay all conditions.
+    class: ForceVelocityBenchmark
+    type: phase-space
+    observables: [time, mean_contact_force, barrier_velocity]
   - name: energy-budget
     description: >-
       Stacked area of Mem3DG bending / surface / pressure energies vs time.

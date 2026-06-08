@@ -2,8 +2,12 @@ schema_version: 4
 name: rigid-movable-boundary
 investigation: membrane-actin-ratchet
 title: "Rung 2 · Rigid movable boundary"
-claim: "A drag-loaded movable wall settles to a non-zero velocity, exhibiting load-dependent stalling within the Peskin-1993 bound."
+claim: "OBSERVED: a drag-loaded movable wall settles to a non-zero velocity. Whether the stall force stays within the Peskin-1993 bound is NOT yet checked."
 confidence: Investigating
+evidence_status: observed-partial
+decision_figure: "force–velocity phase portrait, low-drag vs high-drag on shared axes, with transient/steady-state windows marked and the Peskin stall bound drawn"
+expected_pattern: "velocity settles to a non-zero steady state; force and drag balance; stall force ≤ Peskin ceiling"
+acceptance_threshold: "steady-state mean barrier_velocity in (0, Peskin ceiling]"
 parent_studies:
   - {study: fixed-boundary, condition: tests-passed}
 created: '2026-05-18'
@@ -14,7 +18,7 @@ design_status: drafted
 implementation_status: complete
 simulation_status: ran
 evaluation_status: not_evaluated
-gate_status: blocked
+gate_status: null
 expert_review_status: not_requested
 purpose:
   question: With barrier_kind="rigid_movable", does the wall translate at a velocity proportional to the

@@ -2,10 +2,15 @@ schema_version: 4
 name: flexible-mem3dg-boundary
 investigation: membrane-actin-ratchet
 title: "Rung 3 · Flexible Mem3DG boundary"
-claim: "Under actin pressure the vesicle inflates (≥10% volume), redistributing load and relaxing contact force off the rigid-wall curve."
+claim: "OBSERVED: under actin pressure the vesicle inflates. That load is redistributed across filaments / relaxed off the rigid curve is NOT yet quantified — inflation alone is not ratchet success."
 confidence: Investigating
+evidence_status: observed-partial
+decision_figure: "rigid-vs-flexible side-by-side curvature & deformation maps (identical camera and scale) with the undeformed reference overlaid, plus per-filament load redistribution"
+expected_pattern: "membrane deforms; curvature redistributes load; mean per-tip contact force drops vs the rigid rung; volume ↑ ≥ 10%"
+acceptance_threshold: "membrane_volume ratio ≥ 1.1 AND mean per-tip contact_force < rigid-movable baseline"
 parent_studies:
   - {study: rigid-movable-boundary, condition: tests-passed}
+  - {study: actin-to-membrane-force-handshake, condition: tests-passed}
   - {study: membrane-to-actin-displacement-feedback, condition: tests-passed}
 created: '2026-05-18'
 question: With barrier_kind="flexible" (closed-icosphere Mem3DG mesh inside-pushed by bonded actin filaments),
@@ -16,7 +21,7 @@ design_status: drafted
 implementation_status: complete
 simulation_status: ran
 evaluation_status: not_evaluated
-gate_status: blocked
+gate_status: null
 expert_review_status: not_requested
 purpose:
   question: With barrier_kind="flexible" (closed-icosphere Mem3DG mesh inside-pushed by bonded actin filaments),

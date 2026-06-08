@@ -2,10 +2,13 @@ schema_version: 4
 name: membrane-to-actin-displacement-feedback
 investigation: membrane-actin-ratchet
 title: "Coupler B · Membrane→actin displacement feedback"
-claim: "Per-step mesh-position feedback preserves mesh quality (no degenerate triangles) and keeps tips within their box potentials."
+claim: "TARGET (not yet tested): per-step mesh-position feedback preserves mesh quality and keeps tips inside their box potentials. Mesh-quality is currently inferred, not measured."
 confidence: Investigating
-parent_studies:
-  - {study: actin-to-membrane-force-handshake, condition: tests-passed}
+evidence_status: not-tested
+decision_figure: "mesh-quality metrics vs time (min triangle area, max aspect ratio, inverted-face count, area/volume drift), gentle vs aggressive feedback side-by-side, plus tip–boundary distance"
+expected_pattern: "min triangle area stays above threshold; zero inverted faces; tip–boundary distance > 0 (no collisions)"
+acceptance_threshold: "min triangle area > 0 for the full run AND inverted-face count == 0"
+parent_studies: []
 created: '2026-05-18'
 question: Does per-step mesh-position feedback from Mem3DG to ReaDDy preserve mesh quality (no vertex
   inversion or degenerate triangles) and keep tip particles within their box-potential bounds?
@@ -14,7 +17,7 @@ design_status: drafted
 implementation_status: complete
 simulation_status: ran
 evaluation_status: not_evaluated
-gate_status: blocked
+gate_status: null
 expert_review_status: not_requested
 purpose:
   question: Does per-step mesh-position feedback from Mem3DG to ReaDDy preserve mesh quality (no vertex

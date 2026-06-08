@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en"><head>
 <meta charset="UTF-8"><title>pbg-membrane-actin-composite:membrane-actin-ratchet</title>
-<link rel="stylesheet" href="assets/style.css?v=1780874269_1780802491">
+<link rel="stylesheet" href="assets/style.css?v=1780885102_1780802491">
 <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
 <style>
 /* Modal overlay */
@@ -642,6 +642,23 @@
         <button class="btn-mini" onclick="_vizAddToProject('force-velocity-scatter')">Add to project</button>
         <button class="btn-mini" onclick="_vizCommit(['force-velocity-scatter'])">Commit</button>
         <button class="btn-mini" onclick="_vizRemove('force-velocity-scatter')" style="color:#c00">Remove</button>
+      </td>
+    </tr>
+    
+    <tr id="viz-row-force-velocity-benchmark">
+      <td><code>force-velocity-benchmark</code><br><small style="color:#888">phase-space: time, mean_contact_force, barrier_velocity</small></td>
+      <td class="viz-description">
+        <strong>ForceVelocityBenchmark</strong><br>
+        DECISION FIGURE for coupled-ratchet-cycle-fv-reproduction. Steady-state (F, V) point per growth-rate condition with an Expected-Pattern box, the acceptance threshold, a labelled (schematic, pending) Inoue 2015 reference curve, and provenance. Reads runs.db directly to overlay all conditions.
+      </td>
+      <td><small style="color:#666;font-family:monospace">—</small></td>
+      <td><span class="status-pill" id="viz-status-force-velocity-benchmark">…</span></td>
+      <td class="viz-actions">
+        <button class="btn-mini" onclick="_vizPreview('force-velocity-benchmark')">Preview</button>
+        
+        <button class="btn-mini" onclick="_vizAddToProject('force-velocity-benchmark')">Add to project</button>
+        <button class="btn-mini" onclick="_vizCommit(['force-velocity-benchmark'])">Commit</button>
+        <button class="btn-mini" onclick="_vizRemove('force-velocity-benchmark')" style="color:#c00">Remove</button>
       </td>
     </tr>
     
@@ -1693,8 +1710,8 @@ Nothing on <code id="pr-base-display-2">main</code> changes until someone presse
 
 <script src="assets/render-helpers.js"></script>
 <script src="assets/client.js" onerror="/* live mode unavailable */"></script>
-<script src="assets/walkthrough.js?v=1780874269_1780802491" onerror="/* walkthrough unavailable */"></script>
-<script src="assets/github-login.js?v=1780874269_1780802491" onerror="/* github-login unavailable */"></script>
+<script src="assets/walkthrough.js?v=1780885102_1780802491" onerror="/* walkthrough unavailable */"></script>
+<script src="assets/github-login.js?v=1780885102_1780802491" onerror="/* github-login unavailable */"></script>
 <script src="assets/investigations.js" onerror="/* investigations unavailable */"></script>
 <!-- workspace-switcher.js is intentionally not loaded: the left-rail dropdown
      it used to drive has been repurposed into the investigation switcher

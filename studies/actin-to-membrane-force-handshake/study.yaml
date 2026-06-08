@@ -2,10 +2,13 @@ schema_version: 4
 name: actin-to-membrane-force-handshake
 investigation: membrane-actin-ratchet
 title: "Coupler A · Actin→membrane force handshake"
-claim: "Per-step interface forces are equal-and-opposite across the coupler (Newton's third law) within numerical tolerance."
+claim: "TARGET (not yet tested): per-step interface forces are equal-and-opposite across the coupler (Newton's 3rd law). Residual-force test is still a stub."
 confidence: Investigating
-parent_studies:
-  - {study: rigid-movable-boundary, condition: tests-passed}
+evidence_status: not-tested
+decision_figure: "actin force, membrane force, residual force, and residual impulse vs time (residual → 0), plus a histogram of transferred forces to flag numerical outliers"
+expected_pattern: "residual force ≈ 0 throughout; transferred-force histogram has no heavy tails/outliers"
+acceptance_threshold: "|residual force| / |actin force| < 0.05 per step, sample-by-sample"
+parent_studies: []
 created: '2026-05-18'
 question: In the closed-loop flexible composite, is the force the actin side reports at the interface
   equal-and-opposite to the force the membrane integrates on its receiving vertices (Newton's 3rd law
@@ -15,7 +18,7 @@ design_status: drafted
 implementation_status: complete
 simulation_status: ran
 evaluation_status: not_evaluated
-gate_status: blocked
+gate_status: null
 expert_review_status: not_requested
 purpose:
   question: In the closed-loop flexible composite, is the force the actin side reports at the interface

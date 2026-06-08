@@ -2,11 +2,14 @@ schema_version: 4
 name: coupled-ratchet-cycle-fv-reproduction
 investigation: membrane-actin-ratchet
 title: "Benchmark · Coupled force–velocity reproduction"
-claim: "The closed loop reproduces the Inoue-2015 concave→convex F-V transition as polymerization rate increases."
+claim: "TARGET (not yet tested): the closed loop reproduces the Inoue-2015 concave→convex F-V transition. No benchmark comparison has been run."
 confidence: Investigating
+evidence_status: not-tested
+decision_figure: "F-V curve overlaid directly on the Inoue (2015) reference, with replicate runs + uncertainty bands, a fitted curve quantifying the concave→convex transition, and coupler-prerequisite pass indicators"
+expected_pattern: "F-V curvature flips concave→convex as growth_rate increases, tracking the Inoue 2015 shape"
+acceptance_threshold: "quantified curvature sign-flip across the growth_rate sweep, within the Inoue reference band"
 parent_studies:
   - {study: flexible-mem3dg-boundary, condition: tests-passed}
-  - {study: actin-to-membrane-force-handshake, condition: tests-passed}
 created: '2026-05-18'
 question: Does the closed-loop coupled cycle reproduce the Inoue-2015 concave→convex F-V transition as
   polymerization rate varies — the headline numerical benchmark for a flexible-membrane ratchet (spec
@@ -16,7 +19,7 @@ design_status: drafted
 implementation_status: complete
 simulation_status: ran
 evaluation_status: not_evaluated
-gate_status: blocked
+gate_status: null
 expert_review_status: not_requested
 purpose:
   question: Does the closed-loop coupled cycle reproduce the Inoue-2015 concave→convex F-V transition
@@ -64,6 +67,10 @@ tests:
 expert_docs:
 - multiscale-brownian-ratchet-spec
 visualizations:
+- name: force-velocity-benchmark
+  address: local:ForceVelocityBenchmark
+  config:
+    study_slug: coupled-ratchet-cycle-fv-reproduction
 - name: force-velocity-scatter
   address: local:ForceVelocityScatter
 - name: coupling-trace
