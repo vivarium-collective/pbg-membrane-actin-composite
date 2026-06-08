@@ -209,6 +209,94 @@ tooltip ("Queue every study baseline + variant that has no unsatisfied
 prerequisites and hasn't run yet") or a small `?` info-icon next to
 the cluster.
 
+## 37. Investigation DAG view duplicates the member-studies list when no edges exist
+
+The Investigation page lays out two panels of cards back-to-back:
+
+1. **Description / member-studies cards** at the top — a numbered list of
+   the studies named in `investigation.yaml.studies[]`. One card per
+   study with its question excerpt and a colored left rail.
+2. **Studies DAG** lower on the page — meant to render a real directed
+   graph of study dependencies (`pipeline_gate.prerequisites` between
+   member studies).
+
+When no study declares `pipeline_gate.prerequisites`, the DAG has no
+edges to draw. The dashboard falls back to a flat horizontal row of
+cards — visually almost identical to the panel above, just with
+different per-card metadata (composite path, sim/test counts) instead
+of the question excerpt. The user reads: "why are the cards showing
+up twice?"
+
+The cards are NOT actually duplicates — the panels carry different
+information — but the visual treatment is similar enough that an
+eyeballing user sees redundancy.
+
+**Recommendation:** Two options, either is an improvement:
+
+1. **Collapse the DAG panel when it has zero edges**, and replace it
+   with a short hint: *"No study dependencies declared. Add
+   `pipeline_gate.prerequisites: [parent_slug, …]` in each child
+   study's yaml to render a real dependency graph here."* This both
+   reduces visual redundancy AND tells the user how to populate it.
+
+2. **Differentiate the two panels visually** even in the no-edges
+   case — e.g. the DAG panel renders cards as horizontal lozenges
+   with attachment dots indicating they're graph-shaped, distinct
+   from the description-area's vertical detail cards. Then the
+   "this is a graph, not just a list" message is conveyed by shape
+   even without edges.
+
+I applied a workaround at the workspace level — adding prerequisites
+to make the DAG render real edges (linear chain for the
+boundary-condition-staircase; fan-in for the coupling closed-loop).
+But every fresh investigation will hit this issue until the dashboard
+handles the no-edges case better.
+
+## 38. The "Simulations" tab is empty even after successful runs
+
+After running every study via `POST /api/study-run-baseline` (which
+produces 33 emitter samples per run, populates `studies/<slug>/runs.db`,
+and renders viz HTML successfully), the **Simulations** tab on each
+study's detail page is empty. The Runs tab shows the runs, the
+Visualizations tab shows the charts, but Simulations shows nothing —
+no rows, no status, no hint.
+
+The schema separates `simulation_set` (declarations of *what* to
+simulate — names, sweeps, candidate parameters) from `runs[]`
+(records of *what was actually run*). My study yamls have only
+`baseline[]` populated, which the dashboard surfaces under "Build"
+and "Runs". `simulation_set` is empty, so the Simulations tab —
+which renders from that field — has nothing to show.
+
+The user expected the Simulations tab to reflect run state. It
+doesn't because of the schema partition.
+
+**Recommendation:** Either of:
+
+1. **Auto-derive a synthetic Simulations row from each baseline.**
+   The dashboard already knows `baseline[].name` and `baseline[].composite`;
+   show one Simulations row per baseline with status =
+   ("ran" if runs.db has a row for it else "queued"). Keeps the
+   `simulation_set` field reserved for user-authored sweep declarations
+   without leaving the tab empty.
+
+2. **Show an actionable empty state.** Instead of a blank panel,
+   render: *"No simulation_set entries declared. The study's
+   baseline composite ran N times (see Runs). To declare sweeps
+   or named candidate parameters, add to `simulation_set[]` —
+   see [docs/concepts/simulation-set.md]."* This is the same
+   advice as §37's recommendation #1 (empty-state copy).
+
+3. **Hide the tab when empty.** Less informative than the above
+   two, but matches what users typically expect from empty tabs in
+   most apps — they're either gone or visibly muted.
+
+Friction-pattern: this is the SECOND tab in the study explorer that
+appears empty for legitimate-but-not-obvious reasons (the first being
+the DAG view in §37). Both lose to the same root cause: **the
+dashboard renders tabs eagerly without distinguishing "no data yet"
+from "data goes here but you haven't declared it yet."**
+
 ## What worked well
 
 - Once the address-on-defaults bug was fixed, the dashboard's
@@ -246,3 +334,13 @@ the cluster.
    — every spatial simulator (Mem3DG, ReaDDy, Cytosim, COMSOL ports)
    produces nested coordinate arrays. The platform should support
    them as a first-class observable type.
+
+5. **Empty panels need actionable empty states.** §37 (DAG)
+   and §38 (Simulations tab) are the same friction in two places:
+   the dashboard renders a panel whose source field is empty and
+   shows nothing. A user reading "nothing" can't distinguish "broken"
+   from "not yet declared" from "no data yet." Every panel that
+   reads from a config field should fall back to copy that names the
+   field, shows the schema shape, and links to a doc. This is a
+   one-pass change across the templates and is the single biggest
+   onboarding improvement available.

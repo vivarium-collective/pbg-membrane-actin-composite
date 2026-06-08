@@ -37,29 +37,32 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
+      - name: Install pymem3dg native build deps
+        # pymem3dg is a scikit-build-core C++ extension that links against
+        # NetCDF + netcdf-cxx4 + Eigen. Eigen is fetched by CMake's
+        # FetchContent; NetCDF is not, so we install the apt packages.
+        # Without these the build fails at "Could NOT find netcdf-cxx4".
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            cmake \
+            libnetcdf-dev \
+            libnetcdf-c++4-dev \
+            libeigen3-dev \
+            libsuitesparse-dev
       - name: Install uv
         run: pip install uv
-      - name: Set up venv and install lint tooling
-        # The full package depends on the simulation stack (pbg-readdy → ReaDDy
-        # [conda-only], pbg-mem3dg → pymem3dg [C++], both → pbg-superpowers [not on
-        # PyPI]), which cannot be installed on a vanilla CI runner. The CI's job is
-        # to lint workspace/study/investigation YAML against the schemas, which only
-        # needs pyyaml + jsonschema. lint-workspace.py degrades gracefully when the
-        # package / vivarium-dashboard aren't importable (best-effort introspection).
+      - name: Set up venv and install
         run: |
           uv venv .venv
           source .venv/bin/activate
-          uv pip install pyyaml "jsonschema[format-nongpl]"
+          uv pip install -e ".[dev]"
       - name: Lint workspace
         run: |
           source .venv/bin/activate
           python scripts/lint-workspace.py
-      - name: Run workspace tests (skipped when the sim stack is unavailable)
+      - name: Run workspace tests
         if: hashFiles('tests/**/*.py') != ''
         run: |
           source .venv/bin/activate
-          if python -c "import pbg_mem3dg, pbg_readdy" 2>/dev/null; then
-            pytest tests/ -v --color=yes
-          else
-            echo "::notice::Skipping integration tests — pbg-mem3dg/pbg-readdy (pymem3dg / ReaDDy) are not installable on a vanilla CI runner (conda + C++ deps)."
-          fi
+          pytest tests/ -v --color=yes
