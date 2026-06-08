@@ -6,7 +6,6 @@ claim: "OBSERVED: a drag-loaded movable wall settles to a non-zero velocity. Whe
 confidence: Investigating
 evidence_status: observed-partial
 decision_figure: "force–velocity phase portrait, low-drag vs high-drag on shared axes, with transient/steady-state windows marked and the Peskin stall bound drawn"
-decision_figure_viz: fv-phase-portrait
 expected_pattern: "velocity settles to a non-zero steady state; force and drag balance; stall force ≤ Peskin ceiling"
 acceptance_threshold: "steady-state mean barrier_velocity in (0, Peskin ceiling]"
 parent_studies:

@@ -4,7 +4,6 @@ investigation: membrane-actin-ratchet
 title: "Rung 3 · Flexible Mem3DG boundary"
 claim: "OBSERVED: under actin pressure the vesicle inflates. That load is redistributed across filaments / relaxed off the rigid curve is NOT yet quantified — inflation alone is not ratchet success."
 confidence: Investigating
-system_figure_viz: particles-3d
 evidence_status: observed-partial
 decision_figure: "rigid-vs-flexible side-by-side curvature & deformation maps (identical camera and scale) with the undeformed reference overlaid, plus per-filament load redistribution"
 expected_pattern: "membrane deforms; curvature redistributes load; mean per-tip contact force drops vs the rigid rung; volume ↑ ≥ 10%"

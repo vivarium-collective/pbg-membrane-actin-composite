@@ -6,7 +6,6 @@ claim: "OBSERVED (partial pass): against an immovable wall mean barrier_velocity
 confidence: Investigating
 evidence_status: observed-partial
 decision_figure: "tip–wall gap distribution + contact-force accumulation, with Peskin (1993) expected ratchet rate overlaid"
-decision_figure_viz: gap-contact-decision
 expected_pattern: "barrier_velocity ≈ 0; contact_force accumulates; tip–wall gap distribution consistent with thermal-fluctuation ratchet"
 acceptance_threshold: "mean barrier_velocity within ±1e-3 AND contact_force > 0 and rising; gap stats within Peskin band"
 parent_studies: []

@@ -4,7 +4,6 @@ investigation: membrane-actin-ratchet
 title: "Coupler B · Membrane→actin displacement feedback"
 claim: "TARGET (not yet tested): per-step mesh-position feedback preserves mesh quality and keeps tips inside their box potentials. Mesh-quality is currently inferred, not measured."
 confidence: Investigating
-system_figure_viz: particles-3d
 evidence_status: not-tested
 decision_figure: "mesh-quality metrics vs time (min triangle area, max aspect ratio, inverted-face count, area/volume drift), gentle vs aggressive feedback side-by-side, plus tip–boundary distance"
 expected_pattern: "min triangle area stays above threshold; zero inverted faces; tip–boundary distance > 0 (no collisions)"
