@@ -1,26 +1,55 @@
-schema_version: 3
+schema_version: 4
 name: flexible-mem3dg-boundary
+investigation: membrane-actin-ratchet
+title: "Rung 3 · Flexible Mem3DG boundary"
+claim: "OBSERVED: under actin pressure the vesicle inflates. That load is redistributed across filaments / relaxed off the rigid curve is NOT yet quantified — inflation alone is not ratchet success."
+confidence: Investigating
+evidence_status: observed-partial
+decision_figure: "rigid-vs-flexible side-by-side curvature & deformation maps (identical camera and scale) with the undeformed reference overlaid, plus per-filament load redistribution"
+expected_pattern: "membrane deforms; curvature redistributes load; mean per-tip contact force drops vs the rigid rung; volume ↑ ≥ 10%"
+acceptance_threshold: "membrane_volume ratio ≥ 1.1 AND mean per-tip contact_force < rigid-movable baseline"
+parent_studies:
+  - {study: rigid-movable-boundary, condition: tests-passed}
+  - {study: actin-to-membrane-force-handshake, condition: tests-passed}
+  - {study: membrane-to-actin-displacement-feedback, condition: tests-passed}
 created: '2026-05-18'
-status: draft
+question: With barrier_kind="flexible" (closed-icosphere Mem3DG mesh inside-pushed by bonded actin filaments),
+  does the membrane deform under actin pressure and relax the contact-force burden compared to the rigid_movable
+  rung?
 phase: Design
+design_status: drafted
+implementation_status: complete
+simulation_status: ran
+evaluation_status: not_evaluated
+gate_status: null
+expert_review_status: not_requested
 purpose:
-  question: With barrier_kind="flexible" (closed-icosphere Mem3DG mesh inside-pushed
-    by bonded actin filaments), does the membrane deform under actin pressure and
-    relax the contact-force burden compared to the rigid_movable rung?
-  mechanism: 'Spec §2.2 rung 3. The coupler runs full Mem3DG: actin tip positions
-    raise contact_force on the inner surface; mem3dg integrates the resulting osmotic_offset;
-    the vesicle inflates, distributing load across the mesh and shifting the F-V scatter
-    point off the rigid-wall curve.'
-  expected_outcome: Vesicle volume grows visibly (≥10%) over the run; mean barrier
-    expansion rate is positive; F-V scatter lies clearly off the rung-2 line.
-baseline:
-- name: rung3-flexible
-  composite: pbg_membrane_actin_composite.composites.rung3_flexible_mem3dg_boundary
-  params: {}
-expected_behavior:
+  question: With barrier_kind="flexible" (closed-icosphere Mem3DG mesh inside-pushed by bonded actin filaments),
+    does the membrane deform under actin pressure and relax the contact-force burden compared to the rigid_movable
+    rung?
+  mechanism: 'Spec §2.2 rung 3. The coupler runs full Mem3DG: actin tip positions raise contact_force
+    on the inner surface; mem3dg integrates the resulting osmotic_offset; the vesicle inflates, distributing
+    load across the mesh and shifting the F-V scatter point off the rigid-wall curve.'
+  expected_outcome: Vesicle volume grows visibly (≥10%) over the run; mean barrier expansion rate is positive;
+    F-V scatter lies clearly off the rung-2 line.
+conditions:
+  baseline:
+    composite: pbg_membrane_actin_composite.composites.rung3_flexible_mem3dg_boundary
+    params: {}
+  variants:
+  - name: soft-coupling
+    description: Weak osmotic gain — membrane barely inflates, load stays on actin.
+    parameter_overrides:
+      osmotic_force_scale: 0.02
+  - name: stiff-coupling
+    description: Strong osmotic gain — vesicle inflates fast, relaxing contact force.
+    parameter_overrides:
+      osmotic_force_scale: 0.1
+  model_settings: []
+tests:
 - name: membrane-curvature-relaxes-load
-  en: Membrane volume increases by ≥10% over the run (vesicle inflates under actin
-    pressure) and final mean contact_force is below the rung-1 mean.
+  question: Membrane volume increases by ≥10% over the run (vesicle inflates under actin pressure) and
+    final mean contact_force is below the rung-1 mean.
   given:
     run: baseline
     window: full
@@ -28,7 +57,7 @@ expected_behavior:
     kind: listener_path
     observable: membrane_volume
     reduce: first_and_last
-  expect:
+  pass_if:
     op: ratio_at_least
     ratio: 1.1
   status: stub

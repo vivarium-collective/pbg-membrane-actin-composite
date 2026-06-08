@@ -1,24 +1,49 @@
-schema_version: 3
+schema_version: 4
 name: fixed-boundary
+investigation: membrane-actin-ratchet
+title: "Rung 1 · Fixed boundary"
+claim: "OBSERVED (partial pass): against an immovable wall mean barrier_velocity = 0 (within ±1e-3) while contact force accumulates. Quantitative match to the Peskin ratchet rate still pending a digitized reference."
+confidence: Investigating
+evidence_status: observed-partial
+decision_figure: "tip–wall gap distribution + contact-force accumulation, with Peskin (1993) expected ratchet rate overlaid"
+expected_pattern: "barrier_velocity ≈ 0; contact_force accumulates; tip–wall gap distribution consistent with thermal-fluctuation ratchet"
+acceptance_threshold: "mean barrier_velocity within ±1e-3 AND contact_force > 0 and rising; gap stats within Peskin band"
+parent_studies: []
 created: '2026-05-18'
-status: draft
+question: Does the composite reproduce the rigid-wall Peskin-1993 regime — Brownian-ratchet kinetics against
+  an immovable boundary — to within numerical tolerance, when barrier_kind is "fixed"?
 phase: Design
+design_status: drafted
+implementation_status: complete
+simulation_status: ran
+evaluation_status: not_evaluated
+gate_status: null
+expert_review_status: not_requested
 purpose:
-  question: Does the composite reproduce the rigid-wall Peskin-1993 regime — Brownian-ratchet
-    kinetics against an immovable boundary — to within numerical tolerance, when barrier_kind
-    is "fixed"?
-  mechanism: The coupler publishes a fixed wall_z to ReaDDy; actin filaments confined
-    under the wall accumulate contact_force; barrier_velocity stays at zero by construction.
-  expected_outcome: contact_force builds up; barrier_velocity ≈ 0; the F-V scatter
-    point sits at velocity≈0, force=mean_contact_force.
-baseline:
-- name: rung1-fixed
-  composite: pbg_membrane_actin_composite.composites.rung1_fixed_boundary
-  params: {}
-expected_behavior:
+  question: Does the composite reproduce the rigid-wall Peskin-1993 regime — Brownian-ratchet kinetics
+    against an immovable boundary — to within numerical tolerance, when barrier_kind is "fixed"?
+  mechanism: The coupler publishes a fixed wall_z to ReaDDy; actin filaments confined under the wall accumulate
+    contact_force; barrier_velocity stays at zero by construction.
+  expected_outcome: contact_force builds up; barrier_velocity ≈ 0; the F-V scatter point sits at velocity≈0,
+    force=mean_contact_force.
+conditions:
+  baseline:
+    composite: pbg_membrane_actin_composite.composites.rung1_fixed_boundary
+    params: {}
+  variants:
+  - name: low-growth
+    description: Slow polymerization — fewer ratchet events against the fixed wall.
+    parameter_overrides:
+      growth_rate: 1.0
+  - name: high-growth
+    description: Fast polymerization — higher contact_force buildup at the fixed wall.
+    parameter_overrides:
+      growth_rate: 8.0
+  model_settings: []
+tests:
 - name: fv-matches-mogilner-baseline
-  en: Mean barrier velocity stays at zero (within 1e-3) and mean contact_force is
-    positive across the run, consistent with the rigid-wall ratchet regime.
+  question: Mean barrier velocity stays at zero (within 1e-3) and mean contact_force is positive across
+    the run, consistent with the rigid-wall ratchet regime.
   given:
     run: baseline
     window: second_half
@@ -26,7 +51,7 @@ expected_behavior:
     kind: listener_path
     observable: barrier_velocity
     reduce: mean
-  expect:
+  pass_if:
     op: in_range
     lo: -0.001
     hi: 0.001
@@ -34,6 +59,10 @@ expected_behavior:
 expert_docs:
 - multiscale-brownian-ratchet-spec
 visualizations:
+- name: gap-contact-decision
+  address: local:GapContactDecision
+  config:
+    study_slug: fixed-boundary
 - name: coupling-trace
   address: local:CouplingTrace
 - name: population-trace

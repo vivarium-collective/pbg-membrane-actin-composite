@@ -1,6 +1,6 @@
 # pbg-membrane-actin-composite
 
-**[View Interactive Demo Report](https://vivarium-collective.github.io/pbg-membrane-actin-composite/)** &nbsp;·&nbsp; **[Read the Specification](docs/spec.md)**
+**[View Investigation Report](https://vivarium-collective.github.io/pbg-membrane-actin-composite/)** (per-section expert feedback → one-click GitHub issue/PR) &nbsp;·&nbsp; **[Original demo](https://vivarium-collective.github.io/pbg-membrane-actin-composite/demo/report.html)** &nbsp;·&nbsp; **[Read the Specification](docs/spec.md)**
 
 A process-bigraph composite that wires
 [pbg-mem3dg](https://github.com/vivarium-collective/pbg-mem3dg) (lipid-membrane
@@ -8,6 +8,35 @@ mechanics) and [pbg-readdy](https://github.com/vivarium-collective/pbg-readdy)
 (particle-based reaction-diffusion) together as a closed-loop **Brownian
 ratchet**: actin filaments push against a barrier, the barrier responds, the
 actin re-bends, the cycle continues.
+
+## 📊 Investigation report
+
+**→ [vivarium-collective.github.io/pbg-membrane-actin-composite](https://vivarium-collective.github.io/pbg-membrane-actin-composite/)**
+
+A live, self-contained report for the **membrane-actin-ratchet** investigation —
+a static snapshot of the interactive vivarium-dashboard, hosted on GitHub Pages
+(no server needed). It walks a reviewer through:
+
+- the **executive verdict** + a **validation-status matrix** (which studies are
+  executable / calibrated / validated / blocked), framed honestly with
+  OBSERVED / INFERRED / VALIDATED labels;
+- the **scientific argument** (main claim, evidence for/against, caveats);
+- one pass/fail **decision figure** per study, each carrying its expected
+  pattern and acceptance threshold (e.g. the force–velocity benchmark, the
+  Newton's-3rd-law residual, the gap/contact-force distribution).
+
+**Experts can leave structured feedback right in the page.** Click the 💬 icon
+next to any section to add a comment; then, from the feedback bar, either
+**download the feedback `.yaml`** or submit it to GitHub in one click — **as an
+issue** or **as a `feedback/*.yaml` file on a pull request** (you review and
+submit in the GitHub UI; no account setup or token needed). The YAML mirrors the
+schema in [`feedback/README.md`](feedback/README.md) and folds back into the
+investigation via `/pbg-investigation`.
+
+The report is the dashboard's self-contained **"Generate report"** export
+(`vivarium-dashboard`), published to the `gh-pages` branch; the original
+interactive demo remains at
+[`/demo/report.html`](https://vivarium-collective.github.io/pbg-membrane-actin-composite/demo/report.html).
 
 ## Specification
 

@@ -31,3 +31,6 @@ reports/assets/*
 !reports/assets/.keep
 .superpowers/brainstorm/
 _pages/
+
+# static report build output
+_site/

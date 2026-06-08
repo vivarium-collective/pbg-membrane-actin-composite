@@ -1,27 +1,53 @@
-schema_version: 3
+schema_version: 4
 name: actin-to-membrane-force-handshake
+investigation: membrane-actin-ratchet
+title: "Coupler A · Actin→membrane force handshake"
+claim: "OBSERVED (option B, magnitude-conserving): the coupler now sizes the osmotic offset so its integrated membrane force equals the actin contact force; force_residual ≈ 0 every step. CAVEAT: pressure-mediated effective-force handshake, not an independent per-vertex check (that is option A, blocked by a pymem3dg applied-force segfault — tracked)."
+confidence: Investigating
+evidence_status: observed-partial
+decision_figure: "actin force, membrane force, residual force, and residual impulse vs time (residual → 0), plus a histogram of transferred forces to flag numerical outliers"
+expected_pattern: "residual force ≈ 0 throughout; transferred-force histogram has no heavy tails/outliers"
+acceptance_threshold: "|residual force| / |actin force| < 0.05 per step, sample-by-sample"
+parent_studies: []
 created: '2026-05-18'
-status: draft
+question: In the closed-loop flexible composite, is the force the actin side reports at the interface
+  equal-and-opposite to the force the membrane integrates on its receiving vertices (Newton's 3rd law
+  on the coupling interface)?
 phase: Design
+design_status: drafted
+implementation_status: complete
+simulation_status: ran
+evaluation_status: not_evaluated
+gate_status: null
+expert_review_status: not_requested
 purpose:
-  question: In the closed-loop flexible composite, is the force the actin side reports
-    at the interface equal-and-opposite to the force the membrane integrates on its
-    receiving vertices (Newton's 3rd law on the coupling interface)?
-  mechanism: BrownianRatchetCoupler reads ReaDDy tip positions, computes per-contact
-    forces using contact_threshold + force_constant, and applies them as osmotic_offset
-    on Mem3DG. The same per-step force scalar must show up in both the actin-side
-    contact_force observable and the membrane-side integrated impulse, up to numerical
-    tolerance.
-  expected_outcome: Per-step delta(membrane_momentum) ≈ -delta(actin_momentum) within
-    5%.
-baseline:
-- name: handshake-flexible
-  composite: pbg_membrane_actin_composite.composites.rung3_flexible_mem3dg_boundary
-  params: {}
-expected_behavior:
+  question: In the closed-loop flexible composite, is the force the actin side reports at the interface
+    equal-and-opposite to the force the membrane integrates on its receiving vertices (Newton's 3rd law
+    on the coupling interface)?
+  mechanism: BrownianRatchetCoupler reads ReaDDy tip positions, computes per-contact forces using contact_threshold
+    + force_constant, and applies them as osmotic_offset on Mem3DG. The same per-step force scalar must
+    show up in both the actin-side contact_force observable and the membrane-side integrated impulse,
+    up to numerical tolerance.
+  expected_outcome: Per-step delta(membrane_momentum) ≈ -delta(actin_momentum) within 5%.
+conditions:
+  baseline:
+    composite: pbg_membrane_actin_composite.composites.rung3_flexible_mem3dg_boundary
+    params: {}
+  variants:
+  - name: weak-coupling
+    description: Low force-to-displacement scale — small per-contact impulse to test 3rd-law balance at
+      low signal.
+    parameter_overrides:
+      force_constant: 2.0
+  - name: strong-coupling
+    description: High force-to-displacement scale — stresses momentum bookkeeping at large impulses.
+    parameter_overrides:
+      force_constant: 8.0
+  model_settings: []
+tests:
 - name: newton-third-law-holds-on-interface
-  en: Per-step (membrane integrated impulse + actin contact_force·dt) sums to within
-    5% of zero, sample-by-sample.
+  question: Per-step (membrane integrated impulse + actin contact_force·dt) sums to within 5% of zero,
+    sample-by-sample.
   given:
     run: baseline
     window: full
@@ -29,13 +55,17 @@ expected_behavior:
     kind: listener_path
     observable: contact_force
     reduce: series
-  expect:
+  pass_if:
     op: rolling_cv_below
     threshold: 0.05
   status: stub
 expert_docs:
 - multiscale-brownian-ratchet-spec
 visualizations:
+- name: newton-residual
+  address: local:NewtonResidual
+  config:
+    study_slug: actin-to-membrane-force-handshake
 - name: coupling-trace
   address: local:CouplingTrace
 - name: backpressure-trace

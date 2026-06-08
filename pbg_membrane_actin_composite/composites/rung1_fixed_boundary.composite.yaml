@@ -229,6 +229,9 @@ state:
       membrane_vertices:
       - membrane
       - vertex_positions
+      membrane_surface_area:
+      - membrane
+      - surface_area
     outputs:
       wall_z:
       - control
@@ -269,6 +272,12 @@ state:
       ratchet_steps:
       - coupling
       - ratchet_steps
+      membrane_reaction_force:
+      - coupling
+      - membrane_reaction_force
+      force_residual:
+      - coupling
+      - force_residual
   control:
     wall_z: null
     wall_radius: null
@@ -300,9 +309,11 @@ state:
     barrier_velocity: 0.0
     mean_contact_force: 0.0
     ratchet_steps: 0
+    membrane_reaction_force: 0.0
+    force_residual: 0.0
   emitter:
     _type: step
-    address: local:ram-emitter
+    address: local:RAMEmitter
     config:
       emit:
         time: float
@@ -320,6 +331,8 @@ state:
         barrier_z: float
         barrier_velocity: float
         mean_contact_force: float
+        membrane_reaction_force: float
+        force_residual: float
         actin_max_radius: float
         membrane_min_radius: float
         actin_positions: list
@@ -375,6 +388,12 @@ state:
       ratchet_steps:
       - coupling
       - ratchet_steps
+      membrane_reaction_force:
+      - coupling
+      - membrane_reaction_force
+      force_residual:
+      - coupling
+      - force_residual
       actin_positions:
       - actin
       - positions

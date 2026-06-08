@@ -315,6 +315,7 @@ def build_document(
             'inputs': {
                 'actin_positions': ['actin', 'positions'],
                 'membrane_vertices': ['membrane', 'vertex_positions'],
+                'membrane_surface_area': ['membrane', 'surface_area'],
             },
             'outputs': {
                 'wall_z': ['control', 'wall_z'],
@@ -330,6 +331,8 @@ def build_document(
                 'barrier_velocity': ['coupling', 'barrier_velocity'],
                 'mean_contact_force': ['coupling', 'mean_contact_force'],
                 'ratchet_steps': ['coupling', 'ratchet_steps'],
+                'membrane_reaction_force': ['coupling', 'membrane_reaction_force'],
+                'force_residual': ['coupling', 'force_residual'],
             },
         },
         'control': {
@@ -366,6 +369,8 @@ def build_document(
             'barrier_velocity': 0.0,
             'mean_contact_force': 0.0,
             'ratchet_steps': 0,
+            'membrane_reaction_force': 0.0,
+            'force_residual': 0.0,
         },
         'emitter': {
             '_type': 'step',
@@ -390,6 +395,9 @@ def build_document(
                     'barrier_z': 'float',
                     'barrier_velocity': 'float',
                     'mean_contact_force': 'float',
+                    # Momentum-handshake bookkeeping (option B).
+                    'membrane_reaction_force': 'float',
+                    'force_residual': 'float',
                     # Radial diagnostics — only meaningful in spherical mode
                     # but always emitted for consistent demo plotting.
                     'actin_max_radius': 'float',
@@ -417,6 +425,8 @@ def build_document(
                 'barrier_velocity': ['coupling', 'barrier_velocity'],
                 'mean_contact_force': ['coupling', 'mean_contact_force'],
                 'ratchet_steps': ['coupling', 'ratchet_steps'],
+                'membrane_reaction_force': ['coupling', 'membrane_reaction_force'],
+                'force_residual': ['coupling', 'force_residual'],
                 'actin_positions': ['actin', 'positions'],
                 'membrane_vertex_positions': ['membrane', 'vertex_positions'],
             },

@@ -1,26 +1,50 @@
-schema_version: 3
+schema_version: 4
 name: membrane-to-actin-displacement-feedback
+investigation: membrane-actin-ratchet
+title: "Coupler B · Membrane→actin displacement feedback"
+claim: "TARGET (not yet tested): per-step mesh-position feedback preserves mesh quality and keeps tips inside their box potentials. Mesh-quality is currently inferred, not measured."
+confidence: Investigating
+evidence_status: not-tested
+decision_figure: "mesh-quality metrics vs time (min triangle area, max aspect ratio, inverted-face count, area/volume drift), gentle vs aggressive feedback side-by-side, plus tip–boundary distance"
+expected_pattern: "min triangle area stays above threshold; zero inverted faces; tip–boundary distance > 0 (no collisions)"
+acceptance_threshold: "min triangle area > 0 for the full run AND inverted-face count == 0"
+parent_studies: []
 created: '2026-05-18'
-status: draft
+question: Does per-step mesh-position feedback from Mem3DG to ReaDDy preserve mesh quality (no vertex
+  inversion or degenerate triangles) and keep tip particles within their box-potential bounds?
 phase: Design
+design_status: drafted
+implementation_status: complete
+simulation_status: ran
+evaluation_status: not_evaluated
+gate_status: null
+expert_review_status: not_requested
 purpose:
-  question: Does per-step mesh-position feedback from Mem3DG to ReaDDy preserve mesh
-    quality (no vertex inversion or degenerate triangles) and keep tip particles within
-    their box-potential bounds?
-  mechanism: After every Mem3DG step the coupler publishes updated wall_radius (planar)
-    or membrane_vertex_positions (spherical) to ReaDDy as the new boundary. Aggressive
-    force_constant or osmotic_force_scale can push the boundary past actin tips in
-    one step, violating bond/box potentials.
-  expected_outcome: Min triangle area stays above a small positive threshold for the
-    full run; no actin tip overshoots the membrane boundary by more than contact_threshold.
-baseline:
-- name: feedback-flexible
-  composite: pbg_membrane_actin_composite.composites.rung3_flexible_mem3dg_boundary
-  params: {}
-expected_behavior:
+  question: Does per-step mesh-position feedback from Mem3DG to ReaDDy preserve mesh quality (no vertex
+    inversion or degenerate triangles) and keep tip particles within their box-potential bounds?
+  mechanism: After every Mem3DG step the coupler publishes updated wall_radius (planar) or membrane_vertex_positions
+    (spherical) to ReaDDy as the new boundary. Aggressive force_constant or osmotic_force_scale can push
+    the boundary past actin tips in one step, violating bond/box potentials.
+  expected_outcome: Min triangle area stays above a small positive threshold for the full run; no actin
+    tip overshoots the membrane boundary by more than contact_threshold.
+conditions:
+  baseline:
+    composite: pbg_membrane_actin_composite.composites.rung3_flexible_mem3dg_boundary
+    params: {}
+  variants:
+  - name: gentle-feedback
+    description: Small per-step displacements — mesh quality easily preserved.
+    parameter_overrides:
+      osmotic_force_scale: 0.02
+  - name: aggressive-feedback
+    description: Large per-step displacements — stress test for vertex inversion / box-potential violation.
+    parameter_overrides:
+      osmotic_force_scale: 0.12
+  model_settings: []
+tests:
 - name: mesh-quality-preserved-over-coupling-steps
-  en: Min triangle area on the membrane mesh stays positive across the full run (no
-    degenerate triangles or vertex inversion).
+  question: Min triangle area on the membrane mesh stays positive across the full run (no degenerate triangles
+    or vertex inversion).
   given:
     run: baseline
     window: full
@@ -28,7 +52,7 @@ expected_behavior:
     kind: listener_path
     observable: membrane_min_z
     reduce: series
-  expect:
+  pass_if:
     op: monotonic_decreasing
   status: stub
 expert_docs:

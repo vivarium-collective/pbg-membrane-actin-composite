@@ -25,6 +25,10 @@ from pbg_membrane_actin_composite.visualizations.backpressure_trace import Backp
 from pbg_membrane_actin_composite.visualizations.population_trace import PopulationTrace
 from pbg_membrane_actin_composite.visualizations.barrier_kinematics import BarrierKinematics
 from pbg_membrane_actin_composite.visualizations.force_velocity_scatter import ForceVelocityScatter
+from pbg_membrane_actin_composite.visualizations.force_velocity_benchmark import ForceVelocityBenchmark
+from pbg_membrane_actin_composite.visualizations.gap_contact_decision import GapContactDecision
+from pbg_membrane_actin_composite.visualizations.fv_phase_portrait import FVPhasePortrait
+from pbg_membrane_actin_composite.visualizations.newton_residual import NewtonResidual
 from pbg_membrane_actin_composite.visualizations.energy_budget import EnergyBudget
 from pbg_membrane_actin_composite.visualizations.ratchet_event_rate import RatchetEventRate
 from pbg_membrane_actin_composite.visualizations.membrane_volume_strain import MembraneVolumeStrain
@@ -37,6 +41,10 @@ __all__ = [
     "PopulationTrace",
     "BarrierKinematics",
     "ForceVelocityScatter",
+    "ForceVelocityBenchmark",
+    "GapContactDecision",
+    "FVPhasePortrait",
+    "NewtonResidual",
     "EnergyBudget",
     "RatchetEventRate",
     "MembraneVolumeStrain",

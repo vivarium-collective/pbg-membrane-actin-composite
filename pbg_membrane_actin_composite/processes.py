@@ -96,6 +96,17 @@ class BrownianRatchetCoupler(Process):
         # is sensitive — defaults are tuned for ~10-20% inflation over
         # the demo's run length.
         'osmotic_force_scale': {'_type': 'float', '_default': 0.02},
+        # Interim momentum-magnitude-conserving handshake (investigation
+        # option "B"). When closed_loop + flexible, the coupler sets the
+        # osmotic offset to contact_force / A_contact so the integrated
+        # pressure-force over the membrane equals the actin contact force
+        # (replacing the hard-coded osmotic_force_scale, which was implicitly
+        # 1/area ≈ 0.02 for the radius-2 icosphere). A_contact comes from the
+        # membrane_surface_area input; contact_area>0 overrides it. The true
+        # per-vertex force exchange (option "A") needs a pymem3dg applied-force
+        # binding that currently segfaults — tracked, not done here.
+        'contact_area': {'_type': 'float', '_default': 0.0},
+        'conserve_momentum': {'_type': 'boolean', '_default': True},
         # Distance the published wall sits below the actual barrier
         # surface so the wall and the surface don't try to occupy the
         # same space.
@@ -124,6 +135,11 @@ class BrownianRatchetCoupler(Process):
         return {
             'actin_positions': 'list',
             'membrane_vertices': 'list',
+            # Membrane surface area (from Mem3DG) — the area over which the
+            # osmotic pressure offset acts. Used by the momentum-magnitude-
+            # conserving handshake to size the offset. 0/missing on the
+            # non-flexible rungs (no Mem3DG); falls back to legacy scaling.
+            'membrane_surface_area': 'float',
         }
 
     def outputs(self):
@@ -150,6 +166,14 @@ class BrownianRatchetCoupler(Process):
             'barrier_velocity': 'overwrite[float]',    # linear-fit slope
             'mean_contact_force': 'overwrite[float]',  # rolling mean force
             'ratchet_steps': 'integer',         # additive — cumulative count
+            # Momentum-handshake bookkeeping (option "B"). membrane_reaction_force
+            # is the integrated pressure-force the coupler delivers to the
+            # membrane; force_residual = contact_force - membrane_reaction_force
+            # is the Newton's-3rd-law residual. With the conserving mapping the
+            # residual is ~0 by construction (magnitude conservation through the
+            # osmotic channel); an independent per-vertex check awaits option A.
+            'membrane_reaction_force': 'overwrite[float]',
+            'force_residual': 'overwrite[float]',
         }
 
     def initial_state(self):
@@ -240,6 +264,8 @@ class BrownianRatchetCoupler(Process):
         wall_z = None
         wall_radius = None
         osmotic_offset = 0.0
+        membrane_reaction_force = 0.0
+        force_residual = 0.0
         if cfg['closed_loop']:
             # ReaDDy barrier publication — always emitted (all 3 regimes
             # publish a wall to ReaDDy so the actin field is confined).
@@ -250,7 +276,22 @@ class BrownianRatchetCoupler(Process):
             # Mem3DG-side publication only meaningful in the 'flexible'
             # regime (the other regimes have no Mem3DG instance).
             if kind == 'flexible':
-                osmotic_offset = cfg['osmotic_force_scale'] * contact_force
+                # Option "B": size the osmotic offset so its integrated
+                # pressure-force over the membrane equals the actin contact
+                # force (Newton's-3rd-law magnitude conservation through the
+                # osmotic channel). A_contact = membrane surface area (or the
+                # contact_area override). Falls back to the legacy fixed scale
+                # when area is unavailable so behavior never breaks.
+                area = cfg.get('contact_area', 0.0) or float(
+                    state.get('membrane_surface_area') or 0.0)
+                if cfg.get('conserve_momentum', True) and area > 1e-9:
+                    osmotic_offset = contact_force / area
+                    # Integrated pressure-force the membrane receives = P * A.
+                    membrane_reaction_force = osmotic_offset * area
+                else:
+                    osmotic_offset = cfg['osmotic_force_scale'] * contact_force
+                    membrane_reaction_force = osmotic_offset
+                force_residual = contact_force - membrane_reaction_force
 
         ratchet_delta = 1 if is_ratchet else 0
 
@@ -268,6 +309,8 @@ class BrownianRatchetCoupler(Process):
             'barrier_velocity': float(barrier_velocity),
             'mean_contact_force': float(self._mean_force),
             'ratchet_steps': ratchet_delta,
+            'membrane_reaction_force': float(membrane_reaction_force),
+            'force_residual': float(force_residual),
         }
 
     def _neutral_output(self):
@@ -285,4 +328,6 @@ class BrownianRatchetCoupler(Process):
             'barrier_velocity': 0.0,
             'mean_contact_force': 0.0,
             'ratchet_steps': 0,
+            'membrane_reaction_force': 0.0,
+            'force_residual': 0.0,
         }
