@@ -6,6 +6,7 @@ claim: "TARGET (not yet tested): the closed loop reproduces the Inoue-2015 conca
 confidence: Investigating
 evidence_status: not-tested
 decision_figure: "F-V curve overlaid directly on the Inoue (2015) reference, with replicate runs + uncertainty bands, a fitted curve quantifying the concave→convex transition, and coupler-prerequisite pass indicators"
+decision_figure_viz: force-velocity-benchmark
 expected_pattern: "F-V curvature flips concave→convex as growth_rate increases, tracking the Inoue 2015 shape"
 acceptance_threshold: "quantified curvature sign-flip across the growth_rate sweep, within the Inoue reference band"
 parent_studies:

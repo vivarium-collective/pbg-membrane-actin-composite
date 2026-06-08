@@ -6,6 +6,7 @@ claim: "OBSERVED (option B, magnitude-conserving): the coupler now sizes the osm
 confidence: Investigating
 evidence_status: observed-partial
 decision_figure: "actin force, membrane force, residual force, and residual impulse vs time (residual → 0), plus a histogram of transferred forces to flag numerical outliers"
+decision_figure_viz: newton-residual
 expected_pattern: "residual force ≈ 0 throughout; transferred-force histogram has no heavy tails/outliers"
 acceptance_threshold: "|residual force| / |actin force| < 0.05 per step, sample-by-sample"
 parent_studies: []
