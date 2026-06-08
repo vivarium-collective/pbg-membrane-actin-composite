@@ -145,7 +145,7 @@ visualizations:
       threshold (|mean barrier_velocity| < 1e-3 and contact_force rising), a labelled
       (schematic, pending) Peskin 1993 gap band, and provenance. Reads runs.db directly.
     class: GapContactDecision
-    type: distribution
+    type: histogram
     observables: [time, gap, contact_force, barrier_velocity]
   - name: fv-phase-portrait
     description: >-
