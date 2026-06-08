@@ -27,11 +27,10 @@ a static snapshot of the interactive vivarium-dashboard, hosted on GitHub Pages
 
 **Experts can leave structured feedback right in the page.** Click the 💬 icon
 next to any section to add a comment; then, from the feedback bar, either
-**download the feedback `.yaml`** or submit it to GitHub in one click — **as an
-issue** or **as a `feedback/*.yaml` file on a pull request** (you review and
-submit in the GitHub UI; no account setup or token needed). The YAML mirrors the
-schema in [`feedback/README.md`](feedback/README.md) and folds back into the
-investigation via `/pbg-investigation`.
+**download the feedback `.yaml`** or **open a prefilled GitHub issue** in one
+click (you review and submit in the GitHub UI; no account setup or token needed).
+The YAML mirrors the schema in [`feedback/README.md`](feedback/README.md) and
+folds back into the investigation via `/pbg-investigation`.
 
 The report is the dashboard's self-contained **"Generate report"** export
 (`vivarium-dashboard`), published to the `gh-pages` branch; the original
