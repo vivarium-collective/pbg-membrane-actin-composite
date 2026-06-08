@@ -23,6 +23,9 @@
   .claim { color:#374151; margin:8px 0; }
   .meta { font-size:13px; color:var(--muted); margin:8px 0 12px; } .meta b { color:var(--ink); }
   iframe { width:100%; height:440px; border:1px solid var(--rule); border-radius:8px; background:#fff; }
+  iframe.sys3d { height:520px; background:#f8fafc; }
+  details.sys { margin:6px 0 12px; }
+  details.sys summary { cursor:pointer; font-size:13px; font-weight:600; color:#0369a1; margin-bottom:6px; }
   .nofig { background:#f9fafb; border:1px dashed var(--rule); border-radius:8px; padding:18px; color:var(--muted); font-size:13px; }
   dt { font-weight:600; margin-top:6px; } dd { margin:0 0 4px 16px; color:#374151; }
   .foot { margin-top:48px; padding-top:14px; border-top:1px solid var(--rule); color:var(--muted); font-size:12px; }
@@ -88,6 +91,7 @@ models cannot produce.
             <div><b>Acceptance threshold:</b> mean barrier_velocity within ±1e-3 AND contact_force &gt; 0 and rising; gap stats within Peskin band</div>
             <div><b>Evidence:</b> <code>observed-partial</code></div>
           </div>
+          
           <iframe src='figures/fixed-boundary__gap-contact-decision.html' loading='lazy'></iframe>
           <details class="fb"><summary>✎ Add feedback on Rung 1 · Fixed boundary</summary><textarea data-fbkey="fixed_boundary" rows="3" placeholder="Your comment becomes an annotations.fixed_boundary[] entry in the YAML"></textarea></details>
         </section>
@@ -100,6 +104,7 @@ models cannot produce.
             <div><b>Acceptance threshold:</b> steady-state mean barrier_velocity in (0, Peskin ceiling]</div>
             <div><b>Evidence:</b> <code>observed-partial</code></div>
           </div>
+          
           <iframe src='figures/rigid-movable-boundary__fv-phase-portrait.html' loading='lazy'></iframe>
           <details class="fb"><summary>✎ Add feedback on Rung 2 · Rigid movable boundary</summary><textarea data-fbkey="rigid_movable_boundary" rows="3" placeholder="Your comment becomes an annotations.rigid_movable_boundary[] entry in the YAML"></textarea></details>
         </section>
@@ -112,6 +117,7 @@ models cannot produce.
             <div><b>Acceptance threshold:</b> |residual force| / |actin force| &lt; 0.05 per step, sample-by-sample</div>
             <div><b>Evidence:</b> <code>observed-partial</code></div>
           </div>
+          <details class='sys' open><summary>🧬 System behavior in 3D — drag to rotate · ▶ / ⏸ to play · slider to scrub</summary><iframe class='sys3d' src='figures/actin-to-membrane-force-handshake__particles-3d.html' loading='lazy'></iframe></details>
           <iframe src='figures/actin-to-membrane-force-handshake__newton-residual.html' loading='lazy'></iframe>
           <details class="fb"><summary>✎ Add feedback on Coupler A · Actin→membrane force handshake</summary><textarea data-fbkey="actin_to_membrane_force_handshake" rows="3" placeholder="Your comment becomes an annotations.actin_to_membrane_force_handshake[] entry in the YAML"></textarea></details>
         </section>
@@ -124,6 +130,7 @@ models cannot produce.
             <div><b>Acceptance threshold:</b> min triangle area &gt; 0 for the full run AND inverted-face count == 0</div>
             <div><b>Evidence:</b> <code>not-tested</code></div>
           </div>
+          <details class='sys' open><summary>🧬 System behavior in 3D — drag to rotate · ▶ / ⏸ to play · slider to scrub</summary><iframe class='sys3d' src='figures/membrane-to-actin-displacement-feedback__particles-3d.html' loading='lazy'></iframe></details>
           <div class='nofig'>No decision figure yet (set <code>decision_figure_viz</code> in the study, or it needs additional emitted data).</div>
           <details class="fb"><summary>✎ Add feedback on Coupler B · Membrane→actin displacement feedback</summary><textarea data-fbkey="membrane_to_actin_displacement_feedback" rows="3" placeholder="Your comment becomes an annotations.membrane_to_actin_displacement_feedback[] entry in the YAML"></textarea></details>
         </section>
@@ -136,6 +143,7 @@ models cannot produce.
             <div><b>Acceptance threshold:</b> membrane_volume ratio ≥ 1.1 AND mean per-tip contact_force &lt; rigid-movable baseline</div>
             <div><b>Evidence:</b> <code>observed-partial</code></div>
           </div>
+          <details class='sys' open><summary>🧬 System behavior in 3D — drag to rotate · ▶ / ⏸ to play · slider to scrub</summary><iframe class='sys3d' src='figures/flexible-mem3dg-boundary__particles-3d.html' loading='lazy'></iframe></details>
           <div class='nofig'>No decision figure yet (set <code>decision_figure_viz</code> in the study, or it needs additional emitted data).</div>
           <details class="fb"><summary>✎ Add feedback on Rung 3 · Flexible Mem3DG boundary</summary><textarea data-fbkey="flexible_mem3dg_boundary" rows="3" placeholder="Your comment becomes an annotations.flexible_mem3dg_boundary[] entry in the YAML"></textarea></details>
         </section>
@@ -148,6 +156,7 @@ models cannot produce.
             <div><b>Acceptance threshold:</b> quantified curvature sign-flip across the growth_rate sweep, within the Inoue reference band</div>
             <div><b>Evidence:</b> <code>not-tested</code></div>
           </div>
+          <details class='sys' open><summary>🧬 System behavior in 3D — drag to rotate · ▶ / ⏸ to play · slider to scrub</summary><iframe class='sys3d' src='figures/coupled-ratchet-cycle-fv-reproduction__particles-3d.html' loading='lazy'></iframe></details>
           <iframe src='figures/coupled-ratchet-cycle-fv-reproduction__force-velocity-benchmark.html' loading='lazy'></iframe>
           <details class="fb"><summary>✎ Add feedback on Benchmark · Coupled force–velocity reproduction</summary><textarea data-fbkey="coupled_ratchet_cycle_fv_reproduction" rows="3" placeholder="Your comment becomes an annotations.coupled_ratchet_cycle_fv_reproduction[] entry in the YAML"></textarea></details>
         </section>
