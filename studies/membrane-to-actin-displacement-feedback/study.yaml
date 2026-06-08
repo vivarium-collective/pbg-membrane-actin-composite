@@ -89,8 +89,9 @@ simulation_set:
   description: Same rung-3 composite, run for handshake-direction-B verification.
 
 discovery_implications:
-  mechanism_uncertainty_addressed: Does per-step membrane→actin position feedback preserve mesh quality
-    and keep tips inside their box potentials?
+  mechanism_uncertainty_addressed:
+  - Does per-step membrane→actin position feedback preserve mesh quality and keep tips inside their box
+    potentials?
   resolved_uncertainties: []
   remaining_uncertainties:
   - Mesh quality is currently inferred, not measured — runs.db emits vertex positions but not face connectivity

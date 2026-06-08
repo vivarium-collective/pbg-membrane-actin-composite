@@ -107,8 +107,8 @@ simulation_set:
     actin contact force.
 
 discovery_implications:
-  mechanism_uncertainty_addressed: Does a drag-loaded movable barrier exhibit load-dependent stalling
-    within the Peskin (1993) bound?
+  mechanism_uncertainty_addressed:
+  - Does a drag-loaded movable barrier exhibit load-dependent stalling within the Peskin (1993) bound?
   resolved_uncertainties:
   - A movable wall settles to a non-zero steady velocity (8/8 runs, OBSERVED).
   remaining_uncertainties:
