@@ -103,8 +103,9 @@ simulation_set:
     steps, interval=0.5.
 
 discovery_implications:
-  mechanism_uncertainty_addressed: Does an immovable barrier produce pure force accumulation with no advance
-    (the classical rigid-wall ratchet limit)?
+  mechanism_uncertainty_addressed:
+  - Does an immovable barrier produce pure force accumulation with no advance (the classical rigid-wall
+    ratchet limit)?
   resolved_uncertainties:
   - Against a fixed wall the barrier velocity holds at ~0 while contact force accumulates (OBSERVED).
   remaining_uncertainties:

@@ -97,8 +97,8 @@ simulation_set:
     verification.
 
 discovery_implications:
-  mechanism_uncertainty_addressed: Is the actin→membrane coupling momentum-faithful (Newton's 3rd law)
-    at the interface?
+  mechanism_uncertainty_addressed:
+  - Is the actin→membrane coupling momentum-faithful (Newton's 3rd law) at the interface?
   resolved_uncertainties:
   - Under option B the coupler delivers a membrane pressure-force equal to the actin contact force; force_residual
     ~0 every step.

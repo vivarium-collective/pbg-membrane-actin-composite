@@ -120,8 +120,8 @@ simulation_set:
     coupler publishes osmotic_offset every step.'
 
 discovery_implications:
-  mechanism_uncertainty_addressed: Does a deformable membrane redistribute actin load and relax contact
-    force off the rigid curve?
+  mechanism_uncertainty_addressed:
+  - Does a deformable membrane redistribute actin load and relax contact force off the rigid curve?
   resolved_uncertainties:
   - Under actin pressure the vesicle inflates (OBSERVED).
   remaining_uncertainties:

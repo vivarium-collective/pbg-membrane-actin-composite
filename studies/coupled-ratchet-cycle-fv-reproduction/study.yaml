@@ -123,8 +123,9 @@ simulation_set:
     (Inoue 2015 fig. 5).
 
 discovery_implications:
-  mechanism_uncertainty_addressed: Does the closed loop reproduce the Inoue-2015 concave→convex F-V transition
-    that distinguishes a flexible-membrane ratchet?
+  mechanism_uncertainty_addressed:
+  - Does the closed loop reproduce the Inoue-2015 concave→convex F-V transition that distinguishes a flexible-membrane
+    ratchet?
   resolved_uncertainties: []
   remaining_uncertainties:
   - The concave→convex transition has not been measured; growth_rate is not recorded in run params so
