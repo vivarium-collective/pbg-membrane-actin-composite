@@ -45,22 +45,24 @@ executive:
     the verdicts are pending.
   verdict_status: in-progress
   verdict_detail: |
-    Every study is at the "executable" stage of the validation ladder (executable → calibrated →
-    validated). Implementation is complete and baselines have run for all six; evaluation_status is
-    not_evaluated across the board and the acceptance tests are stubs. gate_status has been cleared
-    to null (no gate verdict yet) — nothing upstream blocks the root studies; they simply have not
-    been evaluated. Current figures mostly demonstrate that simulations execute correctly; the next
-    phase reorganizes each study around a single pass/fail DECISION FIGURE that overlays its
-    expected pattern and acceptance threshold (see each study's decision_figure + the
-    guidelines.visual_design block), starting with the two rigid baselines (unambiguous Peskin
-    expectations) and the F-V benchmark (the dominant figure).
+    Decision figures now exist for four studies (fixed-boundary, rigid-movable-boundary,
+    coupled-ratchet-cycle-fv-reproduction, actin-to-membrane-force-handshake), each carrying its
+    expected pattern, on-plot acceptance threshold, and a NOT-YET-VALIDATED stamp (see each study's
+    decision_figure + guidelines.visual_design). First real signal: fixed-boundary shows mean
+    barrier_velocity = 0 → PASS on the velocity≈0 criterion. gate_status is null (no dependency
+    block). The remaining blockers are now DATA-EMISSION gaps, not plotting: (1) run params don't
+    record growth_rate / barrier_drag, so the F-V and stall sweeps can't be separated; (2) the
+    membrane side emits no integrated reaction force/impulse, so the Newton-3rd-law residual is not
+    computable; (3) mesh-quality / curvature need face connectivity + per-vertex fields emitted.
+    Next: close these emitter gaps and re-run, then the stub tests can become evaluated predicates;
+    and source the Peskin/Inoue reference curves so the overlays stop being schematic.
   validation_status:   # validation ladder per member study: executable | calibrated | validated | blocked
-    - {study: fixed-boundary, state: executable, note: "Runs; velocity≈0 OBSERVED. Peskin ratchet-rate comparison not yet done."}
-    - {study: rigid-movable-boundary, state: executable, note: "Runs; non-zero steady velocity OBSERVED. Stall-force vs Peskin bound not yet checked."}
-    - {study: actin-to-membrane-force-handshake, state: executable, note: "Runs. Newton-3rd-law residual test is a stub — NOT tested."}
-    - {study: membrane-to-actin-displacement-feedback, state: executable, note: "Runs. Mesh-quality currently inferred, not measured — NOT tested."}
-    - {study: flexible-mem3dg-boundary, state: executable, note: "Runs; vesicle inflation OBSERVED. Load-redistribution / off-rigid-curve relaxation not yet quantified."}
-    - {study: coupled-ratchet-cycle-fv-reproduction, state: executable, note: "Runs. No Inoue-2015 benchmark overlay yet — NOT tested."}
+    - {study: fixed-boundary, state: executable, note: "Decision figure built. MEASURED mean barrier_velocity = 0 → PASS on the velocity≈0 criterion. Peskin gap-band still schematic (reference data pending)."}
+    - {study: rigid-movable-boundary, state: executable, note: "Decision figure built. 8/8 runs steady-state V>0 (provisional pass on lower bound). barrier_drag recorded for only 2/8 runs → drag sweep not yet separable; Peskin ceiling schematic."}
+    - {study: actin-to-membrane-force-handshake, state: blocked, note: "BLOCKED ON DATA: membrane side emits only osmotic_offset (= 0.05·contact_force), not an integrated reaction force/impulse — the exact Newton-3rd-law residual is not computable until that observable is emitted. Proxy residual ≈ 0.95 (expected artefact of the proxy, not a physics result)."}
+    - {study: membrane-to-actin-displacement-feedback, state: blocked, note: "BLOCKED ON DATA: mesh-quality (min triangle area, inverted faces) needs face connectivity + per-vertex fields emitted; runs.db stores only vertex positions. Decision figure not yet built."}
+    - {study: flexible-mem3dg-boundary, state: executable, note: "Runs; vesicle inflation OBSERVED. Load-redistribution / off-rigid-curve relaxation not yet quantified; needs rigid-vs-flexible comparison data."}
+    - {study: coupled-ratchet-cycle-fv-reproduction, state: executable, note: "F-V benchmark (dominant figure) built. growth_rate not recorded in run params → the concave→convex sweep is not yet separable; Inoue reference schematic."}
   decisions_needed:
     - question: Which numerical tolerances define "matches Peskin / Inoue"?
       context: |

@@ -2,7 +2,7 @@ schema_version: 4
 name: fixed-boundary
 investigation: membrane-actin-ratchet
 title: "Rung 1 · Fixed boundary"
-claim: "OBSERVED: against an immovable wall the barrier velocity holds at ~0 while contact force accumulates. Ratchet-kinetics match to Peskin theory NOT yet quantified."
+claim: "OBSERVED (partial pass): against an immovable wall mean barrier_velocity = 0 (within ±1e-3) while contact force accumulates. Quantitative match to the Peskin ratchet rate still pending a digitized reference."
 confidence: Investigating
 evidence_status: observed-partial
 decision_figure: "tip–wall gap distribution + contact-force accumulation, with Peskin (1993) expected ratchet rate overlaid"

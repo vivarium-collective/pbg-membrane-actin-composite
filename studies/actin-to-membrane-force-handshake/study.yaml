@@ -2,9 +2,9 @@ schema_version: 4
 name: actin-to-membrane-force-handshake
 investigation: membrane-actin-ratchet
 title: "Coupler A · Actin→membrane force handshake"
-claim: "TARGET (not yet tested): per-step interface forces are equal-and-opposite across the coupler (Newton's 3rd law). Residual-force test is still a stub."
+claim: "BLOCKED ON DATA: the membrane side emits only osmotic_offset (=0.05·contact_force), not an integrated reaction force/impulse, so Newton's-3rd-law residual is not yet computable. Proxy residual ≈0.95 is an artefact of the proxy, not a physics result."
 confidence: Investigating
-evidence_status: not-tested
+evidence_status: blocked-on-data
 decision_figure: "actin force, membrane force, residual force, and residual impulse vs time (residual → 0), plus a histogram of transferred forces to flag numerical outliers"
 expected_pattern: "residual force ≈ 0 throughout; transferred-force histogram has no heavy tails/outliers"
 acceptance_threshold: "|residual force| / |actin force| < 0.05 per step, sample-by-sample"
