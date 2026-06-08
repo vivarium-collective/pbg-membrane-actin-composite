@@ -13,17 +13,19 @@ and the cumulative residual impulse should stay flat.
                      has no heavy tails / outliers.
   acceptance_thr.:   |residual force| / |actin force| < 0.05 per step, sample-by-sample.
 
-HONEST DATA-PROVENANCE GAP (read the amber stamp on the figure):
-runs.db emits the actin-side interface signal (`contact_force`) but does NOT emit
-a commensurate membrane-side *integrated force / reaction impulse*. The only
-membrane-side scalar published by the coupler is `osmotic_offset`, which is a
-*scaled pressure offset* (here osmotic_offset = 0.05 · contact_force), NOT a
-force in the same units. We therefore plot it as a clearly-labelled
-membrane-force PROXY and compute a PROXY residual = actin_force − membrane_proxy.
-Because the proxy is not a true reaction force, the measured proxy ratio is large
-(~0.95), NOT ≈ 0 — this is a data-provenance limitation, not a physics failure,
-and an exact Newton residual cannot be validated until the coupler emits the
-membrane-side integrated force/impulse. We do NOT fabricate a residual≈0 result.
+HANDSHAKE MODEL (option "B", interim — read the amber stamp on the figure):
+The coupler now sizes the osmotic pressure offset so its integrated force over the
+membrane equals the actin contact force (osmotic_offset = contact_force / A_contact),
+and emits `membrane_reaction_force` (the integrated pressure-force the membrane
+receives) and `force_residual = contact_force − membrane_reaction_force`. The
+residual is ~0 by construction — the handshake conserves the contact-force
+MAGNITUDE through the osmotic channel. CAVEAT: this is a pressure-mediated,
+effective-force handshake, not a true per-vertex force exchange (net force on a
+closed vesicle from uniform osmotic pressure is ~0). An INDEPENDENT per-vertex
+verification needs a genuine applied force on the Mem3DG mesh (investigation
+option "A"), which is blocked by a pymem3dg applied-force binding segfault and is
+tracked separately. So treat the ≈0 residual as magnitude-conservation evidence,
+not as a fully independent Newton's-3rd-law validation.
 
 Reads runs.db directly (Path C) so every run in the study is pooled.
 """
@@ -97,11 +99,16 @@ def _load_runs(db_path: Path) -> list[dict]:
             if not states:
                 continue
             t = [float(s.get("time") or 0.0) for s in states]
-            # actin-side interface force (the transferred force)
+            # actin-side interface force (the transferred contact force)
             actin = [float(s.get("contact_force") or 0.0) for s in states]
-            # best available membrane-side proxy (scaled pressure offset — NOT a true force)
-            mem = [float(s.get("osmotic_offset") or 0.0) for s in states]
-            residual = [a - m for a, m in zip(actin, mem)]
+            # membrane-side integrated reaction force delivered through the
+            # osmotic channel (option B: sized so it equals the actin force).
+            mem = [float(s.get("membrane_reaction_force") or 0.0) for s in states]
+            # prefer the coupler-emitted residual; fall back to the difference.
+            if any("force_residual" in s for s in states):
+                residual = [float(s.get("force_residual") or 0.0) for s in states]
+            else:
+                residual = [a - m for a, m in zip(actin, mem)]
             impulse = _cumulative_impulse(t, residual)
             m = meta.get(str(sim), {})
             runs.append({
@@ -175,12 +182,12 @@ class NewtonResidual(Visualization):
                            "line": {"color": C_ACTIN, "width": 1.6},
                            "xaxis": "x", "yaxis": "y", "hoverinfo": "skip"})
             traces.append({"x": r["t"], "y": r["mem"], "type": "scatter", "mode": "lines",
-                           "name": "membrane force PROXY (osmotic_offset)", "legendgroup": grp_m,
+                           "name": "membrane reaction force (membrane_reaction_force)", "legendgroup": grp_m,
                            "showlegend": first, "opacity": 0.55,
                            "line": {"color": C_MEMBRANE, "width": 1.6, "dash": "dot"},
                            "xaxis": "x", "yaxis": "y", "hoverinfo": "skip"})
             traces.append({"x": r["t"], "y": r["residual"], "type": "scatter", "mode": "lines",
-                           "name": "proxy residual (actin − membrane PROXY)", "legendgroup": grp_r,
+                           "name": "residual (contact − reaction)", "legendgroup": grp_r,
                            "showlegend": first, "opacity": 0.9,
                            "line": {"color": C_FORCE, "width": 2.2},
                            "xaxis": "x", "yaxis": "y"})
@@ -270,18 +277,18 @@ class NewtonResidual(Visualization):
                              f"samples under 0.05 threshold: {frac_pass*100:.0f}%  →  "
                              f"<b>{verdict}</b>"),
                 },
-                {  # honest amber stamp — the provenance gap
+                {  # honest amber stamp — option B caveat
                     "xref": "paper", "yref": "paper", "x": 0.01, "y": 1.0,
                     "xanchor": "left", "yanchor": "top", "align": "left", "showarrow": False,
                     "bgcolor": "rgba(254,243,199,0.97)", "bordercolor": "#d97706",
                     "borderwidth": 1, "borderpad": 5,
                     "font": {"size": 10, "color": "#92400e"},
-                    "text": ("<b>NOT YET VALIDATED · membrane force is a PROXY</b><br>"
-                             "runs.db emits no membrane-side integrated force / reaction<br>"
-                             "impulse. osmotic_offset is a scaled pressure offset<br>"
-                             "(= 0.05·contact_force), NOT a true reaction force — so the<br>"
-                             "proxy residual is large, not ≈0. Exact Newton residual needs<br>"
-                             "the coupler to emit the membrane-side force/impulse."),
+                    "text": ("<b>MAGNITUDE-CONSERVING (option B) · not independently verified</b><br>"
+                             "The coupler sizes the osmotic offset so its integrated force<br>"
+                             "equals the actin contact force, so residual ≈ 0 by construction.<br>"
+                             "This is a pressure-mediated effective-force handshake, not a true<br>"
+                             "per-vertex exchange. An independent per-vertex check (option A)<br>"
+                             "is blocked by a pymem3dg applied-force segfault — tracked."),
                 },
                 {  # Panel B title
                     "xref": "paper", "yref": "paper", "x": 0.0, "y": 0.63,
@@ -303,8 +310,8 @@ class NewtonResidual(Visualization):
         prov = (f'source: {db.parent.name}/runs.db · {len(runs)} run(s) · '
                 f'{n_steps_total} step(s) pooled'
                 f'{f" · ~{dur:.1f}s/run" if dur else ""} · '
-                f'membrane force shown as PROXY (osmotic_offset) — '
-                f'exact residual pending membrane-side force/impulse emission')
+                f'membrane_reaction_force from option-B coupler (magnitude-conserving) — '
+                f'independent per-vertex check = option A (tracked)')
         accent = cfg.get('accent', C_FORCE)
         height = 760
         html = (

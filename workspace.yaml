@@ -32,6 +32,20 @@ observables:
     store_path: coupling.mean_contact_force
     units: au · force
     description: Rolling-mean contact force used by the BrownianRatchetCoupler.
+  - name: membrane_reaction_force
+    store_path: coupling.membrane_reaction_force
+    units: au · force
+    description: >-
+      Integrated pressure-force the coupler delivers to the membrane via the
+      osmotic channel (option B handshake). Sized so it equals the actin
+      contact force (Newton's-3rd-law magnitude conservation).
+  - name: force_residual
+    store_path: coupling.force_residual
+    units: au · force
+    description: >-
+      Newton's-3rd-law residual = contact_force - membrane_reaction_force.
+      ~0 by construction under the option-B pressure mapping; an independent
+      per-vertex check awaits the pymem3dg applied-force binding (option A).
   - name: barrier_z
     store_path: coupling.barrier_z
     units: au

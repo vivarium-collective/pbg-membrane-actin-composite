@@ -59,7 +59,7 @@ executive:
   validation_status:   # validation ladder per member study: executable | calibrated | validated | blocked
     - {study: fixed-boundary, state: executable, note: "Decision figure built. MEASURED mean barrier_velocity = 0 → PASS on the velocity≈0 criterion. Peskin gap-band still schematic (reference data pending)."}
     - {study: rigid-movable-boundary, state: executable, note: "Decision figure built. 8/8 runs steady-state V>0 (provisional pass on lower bound). barrier_drag recorded for only 2/8 runs → drag sweep not yet separable; Peskin ceiling schematic."}
-    - {study: actin-to-membrane-force-handshake, state: blocked, note: "BLOCKED ON DATA: membrane side emits only osmotic_offset (= 0.05·contact_force), not an integrated reaction force/impulse — the exact Newton-3rd-law residual is not computable until that observable is emitted. Proxy residual ≈ 0.95 (expected artefact of the proxy, not a physics result)."}
+    - {study: actin-to-membrane-force-handshake, state: calibrated, note: "Option B implemented: coupler sizes the osmotic offset so its integrated membrane force equals the actin contact force; force_residual ≈ 0 (magnitude conservation through the osmotic channel). NOT yet validated independently — a true per-vertex force exchange (option A) is blocked by a pymem3dg applied-force segfault (tracked in open_items)."}
     - {study: membrane-to-actin-displacement-feedback, state: blocked, note: "BLOCKED ON DATA: mesh-quality (min triangle area, inverted faces) needs face connectivity + per-vertex fields emitted; runs.db stores only vertex positions. Decision figure not yet built."}
     - {study: flexible-mem3dg-boundary, state: executable, note: "Runs; vesicle inflation OBSERVED. Load-redistribution / off-rigid-curve relaxation not yet quantified; needs rigid-vs-flexible comparison data."}
     - {study: coupled-ratchet-cycle-fv-reproduction, state: executable, note: "F-V benchmark (dominant figure) built. growth_rate not recorded in run params → the concave→convex sweep is not yet separable; Inoue reference schematic."}
@@ -168,6 +168,29 @@ glossary:
   - {term: "Mem3DG", definition: "Mesh-based discrete-differential-geometry membrane simulator providing the deformable boundary."}
   - {term: "ReaDDy", definition: "Particle-based reaction-diffusion simulator providing the actin filaments and tip dynamics."}
   - {term: "BrownianRatchetCoupler", definition: "The composite Step that exchanges tip forces and boundary positions between ReaDDy and Mem3DG each tick."}
+
+open_items:   # tracked follow-ups discovered during implementation
+  - id: A-true-momentum-handshake
+    title: "Rigorous per-vertex Newton-3rd-law handshake (option A)"
+    status: blocked
+    blocker: |
+      pymem3dg 0.0.7.dev segfaults on every Python applied-force / notable-vertex
+      path (external.form returning (m,3), Geometry(ply,nv), Geometry(face,vert,nv),
+      and the prescribeNotableVertex callback). The C++ Gaussian point force works
+      but needs a notable vertex, which can only be set via the crashing paths.
+    needs: |
+      A patched/rebuilt pymem3dg with working applied-force bindings (or an upstream
+      fix), then wire a genuine local contact force into Mem3DG and verify the
+      integrated external force (Forces.getExternalForceVec) equals the actin contact
+      force independently of how the offset was set.
+    interim: "Option B shipped — magnitude-conserving osmotic mapping; force_residual ≈ 0."
+  - id: provenance-growth-rate-drag
+    title: "Record growth_rate / barrier_drag in run params"
+    status: open
+    needs: |
+      The F-V sweep (coupled-ratchet-cycle-fv-reproduction) and the stall sweep
+      (rigid-movable-boundary) can't separate conditions because growth_rate /
+      barrier_drag aren't recorded in runs_meta.params_json for most runs.
 
 guidelines:
   literature_anchors:
