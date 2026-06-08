@@ -105,3 +105,37 @@ simulation_set:
   base_model: pbg_membrane_actin_composite.composites.rung2_rigid_movable_boundary
   description: Single closed-loop run; wall translates under drag balance with the
     actin contact force.
+
+discovery_implications:
+  mechanism_uncertainty_addressed: Does a drag-loaded movable barrier exhibit load-dependent stalling
+    within the Peskin (1993) bound?
+  resolved_uncertainties:
+  - A movable wall settles to a non-zero steady velocity (8/8 runs, OBSERVED).
+  remaining_uncertainties:
+  - Stall force vs the Peskin closed-form ceiling is unchecked; barrier_drag is recorded for only 2/8
+    runs so the drag sweep is not separable.
+  alternate_hypotheses:
+  - statement: Steady velocity reflects the imposed drag balance (dz/dt=F/drag) rather than ratchet-limited
+      advance.
+    evidence_for:
+    - velocity tracks 1/drag by construction in the two tagged runs.
+    evidence_against:
+    - a Peskin-consistent stall force at high drag would indicate genuine load-dependent ratcheting.
+    discriminating_observables:
+    - steady-state velocity vs barrier_drag
+    - stall force at high drag
+  mechanism_update_proposals:
+  - mechanism_elements_affected:
+    - movable-barrier → load-dependent-stall edge
+    update_type: refine
+    confidence_change: increase
+    statement: Adds a drag-balance stalling regime between the fixed wall and the flexible membrane.
+  followup_study_proposals:
+  - title: Drag sweep with barrier_drag recorded in run params + Peskin stall-bound overlay
+    expected_information_gain: Separates the low/high-drag conditions and tests the stall force against
+      theory.
+    mechanism_elements_affected:
+    - movable-barrier stall edge
+    discriminating_observables:
+    - F-V phase portrait per drag
+    - stall force vs Peskin ceiling

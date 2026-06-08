@@ -118,3 +118,38 @@ simulation_set:
   base_model: pbg_membrane_actin_composite.composites.rung3_flexible_mem3dg_boundary
   description: 'Closed-loop coupled run: ReaDDy actin pushes against a Mem3DG icosphere;
     coupler publishes osmotic_offset every step.'
+
+discovery_implications:
+  mechanism_uncertainty_addressed: Does a deformable membrane redistribute actin load and relax contact
+    force off the rigid curve?
+  resolved_uncertainties:
+  - Under actin pressure the vesicle inflates (OBSERVED).
+  remaining_uncertainties:
+  - Load redistribution across filaments and relaxation of per-tip contact force vs the rigid rung are
+    not yet quantified — inflation alone is not ratchet success.
+  alternate_hypotheses:
+  - statement: Vesicle inflation is driven by the osmotic setpoint itself, not by actin pushing — the
+      membrane would inflate without the actin field.
+    evidence_for:
+    - osmotic_offset directly inflates the mesh.
+    evidence_against:
+    - per-tip contact force dropping below the rigid baseline, and curvature concentrating at the contact
+      zone, would indicate genuine load redistribution.
+    discriminating_observables:
+    - mean per-tip contact_force vs rigid rung
+    - curvature map at the contact zone
+    - inflation with actin off
+  mechanism_update_proposals:
+  - mechanism_elements_affected:
+    - flexible-membrane load-redistribution node
+    update_type: refine
+    confidence_change: increase
+    statement: Supports a deformable barrier that stores/redistributes load, distinct from the rigid rungs.
+  followup_study_proposals:
+  - title: Rigid-vs-flexible per-tip contact-force comparison + curvature maps (identical camera/scale)
+    expected_information_gain: Tests whether the membrane actually relaxes load off the rigid curve.
+    mechanism_elements_affected:
+    - flexible-membrane load-redistribution node
+    discriminating_observables:
+    - per-tip contact force distribution
+    - curvature/strain maps

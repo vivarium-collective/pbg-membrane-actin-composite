@@ -95,3 +95,38 @@ simulation_set:
   base_model: pbg_membrane_actin_composite.composites.rung3_flexible_mem3dg_boundary
   description: Same rung-3 composite as flexible-mem3dg-boundary, run for handshake-direction-A
     verification.
+
+discovery_implications:
+  mechanism_uncertainty_addressed: Is the actin→membrane coupling momentum-faithful (Newton's 3rd law)
+    at the interface?
+  resolved_uncertainties:
+  - Under option B the coupler delivers a membrane pressure-force equal to the actin contact force; force_residual
+    ~0 every step.
+  remaining_uncertainties:
+  - This is magnitude-conservation through the osmotic channel, NOT an independent per-vertex force exchange
+    — option A (a genuine applied force in pymem3dg) is blocked by a binding segfault.
+  alternate_hypotheses:
+  - statement: residual~0 is a bookkeeping identity (offset sized as contact_force/area), not evidence
+      the simulator conserves momentum locally.
+    evidence_for:
+    - membrane_reaction_force == contact_force by construction.
+    evidence_against:
+    - an independent readback of the integrated applied force matching contact_force (option A) would
+      be a true check.
+    discriminating_observables:
+    - per-vertex external force integral (option A)
+    - net force on the closed vesicle
+  mechanism_update_proposals:
+  - mechanism_elements_affected:
+    - actin↔membrane coupling edge
+    update_type: refine
+    confidence_change: unchanged
+    statement: Coupling transmits the contact-force MAGNITUDE as a global osmotic pressure; locality/momentum
+      is unverified.
+  followup_study_proposals:
+  - title: Option A — apply a genuine local contact force in pymem3dg and read it back
+    expected_information_gain: An independent (non-circular) Newton's-3rd-law verification.
+    mechanism_elements_affected:
+    - actin↔membrane coupling edge
+    discriminating_observables:
+    - Forces.getExternalForceVec integral vs actin contact_force

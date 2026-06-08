@@ -87,3 +87,37 @@ simulation_set:
   name: feedback-flexible
   base_model: pbg_membrane_actin_composite.composites.rung3_flexible_mem3dg_boundary
   description: Same rung-3 composite, run for handshake-direction-B verification.
+
+discovery_implications:
+  mechanism_uncertainty_addressed: Does per-step membrane→actin position feedback preserve mesh quality
+    and keep tips inside their box potentials?
+  resolved_uncertainties: []
+  remaining_uncertainties:
+  - Mesh quality is currently inferred, not measured — runs.db emits vertex positions but not face connectivity
+    / min triangle area / inverted-face count.
+  alternate_hypotheses:
+  - statement: Aggressive feedback gain pushes the boundary past actin tips in one step, degrading the
+      mesh (inverted faces) or violating box potentials.
+    evidence_for:
+    - large osmotic_force_scale moves the boundary far per tick.
+    evidence_against:
+    - gentle gain keeps displacements bounded.
+    discriminating_observables:
+    - min triangle area over time
+    - inverted-face count
+    - tip-boundary distance
+  mechanism_update_proposals:
+  - mechanism_elements_affected:
+    - membrane→actin feedback edge
+    update_type: open
+    confidence_change: unchanged
+    statement: Feedback faithfulness is unverified pending mesh-quality observables.
+  followup_study_proposals:
+  - title: Emit mesh-quality observables and sweep gentle vs aggressive feedback
+    expected_information_gain: Turns inferred mesh stability into a measured pass/fail.
+    mechanism_elements_affected:
+    - membrane→actin feedback edge
+    discriminating_observables:
+    - min triangle area
+    - inverted-face count
+    - area/volume drift
