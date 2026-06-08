@@ -1,27 +1,50 @@
-schema_version: 3
+schema_version: 4
 name: actin-to-membrane-force-handshake
+investigation: membrane-actin-ratchet
+title: "Coupler A · Actin→membrane force handshake"
+claim: "Per-step interface forces are equal-and-opposite across the coupler (Newton's third law) within numerical tolerance."
+confidence: Investigating
+parent_studies:
+  - {study: rigid-movable-boundary, condition: tests-passed}
 created: '2026-05-18'
-status: draft
+question: In the closed-loop flexible composite, is the force the actin side reports at the interface
+  equal-and-opposite to the force the membrane integrates on its receiving vertices (Newton's 3rd law
+  on the coupling interface)?
 phase: Design
+design_status: drafted
+implementation_status: complete
+simulation_status: ran
+evaluation_status: not_evaluated
+gate_status: blocked
+expert_review_status: not_requested
 purpose:
-  question: In the closed-loop flexible composite, is the force the actin side reports
-    at the interface equal-and-opposite to the force the membrane integrates on its
-    receiving vertices (Newton's 3rd law on the coupling interface)?
-  mechanism: BrownianRatchetCoupler reads ReaDDy tip positions, computes per-contact
-    forces using contact_threshold + force_constant, and applies them as osmotic_offset
-    on Mem3DG. The same per-step force scalar must show up in both the actin-side
-    contact_force observable and the membrane-side integrated impulse, up to numerical
-    tolerance.
-  expected_outcome: Per-step delta(membrane_momentum) ≈ -delta(actin_momentum) within
-    5%.
-baseline:
-- name: handshake-flexible
-  composite: pbg_membrane_actin_composite.composites.rung3_flexible_mem3dg_boundary
-  params: {}
-expected_behavior:
+  question: In the closed-loop flexible composite, is the force the actin side reports at the interface
+    equal-and-opposite to the force the membrane integrates on its receiving vertices (Newton's 3rd law
+    on the coupling interface)?
+  mechanism: BrownianRatchetCoupler reads ReaDDy tip positions, computes per-contact forces using contact_threshold
+    + force_constant, and applies them as osmotic_offset on Mem3DG. The same per-step force scalar must
+    show up in both the actin-side contact_force observable and the membrane-side integrated impulse,
+    up to numerical tolerance.
+  expected_outcome: Per-step delta(membrane_momentum) ≈ -delta(actin_momentum) within 5%.
+conditions:
+  baseline:
+    composite: pbg_membrane_actin_composite.composites.rung3_flexible_mem3dg_boundary
+    params: {}
+  variants:
+  - name: weak-coupling
+    description: Low force-to-displacement scale — small per-contact impulse to test 3rd-law balance at
+      low signal.
+    parameter_overrides:
+      force_constant: 2.0
+  - name: strong-coupling
+    description: High force-to-displacement scale — stresses momentum bookkeeping at large impulses.
+    parameter_overrides:
+      force_constant: 8.0
+  model_settings: []
+tests:
 - name: newton-third-law-holds-on-interface
-  en: Per-step (membrane integrated impulse + actin contact_force·dt) sums to within
-    5% of zero, sample-by-sample.
+  question: Per-step (membrane integrated impulse + actin contact_force·dt) sums to within 5% of zero,
+    sample-by-sample.
   given:
     run: baseline
     window: full
@@ -29,7 +52,7 @@ expected_behavior:
     kind: listener_path
     observable: contact_force
     reduce: series
-  expect:
+  pass_if:
     op: rolling_cv_below
     threshold: 0.05
   status: stub

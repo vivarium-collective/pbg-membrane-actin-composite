@@ -1,0 +1,175 @@
+# membrane-actin-ratchet/investigation.yaml — schema v2
+schema_version: 2
+name: membrane-actin-ratchet
+title: Membrane–actin Brownian ratchet — from boundary baselines to a coupled flexible membrane
+created: '2026-05-18'
+status: running
+
+question: |
+  Can a particle-based actin Brownian ratchet (ReaDDy) push against a deformable membrane
+  (Mem3DG) through a physically faithful bidirectional coupler, and does increasing boundary
+  realism — fixed wall → rigid movable object → flexible membrane — reproduce the
+  force/velocity signatures that distinguish a flexible-membrane ratchet (Inoue 2015) from
+  the classical rigid-wall regime (Peskin 1993)?
+
+hypothesis: |
+  Boundary realism changes the F-V relationship in a structured, predictable way.
+  (1) The fixed wall reproduces classical Brownian-ratchet kinetics (velocity ≈ 0, contact
+  force accumulates). (2) The rigid movable object introduces a load-dependent stalling regime
+  bounded by Peskin (1993). (3) The flexible Mem3DG membrane qualitatively diverges in the
+  high-load regime because curvature redistributes force across nearby filaments, breaking the
+  per-filament independence the rigid models assume — but only if the actin↔membrane coupler is
+  faithful: equal-and-opposite interface forces (Newton's 3rd law), bounded per-step
+  displacements that preserve mesh quality, and a closed loop that reaches the Inoue-2015
+  concave→convex transition.
+
+lead: |
+  This investigation builds and validates a multiscale Brownian ratchet in which growing actin
+  filaments push a membrane forward. We climb a staircase of boundary realism and, at the top
+  rung, put the actin↔membrane coupler itself under the microscope. The payoff is the headline
+  benchmark: a closed-loop force/velocity curve that only a flexible membrane can produce.
+
+executive:
+  what_is_this: |
+    An investigation is a sequence of studies that together answer one research question. This
+    one asks whether a coupled actin (ReaDDy) + membrane (Mem3DG) composite behaves like a real
+    flexible-membrane Brownian ratchet, by comparing three boundary models and stress-testing the
+    coupler that powers the flexible one. It merges two earlier framings — a boundary-condition
+    staircase and a coupling-mechanism deep-dive — into one arc, because the staircase's top rung
+    *is* the coupler the deep-dive validates.
+  verdict: |
+    Scaffolded and run end-to-end: all six studies have baselines that execute and emit
+    observables, but every acceptance test is still a stub — none has been evaluated to a
+    pass/fail yet. The arc is wired; the verdicts are pending.
+  verdict_status: in-progress
+  verdict_detail: |
+    Six studies span Design→Simulate. Implementation is complete and baselines have run for all
+    six; evaluation_status is not_evaluated across the board and the gate is blocked pending real
+    test predicates (the tests[].status: stub markers). Next: turn the stub tests into evaluated
+    predicates, starting with the two rigid baselines whose closed-form Peskin expectations are
+    unambiguous.
+  decisions_needed:
+    - question: Which numerical tolerances define "matches Peskin / Inoue"?
+      context: |
+        The rigid-wall and stall-force tests need agreed quantitative bounds before their
+        stub predicates can become evaluated pass/fail criteria.
+    - question: Spherical mesh-vertex feedback or planar wall_radius for the canonical F-V run?
+      context: |
+        membrane-to-actin-displacement-feedback supports both boundary-update modes; the choice
+        fixes how the closed-loop reproduction study advances the barrier.
+
+scientific_argument:
+  main_claim: |
+    Boundary realism is the controlling variable for the actin-ratchet F-V relationship, and a
+    faithful Mem3DG↔ReaDDy coupler is necessary to recover the flexible-membrane regime that rigid
+    models cannot produce.
+  evidence_for:
+    - Fixed and rigid rungs share one actin model; only the barrier changes — a clean controlled comparison.
+    - Closed-form Peskin (1993) expectations bracket the two rigid rungs, giving falsifiable baselines.
+    - The flexible rung's vesicle inflates under actin pressure, moving its F-V point off the rigid curve.
+  evidence_against:
+    - All acceptance tests are still stubs; no quantitative match has been demonstrated yet.
+    - The concave→convex transition (Inoue 2015) is asserted by construction, not yet measured.
+  key_figures:
+    - studies/coupled-ratchet-cycle-fv-reproduction/viz/force-velocity-scatter.html
+    - studies/flexible-mem3dg-boundary/viz/membrane-volume-strain.html
+    - studies/actin-to-membrane-force-handshake/viz/coupling-trace.html
+  caveats:
+    - Coupler faithfulness (Newton's 3rd law, mesh quality) is a precondition; if it fails the F-V comparison is uninterpretable.
+    - ReaDDy reaction balance under per-step boundary updates is assumed, not yet proven.
+
+biological_story: |
+  In a crawling or dividing cell, networks of actin filaments polymerize against the plasma
+  membrane and push it forward. The Brownian-ratchet picture explains how directed motion arises
+  without a molecular motor: thermal fluctuations transiently open a gap between a filament tip and
+  the barrier, a monomer adds into that gap, and the new subunit rectifies the fluctuation into net
+  forward displacement. How much force the network can deliver, and how fast the barrier advances,
+  depends critically on what the filaments are pushing against.
+
+  Against a *rigid wall* the problem is classical: each filament ratchets independently and the
+  force/velocity relation follows Peskin's 1993 theory. Let the barrier *move* as a rigid object
+  with drag, and a load-dependent stalling regime appears — the wall advances at a velocity set by
+  the balance between contact force and drag. But a real membrane is neither fixed nor rigid: it
+  *deforms*. Curvature lets the membrane redistribute load across many nearby filaments, relaxing
+  the burden on any single tip and breaking the per-filament independence the rigid theories assume.
+
+  Capturing that requires two simulators talking to each other every step: ReaDDy supplies the
+  particle-based actin filaments and their tip dynamics; Mem3DG supplies the deformable, mesh-based
+  membrane. The BrownianRatchetCoupler is the interface — it must translate actin tip forces into
+  membrane vertex loads and feed updated membrane positions back as actin boundary constraints,
+  without violating Newton's third law, without degrading mesh quality, and without breaking
+  ReaDDy's reaction balance. Only when that handshake is faithful does the coupled system reach the
+  diagnostic flexible-membrane signature: the concave→convex force/velocity transition that Inoue
+  et al. (2015) report and that no rigid barrier can reproduce.
+
+at_a_glance:
+  - {study: fixed-boundary, role: "Rung 1 — reproduces the classical rigid-wall ratchet (velocity≈0, force accumulates) as the controlled baseline."}
+  - {study: rigid-movable-boundary, role: "Rung 2 — a movable rigid object with drag introduces load-dependent stalling bounded by Peskin 1993."}
+  - {study: actin-to-membrane-force-handshake, role: "Coupler direction A — verifies interface forces are equal-and-opposite (Newton's 3rd law)."}
+  - {study: membrane-to-actin-displacement-feedback, role: "Coupler direction B — verifies membrane→actin position feedback preserves mesh quality and box potentials."}
+  - {study: flexible-mem3dg-boundary, role: "Rung 3 — the deformable membrane inflates under actin load, relaxing contact force off the rigid curve."}
+  - {study: coupled-ratchet-cycle-fv-reproduction, role: "Headline benchmark — the closed loop reproduces the Inoue-2015 concave→convex F-V transition."}
+
+how_to_read: |
+  Read the studies in dependency order: the two rigid rungs establish baselines, the two coupler
+  studies validate the handshake, then the flexible rung and the F-V reproduction deliver the
+  payoff. Each study's acceptance test is the headline; open the rendered viz only when a verdict
+  needs interrogation. Today every test is a stub — treat the charts as wiring evidence, not as
+  confirmed results.
+
+glossary:
+  - {term: "Brownian ratchet", definition: "Mechanism converting thermal fluctuations at a barrier into directed motion when polymerization rectifies the transient gap."}
+  - {term: "F-V curve", definition: "Force–velocity relationship of the advancing barrier; its shape (concave vs convex) is the diagnostic signature."}
+  - {term: "Peskin 1993", definition: "Closed-form theory for a Brownian ratchet against a rigid load; sets the rigid-rung expectations."}
+  - {term: "Inoue 2015", definition: "Flexible-membrane ratchet study showing a concave→convex F-V transition with polymerization rate — the headline benchmark."}
+  - {term: "Mem3DG", definition: "Mesh-based discrete-differential-geometry membrane simulator providing the deformable boundary."}
+  - {term: "ReaDDy", definition: "Particle-based reaction-diffusion simulator providing the actin filaments and tip dynamics."}
+  - {term: "BrownianRatchetCoupler", definition: "The composite Step that exchanges tip forces and boundary positions between ReaDDy and Mem3DG each tick."}
+
+guidelines:
+  literature_anchors:
+    - "Peskin, Odell & Oster 1993 — rigid-wall Brownian ratchet force/velocity."
+    - "Inoue et al. 2015 — flexible-membrane ratchet concave→convex transition (primary benchmark)."
+    - "Mogilner & Oster 1996 — elastic Brownian ratchet."
+  calibration_targets:
+    - "Rung 1 (fixed): mean barrier_velocity within ±1e-3 of zero."
+    - "Rung 2 (rigid): stall force ≤ Peskin closed-form upper bound at the chosen drag."
+    - "Rung 3 (flexible): membrane_volume grows ≥10% over the run."
+  parameter_catalog:
+    - "growth_rate — actin polymerization rate; swept to elicit the F-V transition."
+    - "barrier_drag — rigid-object drag (rung 2)."
+    - "osmotic_force_scale / force_constant — coupler gain (rung 3 + handshake studies)."
+    - "contact_threshold — tip↔membrane contact distance."
+
+inputs:
+  datasets: []
+  references:
+    - multiscale-brownian-ratchet-spec
+  expert_docs:
+    - name: multiscale-brownian-ratchet-spec
+      path: docs/spec.md
+
+studies:
+  - fixed-boundary
+  - rigid-movable-boundary
+  - actin-to-membrane-force-handshake
+  - membrane-to-actin-displacement-feedback
+  - flexible-mem3dg-boundary
+  - coupled-ratchet-cycle-fv-reproduction
+
+expert_docs:
+  - multiscale-brownian-ratchet-spec
+
+acceptance_criteria:
+  - study: fixed-boundary
+    behavior: fv-matches-mogilner-baseline
+  - study: rigid-movable-boundary
+    behavior: stall-force-within-peskin-bound
+  - study: actin-to-membrane-force-handshake
+    behavior: newton-third-law-holds-on-interface
+  - study: membrane-to-actin-displacement-feedback
+    behavior: mesh-quality-preserved-over-coupling-steps
+  - study: flexible-mem3dg-boundary
+    behavior: membrane-curvature-relaxes-load
+  - study: coupled-ratchet-cycle-fv-reproduction
+    behavior: concave-to-convex-fv-transition-emerges
