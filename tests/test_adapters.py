@@ -27,10 +27,14 @@ def test_inputs_outputs_shape(core):
     assert c.inputs() == {
         'actin_positions': 'list',
         'membrane_vertices': 'list',
+        # membrane surface area feeds the momentum-conserving handshake (option B);
+        # 0/missing on the non-flexible rungs, falling back to legacy scaling.
+        'membrane_surface_area': 'float',
     }
     out = c.outputs()
     for port in ['wall_z', 'osmotic_strength_offset', 'contact_force',
-                 'actin_max_z', 'membrane_min_z', 'gap', 'ratchet_steps']:
+                 'actin_max_z', 'membrane_min_z', 'gap', 'ratchet_steps',
+                 'membrane_reaction_force', 'force_residual']:
         assert port in out
 
 
