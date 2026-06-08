@@ -662,6 +662,57 @@
       </td>
     </tr>
     
+    <tr id="viz-row-gap-contact-decision">
+      <td><code>gap-contact-decision</code><br><small style="color:#888">distribution: time, gap, contact_force, barrier_velocity</small></td>
+      <td class="viz-description">
+        <strong>GapContactDecision</strong><br>
+        DECISION FIGURE for fixed-boundary. Tip–wall gap distribution (histogram) plus contact-force accumulation, with an Expected-Pattern box, the acceptance threshold (|mean barrier_velocity| < 1e-3 and contact_force rising), a labelled (schematic, pending) Peskin 1993 gap band, and provenance. Reads runs.db directly.
+      </td>
+      <td><small style="color:#666;font-family:monospace">—</small></td>
+      <td><span class="status-pill" id="viz-status-gap-contact-decision">…</span></td>
+      <td class="viz-actions">
+        <button class="btn-mini" onclick="_vizPreview('gap-contact-decision')">Preview</button>
+        
+        <button class="btn-mini" onclick="_vizAddToProject('gap-contact-decision')">Add to project</button>
+        <button class="btn-mini" onclick="_vizCommit(['gap-contact-decision'])">Commit</button>
+        <button class="btn-mini" onclick="_vizRemove('gap-contact-decision')" style="color:#c00">Remove</button>
+      </td>
+    </tr>
+    
+    <tr id="viz-row-fv-phase-portrait">
+      <td><code>fv-phase-portrait</code><br><small style="color:#888">phase-space: mean_contact_force, contact_force, barrier_velocity</small></td>
+      <td class="viz-description">
+        <strong>FVPhasePortrait</strong><br>
+        DECISION FIGURE for rigid-movable-boundary. Force–velocity phase portrait (barrier_velocity vs mean_contact_force) overlaying drag conditions, transient vs steady-state windows marked, acceptance band V in (0, ceiling] with per-run pass/fail, and a schematic Peskin stall bound. Reads runs.db directly.
+      </td>
+      <td><small style="color:#666;font-family:monospace">—</small></td>
+      <td><span class="status-pill" id="viz-status-fv-phase-portrait">…</span></td>
+      <td class="viz-actions">
+        <button class="btn-mini" onclick="_vizPreview('fv-phase-portrait')">Preview</button>
+        
+        <button class="btn-mini" onclick="_vizAddToProject('fv-phase-portrait')">Add to project</button>
+        <button class="btn-mini" onclick="_vizCommit(['fv-phase-portrait'])">Commit</button>
+        <button class="btn-mini" onclick="_vizRemove('fv-phase-portrait')" style="color:#c00">Remove</button>
+      </td>
+    </tr>
+    
+    <tr id="viz-row-newton-residual">
+      <td><code>newton-residual</code><br><small style="color:#888">time-series: time, contact_force, osmotic_offset</small></td>
+      <td class="viz-description">
+        <strong>NewtonResidual</strong><br>
+        DECISION FIGURE for actin-to-membrane-force-handshake. Actin force, membrane-force PROXY, proxy residual and residual impulse vs time with the |residual|/|actin| < 0.05 band, plus a transferred-force histogram. Honestly flags the membrane-side provenance gap (no integrated reaction force/impulse emitted). Reads runs.db directly.
+      </td>
+      <td><small style="color:#666;font-family:monospace">—</small></td>
+      <td><span class="status-pill" id="viz-status-newton-residual">…</span></td>
+      <td class="viz-actions">
+        <button class="btn-mini" onclick="_vizPreview('newton-residual')">Preview</button>
+        
+        <button class="btn-mini" onclick="_vizAddToProject('newton-residual')">Add to project</button>
+        <button class="btn-mini" onclick="_vizCommit(['newton-residual'])">Commit</button>
+        <button class="btn-mini" onclick="_vizRemove('newton-residual')" style="color:#c00">Remove</button>
+      </td>
+    </tr>
+    
     <tr id="viz-row-energy-budget">
       <td><code>energy-budget</code><br><small style="color:#888">time-series: time, bending_energy, surface_energy, pressure_energy</small></td>
       <td class="viz-description">

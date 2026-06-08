@@ -124,6 +124,33 @@ visualizations:
     class: ForceVelocityBenchmark
     type: phase-space
     observables: [time, mean_contact_force, barrier_velocity]
+  - name: gap-contact-decision
+    description: >-
+      DECISION FIGURE for fixed-boundary. Tip–wall gap distribution (histogram)
+      plus contact-force accumulation, with an Expected-Pattern box, the acceptance
+      threshold (|mean barrier_velocity| < 1e-3 and contact_force rising), a labelled
+      (schematic, pending) Peskin 1993 gap band, and provenance. Reads runs.db directly.
+    class: GapContactDecision
+    type: distribution
+    observables: [time, gap, contact_force, barrier_velocity]
+  - name: fv-phase-portrait
+    description: >-
+      DECISION FIGURE for rigid-movable-boundary. Force–velocity phase portrait
+      (barrier_velocity vs mean_contact_force) overlaying drag conditions, transient
+      vs steady-state windows marked, acceptance band V in (0, ceiling] with per-run
+      pass/fail, and a schematic Peskin stall bound. Reads runs.db directly.
+    class: FVPhasePortrait
+    type: phase-space
+    observables: [mean_contact_force, contact_force, barrier_velocity]
+  - name: newton-residual
+    description: >-
+      DECISION FIGURE for actin-to-membrane-force-handshake. Actin force, membrane-force
+      PROXY, proxy residual and residual impulse vs time with the |residual|/|actin| <
+      0.05 band, plus a transferred-force histogram. Honestly flags the membrane-side
+      provenance gap (no integrated reaction force/impulse emitted). Reads runs.db directly.
+    class: NewtonResidual
+    type: time-series
+    observables: [time, contact_force, osmotic_offset]
   - name: energy-budget
     description: >-
       Stacked area of Mem3DG bending / surface / pressure energies vs time.

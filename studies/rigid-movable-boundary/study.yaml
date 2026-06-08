@@ -60,6 +60,10 @@ tests:
 expert_docs:
 - multiscale-brownian-ratchet-spec
 visualizations:
+- name: fv-phase-portrait
+  address: local:FVPhasePortrait
+  config:
+    study_slug: rigid-movable-boundary
 - name: coupling-trace
   address: local:CouplingTrace
 - name: population-trace

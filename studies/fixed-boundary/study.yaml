@@ -59,6 +59,10 @@ tests:
 expert_docs:
 - multiscale-brownian-ratchet-spec
 visualizations:
+- name: gap-contact-decision
+  address: local:GapContactDecision
+  config:
+    study_slug: fixed-boundary
 - name: coupling-trace
   address: local:CouplingTrace
 - name: population-trace

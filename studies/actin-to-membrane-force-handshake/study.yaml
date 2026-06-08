@@ -62,6 +62,10 @@ tests:
 expert_docs:
 - multiscale-brownian-ratchet-spec
 visualizations:
+- name: newton-residual
+  address: local:NewtonResidual
+  config:
+    study_slug: actin-to-membrane-force-handshake
 - name: coupling-trace
   address: local:CouplingTrace
 - name: backpressure-trace
