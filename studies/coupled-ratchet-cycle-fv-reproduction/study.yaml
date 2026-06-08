@@ -4,6 +4,7 @@ investigation: membrane-actin-ratchet
 title: "Benchmark · Coupled force–velocity reproduction"
 claim: "TARGET (not yet tested): the closed loop reproduces the Inoue-2015 concave→convex F-V transition. No benchmark comparison has been run."
 confidence: Investigating
+system_figure_viz: particles-3d
 evidence_status: not-tested
 decision_figure: "F-V curve overlaid directly on the Inoue (2015) reference, with replicate runs + uncertainty bands, a fitted curve quantifying the concave→convex transition, and coupler-prerequisite pass indicators"
 decision_figure_viz: force-velocity-benchmark
