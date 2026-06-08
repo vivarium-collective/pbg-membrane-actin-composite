@@ -121,3 +121,37 @@ simulation_set:
     - 8.0
   description: Three-point growth_rate sweep to surface the concave→convex F-V transition
     (Inoue 2015 fig. 5).
+
+discovery_implications:
+  mechanism_uncertainty_addressed: Does the closed loop reproduce the Inoue-2015 concave→convex F-V transition
+    that distinguishes a flexible-membrane ratchet?
+  resolved_uncertainties: []
+  remaining_uncertainties:
+  - The concave→convex transition has not been measured; growth_rate is not recorded in run params so
+    the sweep cannot be separated; no Inoue-2015 overlay yet.
+  alternate_hypotheses:
+  - statement: Any F-V shape change is an artefact of the coupler gain / osmotic mapping rather than genuine
+      flexible-membrane ratchet physics.
+    evidence_for:
+    - osmotic_offset = contact_force/area shapes the response.
+    evidence_against:
+    - a curvature sign-flip that tracks Inoue 2015 across a real growth_rate sweep would argue for the
+      physics.
+    discriminating_observables:
+    - F-V curvature vs growth_rate
+    - overlay on Inoue 2015 reference
+  mechanism_update_proposals:
+  - mechanism_elements_affected:
+    - flexible-membrane → concave→convex F-V transition (headline benchmark)
+    update_type: open
+    confidence_change: unchanged
+    statement: The diagnostic transition is asserted by construction; measuring it is the headline open
+      test.
+  followup_study_proposals:
+  - title: Record growth_rate in run params, run the sweep, and overlay the Inoue-2015 reference
+    expected_information_gain: The headline VALIDATED/REFUTED verdict for the flexible-membrane ratchet.
+    mechanism_elements_affected:
+    - F-V transition benchmark
+    discriminating_observables:
+    - fitted F-V curvature across growth_rate
+    - distance to Inoue 2015 band

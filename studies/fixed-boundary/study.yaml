@@ -101,3 +101,38 @@ simulation_set:
   base_model: pbg_membrane_actin_composite.composites.rung1_fixed_boundary
   description: Single closed-loop run with the wall held fixed at z=0. 16 composite
     steps, interval=0.5.
+
+discovery_implications:
+  mechanism_uncertainty_addressed: Does an immovable barrier produce pure force accumulation with no advance
+    (the classical rigid-wall ratchet limit)?
+  resolved_uncertainties:
+  - Against a fixed wall the barrier velocity holds at ~0 while contact force accumulates (OBSERVED).
+  remaining_uncertainties:
+  - Whether the gap-distribution / ratchet event rate quantitatively match Peskin (1993) — not yet compared
+    to theory.
+  alternate_hypotheses:
+  - statement: The accumulating contact_force is an artefact of wall stiffness (force_constant), not genuine
+      Brownian-ratchet rectification.
+    evidence_for:
+    - contact_force scales with force_constant by construction.
+    evidence_against:
+    - barrier_velocity ~0 and a thermal-fluctuation-shaped gap distribution would argue for true ratcheting.
+    discriminating_observables:
+    - tip-wall gap distribution shape
+    - ratchet event rate vs growth_rate
+  mechanism_update_proposals:
+  - mechanism_elements_affected:
+    - fixed-barrier → force-accumulation node
+    update_type: confirm
+    confidence_change: increase
+    statement: 'Confirms the rigid-wall baseline: a fixed barrier converts polymerization into accumulated
+      force, not motion.'
+  followup_study_proposals:
+  - title: Quantify the tip-wall gap distribution against Peskin theory
+    expected_information_gain: Turns the OBSERVED velocity~0 into a VALIDATED match (or refutation) of
+      the rigid-wall ratchet rate.
+    mechanism_elements_affected:
+    - fixed-barrier ratchet node
+    discriminating_observables:
+    - gap histogram
+    - contact_force accumulation slope

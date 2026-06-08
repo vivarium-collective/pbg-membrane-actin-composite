@@ -1901,6 +1901,49 @@
           }
         }
       }
+    },
+    "discovery_implications": {
+      "type": "object",
+      "additionalProperties": true,
+      "description": "Mechanism-centered implications of the study's evidence: resolved/remaining uncertainties, alternate_hypotheses[], mechanism_update_proposals[], and followup_study_proposals[] (successor to follow_up_studies). Rendered as the report's 'Discovery implications' section.",
+      "properties": {
+        "mechanism_uncertainty_addressed": {
+          "type": "string"
+        },
+        "resolved_uncertainties": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "remaining_uncertainties": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "alternate_hypotheses": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": true
+          }
+        },
+        "mechanism_update_proposals": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": true
+          }
+        },
+        "followup_study_proposals": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": true
+          }
+        }
+      }
     }
   },
   "allOf": [
