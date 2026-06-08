@@ -10,46 +10,33 @@
         border-bottom:2px solid var(--accent); padding-bottom:4px; }
   h3 { font-size:16px; margin:0; }
   .lead { font-size:17px; color:#374151; }
-  .badge { display:inline-block; padding:2px 10px; border-radius:999px; color:#fff;
-            font-size:12px; font-weight:600; }
-  .pill { display:inline-block; padding:1px 9px; border-radius:999px; color:#fff;
-           font-size:11px; font-weight:600; white-space:nowrap; }
-  .banner { background:#fef3c7; border:1px solid #d97706; color:#92400e; padding:10px 14px;
-             border-radius:8px; font-size:13px; margin:14px 0; }
+  .badge { display:inline-block; padding:2px 10px; border-radius:999px; color:#fff; font-size:12px; font-weight:600; }
+  .pill { display:inline-block; padding:1px 9px; border-radius:999px; color:#fff; font-size:11px; font-weight:600; white-space:nowrap; }
+  .banner { background:#fef3c7; border:1px solid #d97706; color:#92400e; padding:10px 14px; border-radius:8px; font-size:13px; margin:14px 0; }
   table { border-collapse:collapse; width:100%; font-size:13px; }
   td,th { border:1px solid var(--rule); padding:6px 9px; text-align:left; vertical-align:top; }
   th { background:#f9fafb; }
   ul { margin:6px 0 6px 20px; } code { background:#f3f4f6; padding:1px 5px; border-radius:4px; font-size:12px; }
-  .ladder { font-family:ui-monospace,monospace; font-size:13px; background:#f9fafb;
-             border:1px solid var(--rule); border-radius:8px; padding:10px 14px; }
-  .card { border:1px solid var(--rule); border-radius:10px; padding:14px 16px; margin:16px 0;
-           box-shadow:0 1px 2px rgba(0,0,0,.04); }
+  .ladder { font-family:ui-monospace,monospace; font-size:13px; background:#f9fafb; border:1px solid var(--rule); border-radius:8px; padding:10px 14px; }
+  .card { border:1px solid var(--rule); border-radius:10px; padding:14px 16px; margin:16px 0; box-shadow:0 1px 2px rgba(0,0,0,.04); }
   .cardhead { display:flex; justify-content:space-between; align-items:center; gap:10px; }
   .claim { color:#374151; margin:8px 0; }
-  .meta { font-size:13px; color:var(--muted); margin:8px 0 12px; }
-  .meta b { color:var(--ink); }
+  .meta { font-size:13px; color:var(--muted); margin:8px 0 12px; } .meta b { color:var(--ink); }
   iframe { width:100%; height:440px; border:1px solid var(--rule); border-radius:8px; background:#fff; }
-  .nofig { background:#f9fafb; border:1px dashed var(--rule); border-radius:8px; padding:18px;
-            color:var(--muted); font-size:13px; }
+  .nofig { background:#f9fafb; border:1px dashed var(--rule); border-radius:8px; padding:18px; color:var(--muted); font-size:13px; }
   dt { font-weight:600; margin-top:6px; } dd { margin:0 0 4px 16px; color:#374151; }
-  .foot { margin-top:48px; padding-top:14px; border-top:1px solid var(--rule);
-           color:var(--muted); font-size:12px; }
+  .foot { margin-top:48px; padding-top:14px; border-top:1px solid var(--rule); color:var(--muted); font-size:12px; }
   a { color:#0ea5e9; }
   details.fb { margin:8px 0 2px; }
   details.fb summary { cursor:pointer; color:#0ea5e9; font-size:12px; font-weight:600; }
-  details.fb textarea, .reviewer textarea, .reviewer input { width:100%; margin-top:6px;
-     font:13px/1.5 Inter,system-ui,sans-serif; padding:7px 9px; border:1px solid var(--rule);
-     border-radius:6px; resize:vertical; }
+  details.fb textarea, .reviewer textarea, .reviewer input { width:100%; margin-top:6px; font:13px/1.5 Inter,system-ui,sans-serif; padding:7px 9px; border:1px solid var(--rule); border-radius:6px; resize:vertical; }
   .reviewer { background:#f0f9ff; border:1px solid #bae6fd; border-radius:10px; padding:14px 16px; margin:16px 0; }
   .reviewer label { font-size:12px; font-weight:600; color:#0369a1; display:block; margin-top:8px; }
-  .fbbar { position:sticky; bottom:0; background:#fff; border-top:2px solid var(--accent);
-     padding:12px 0; margin-top:24px; display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
-  .btn { border:0; border-radius:7px; padding:9px 16px; font-size:13px; font-weight:600;
-     cursor:pointer; color:#fff; }
-  .btn.gen { background:#475569; } .btn.issue { background:#1f883d; } .btn.pr { background:#8250df; }
-  .btn.copy { background:#0ea5e9; } .btn:disabled { opacity:.45; cursor:not-allowed; }
-  #yamlout { width:100%; height:240px; font:12px/1.5 ui-monospace,monospace; margin-top:10px;
-     border:1px solid var(--rule); border-radius:8px; padding:10px; display:none; }
+  .fbbar { position:sticky; bottom:0; background:#fff; border-top:2px solid var(--accent); padding:12px 0; margin-top:24px; display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+  .btn { border:0; border-radius:7px; padding:9px 16px; font-size:13px; font-weight:600; cursor:pointer; color:#fff; }
+  .btn.gen { background:#475569; } .btn.issue { background:#1f883d; } .btn.pr { background:#8250df; } .btn.copy { background:#0ea5e9; }
+  .btn:disabled { opacity:.45; cursor:not-allowed; }
+  #yamlout { width:100%; height:240px; font:12px/1.5 ui-monospace,monospace; margin-top:10px; border:1px solid var(--rule); border-radius:8px; padding:10px; display:none; }
   .hint { font-size:12px; color:var(--muted); }
 </style></head><body>
 
@@ -68,11 +55,9 @@ the verdicts are pending.
 </div>
 
 <div class="reviewer">
-  <b>📝 Expert review.</b> <span class="hint">Add comments in the ✎ boxes throughout, then generate a YAML feedback report and submit it to GitHub (as an issue or a PR file). No account setup needed — you review and submit in the GitHub UI.</span>
-  <label>Your name (reviewer)</label>
-  <input id="rev-name" type="text" placeholder="e.g. Jane Expert">
-  <label>Overall assessment</label>
-  <textarea id="rev-overall" rows="3" placeholder="One-paragraph overall assessment (meta.overall_assessment)"></textarea>
+  <b>📝 Expert review.</b> <span class="hint">Add comments in the ✎ boxes, then generate a YAML feedback report and submit it to GitHub (issue or PR). No setup — you review and submit in the GitHub UI.</span>
+  <label>Your name (reviewer)</label><input id="rev-name" type="text" placeholder="e.g. Jane Expert">
+  <label>Overall assessment</label><textarea id="rev-overall" rows="3" placeholder="meta.overall_assessment"></textarea>
 </div>
 
 <h2>Executive summary</h2>
@@ -80,10 +65,6 @@ the verdicts are pending.
 <h3>Validation status</h3>
 <table><tr><th>Study</th><th>State</th><th>Note</th></tr><tr><td><code>fixed-boundary</code></td><td><span class='pill' style='background:#6b7280'>executable</span></td><td>Decision figure built. MEASURED mean barrier_velocity = 0 → PASS on the velocity≈0 criterion. Peskin gap-band still schematic (reference data pending).</td></tr><tr><td><code>rigid-movable-boundary</code></td><td><span class='pill' style='background:#6b7280'>executable</span></td><td>Decision figure built. 8/8 runs steady-state V&gt;0 (provisional pass on lower bound). barrier_drag recorded for only 2/8 runs → drag sweep not yet separable; Peskin ceiling schematic.</td></tr><tr><td><code>actin-to-membrane-force-handshake</code></td><td><span class='pill' style='background:#d97706'>calibrated</span></td><td>Option B implemented: coupler sizes the osmotic offset so its integrated membrane force equals the actin contact force; force_residual ≈ 0 (magnitude conservation through the osmotic channel). NOT yet validated independently — a true per-vertex force exchange (option A) is blocked by a pymem3dg applied-force segfault (tracked in open_items).</td></tr><tr><td><code>membrane-to-actin-displacement-feedback</code></td><td><span class='pill' style='background:#dc2626'>blocked</span></td><td>BLOCKED ON DATA: mesh-quality (min triangle area, inverted faces) needs face connectivity + per-vertex fields emitted; runs.db stores only vertex positions. Decision figure not yet built.</td></tr><tr><td><code>flexible-mem3dg-boundary</code></td><td><span class='pill' style='background:#6b7280'>executable</span></td><td>Runs; vesicle inflation OBSERVED. Load-redistribution / off-rigid-curve relaxation not yet quantified; needs rigid-vs-flexible comparison data.</td></tr><tr><td><code>coupled-ratchet-cycle-fv-reproduction</code></td><td><span class='pill' style='background:#6b7280'>executable</span></td><td>F-V benchmark (dominant figure) built. growth_rate not recorded in run params → the concave→convex sweep is not yet separable; Inoue reference schematic.</td></tr></table>
 <details class="fb"><summary>✎ Add feedback on the executive summary</summary><textarea data-fbkey="executive" rows="3" placeholder="Your comment becomes an annotations.executive[] entry in the YAML"></textarea></details>
-
-<h2>How to read this</h2>
-<div class="ladder">Fixed Wall → Rigid Wall → Force Handshake → Feedback → Flexible Membrane → F-V Benchmark</div>
-<p><b>Labels:</b> <code>OBSERVED</code> measured in a run · <code>INFERRED</code> expected from theory, not yet measured · <code>VALIDATED</code> measured AND matched to a benchmark. <b>Nothing is VALIDATED yet.</b></p>
 
 <h2>Scientific argument</h2>
 <p><b>Main claim.</b> Boundary realism is the controlling variable for the actin-ratchet F-V relationship, and a
@@ -96,13 +77,11 @@ models cannot produce.
 <details class="fb"><summary>✎ Add feedback on the scientific argument</summary><textarea data-fbkey="scientific_argument" rows="3" placeholder="Your comment becomes an annotations.scientific_argument[] entry in the YAML"></textarea></details>
 
 <h2>Decision figures</h2>
-<p>Each study is organized around one pass/fail decision figure carrying its expected pattern and acceptance threshold.</p>
+<p>Each study is organized around one pass/fail decision figure with its expected pattern + acceptance threshold.</p>
 
         <section class="card">
-          <div class="cardhead">
-            <h3>Rung 1 · Fixed boundary</h3>
-            <span class="pill" style="background:#d97706">Investigating</span>
-          </div>
+          <div class="cardhead"><h3>Rung 1 · Fixed boundary</h3>
+            <span class="pill" style="background:#d97706">Investigating</span></div>
           <p class="claim">OBSERVED (partial pass): against an immovable wall mean barrier_velocity = 0 (within ±1e-3) while contact force accumulates. Quantitative match to the Peskin ratchet rate still pending a digitized reference.</p>
           <div class="meta">
             <div><b>Expected pattern:</b> barrier_velocity ≈ 0; contact_force accumulates; tip–wall gap distribution consistent with thermal-fluctuation ratchet</div>
@@ -113,10 +92,8 @@ models cannot produce.
           <details class="fb"><summary>✎ Add feedback on Rung 1 · Fixed boundary</summary><textarea data-fbkey="fixed_boundary" rows="3" placeholder="Your comment becomes an annotations.fixed_boundary[] entry in the YAML"></textarea></details>
         </section>
         <section class="card">
-          <div class="cardhead">
-            <h3>Rung 2 · Rigid movable boundary</h3>
-            <span class="pill" style="background:#d97706">Investigating</span>
-          </div>
+          <div class="cardhead"><h3>Rung 2 · Rigid movable boundary</h3>
+            <span class="pill" style="background:#d97706">Investigating</span></div>
           <p class="claim">OBSERVED: a drag-loaded movable wall settles to a non-zero velocity. Whether the stall force stays within the Peskin-1993 bound is NOT yet checked.</p>
           <div class="meta">
             <div><b>Expected pattern:</b> velocity settles to a non-zero steady state; force and drag balance; stall force ≤ Peskin ceiling</div>
@@ -127,10 +104,8 @@ models cannot produce.
           <details class="fb"><summary>✎ Add feedback on Rung 2 · Rigid movable boundary</summary><textarea data-fbkey="rigid_movable_boundary" rows="3" placeholder="Your comment becomes an annotations.rigid_movable_boundary[] entry in the YAML"></textarea></details>
         </section>
         <section class="card">
-          <div class="cardhead">
-            <h3>Coupler A · Actin→membrane force handshake</h3>
-            <span class="pill" style="background:#d97706">Investigating</span>
-          </div>
+          <div class="cardhead"><h3>Coupler A · Actin→membrane force handshake</h3>
+            <span class="pill" style="background:#d97706">Investigating</span></div>
           <p class="claim">OBSERVED (option B, magnitude-conserving): the coupler now sizes the osmotic offset so its integrated membrane force equals the actin contact force; force_residual ≈ 0 every step. CAVEAT: pressure-mediated effective-force handshake, not an independent per-vertex check (that is option A, blocked by a pymem3dg applied-force segfault — tracked).</p>
           <div class="meta">
             <div><b>Expected pattern:</b> residual force ≈ 0 throughout; transferred-force histogram has no heavy tails/outliers</div>
@@ -138,41 +113,35 @@ models cannot produce.
             <div><b>Evidence:</b> <code>observed-partial</code></div>
           </div>
           <iframe src='figures/actin-to-membrane-force-handshake__newton-residual.html' loading='lazy'></iframe>
-          <details class="fb"><summary>✎ Add feedback on Coupler A · Actin→membrane force handshake</summary><textarea data-fbkey="force_handshake" rows="3" placeholder="Your comment becomes an annotations.force_handshake[] entry in the YAML"></textarea></details>
+          <details class="fb"><summary>✎ Add feedback on Coupler A · Actin→membrane force handshake</summary><textarea data-fbkey="actin_to_membrane_force_handshake" rows="3" placeholder="Your comment becomes an annotations.actin_to_membrane_force_handshake[] entry in the YAML"></textarea></details>
         </section>
         <section class="card">
-          <div class="cardhead">
-            <h3>Coupler B · Membrane→actin displacement feedback</h3>
-            <span class="pill" style="background:#d97706">Investigating</span>
-          </div>
+          <div class="cardhead"><h3>Coupler B · Membrane→actin displacement feedback</h3>
+            <span class="pill" style="background:#d97706">Investigating</span></div>
           <p class="claim">TARGET (not yet tested): per-step mesh-position feedback preserves mesh quality and keeps tips inside their box potentials. Mesh-quality is currently inferred, not measured.</p>
           <div class="meta">
             <div><b>Expected pattern:</b> min triangle area stays above threshold; zero inverted faces; tip–boundary distance &gt; 0 (no collisions)</div>
             <div><b>Acceptance threshold:</b> min triangle area &gt; 0 for the full run AND inverted-face count == 0</div>
             <div><b>Evidence:</b> <code>not-tested</code></div>
           </div>
-          <div class='nofig'>Decision figure pending — needs additional emitted data (mesh-quality / per-vertex fields). See investigation open_items.</div>
-          <details class="fb"><summary>✎ Add feedback on Coupler B · Membrane→actin displacement feedback</summary><textarea data-fbkey="displacement_feedback" rows="3" placeholder="Your comment becomes an annotations.displacement_feedback[] entry in the YAML"></textarea></details>
+          <div class='nofig'>No decision figure yet (set <code>decision_figure_viz</code> in the study, or it needs additional emitted data).</div>
+          <details class="fb"><summary>✎ Add feedback on Coupler B · Membrane→actin displacement feedback</summary><textarea data-fbkey="membrane_to_actin_displacement_feedback" rows="3" placeholder="Your comment becomes an annotations.membrane_to_actin_displacement_feedback[] entry in the YAML"></textarea></details>
         </section>
         <section class="card">
-          <div class="cardhead">
-            <h3>Rung 3 · Flexible Mem3DG boundary</h3>
-            <span class="pill" style="background:#d97706">Investigating</span>
-          </div>
+          <div class="cardhead"><h3>Rung 3 · Flexible Mem3DG boundary</h3>
+            <span class="pill" style="background:#d97706">Investigating</span></div>
           <p class="claim">OBSERVED: under actin pressure the vesicle inflates. That load is redistributed across filaments / relaxed off the rigid curve is NOT yet quantified — inflation alone is not ratchet success.</p>
           <div class="meta">
             <div><b>Expected pattern:</b> membrane deforms; curvature redistributes load; mean per-tip contact force drops vs the rigid rung; volume ↑ ≥ 10%</div>
             <div><b>Acceptance threshold:</b> membrane_volume ratio ≥ 1.1 AND mean per-tip contact_force &lt; rigid-movable baseline</div>
             <div><b>Evidence:</b> <code>observed-partial</code></div>
           </div>
-          <div class='nofig'>Decision figure pending — needs additional emitted data (mesh-quality / per-vertex fields). See investigation open_items.</div>
-          <details class="fb"><summary>✎ Add feedback on Rung 3 · Flexible Mem3DG boundary</summary><textarea data-fbkey="flexible_membrane" rows="3" placeholder="Your comment becomes an annotations.flexible_membrane[] entry in the YAML"></textarea></details>
+          <div class='nofig'>No decision figure yet (set <code>decision_figure_viz</code> in the study, or it needs additional emitted data).</div>
+          <details class="fb"><summary>✎ Add feedback on Rung 3 · Flexible Mem3DG boundary</summary><textarea data-fbkey="flexible_mem3dg_boundary" rows="3" placeholder="Your comment becomes an annotations.flexible_mem3dg_boundary[] entry in the YAML"></textarea></details>
         </section>
         <section class="card">
-          <div class="cardhead">
-            <h3>Benchmark · Coupled force–velocity reproduction</h3>
-            <span class="pill" style="background:#d97706">Investigating</span>
-          </div>
+          <div class="cardhead"><h3>Benchmark · Coupled force–velocity reproduction</h3>
+            <span class="pill" style="background:#d97706">Investigating</span></div>
           <p class="claim">TARGET (not yet tested): the closed loop reproduces the Inoue-2015 concave→convex F-V transition. No benchmark comparison has been run.</p>
           <div class="meta">
             <div><b>Expected pattern:</b> F-V curvature flips concave→convex as growth_rate increases, tracking the Inoue 2015 shape</div>
@@ -180,101 +149,82 @@ models cannot produce.
             <div><b>Evidence:</b> <code>not-tested</code></div>
           </div>
           <iframe src='figures/coupled-ratchet-cycle-fv-reproduction__force-velocity-benchmark.html' loading='lazy'></iframe>
-          <details class="fb"><summary>✎ Add feedback on Benchmark · Coupled force–velocity reproduction</summary><textarea data-fbkey="fv_benchmark" rows="3" placeholder="Your comment becomes an annotations.fv_benchmark[] entry in the YAML"></textarea></details>
+          <details class="fb"><summary>✎ Add feedback on Benchmark · Coupled force–velocity reproduction</summary><textarea data-fbkey="coupled_ratchet_cycle_fv_reproduction" rows="3" placeholder="Your comment becomes an annotations.coupled_ratchet_cycle_fv_reproduction[] entry in the YAML"></textarea></details>
         </section>
 
 <h2>Glossary</h2><dl><dt>Brownian ratchet</dt><dd>Mechanism converting thermal fluctuations at a barrier into directed motion when polymerization rectifies the transient gap.</dd><dt>F-V curve</dt><dd>Force–velocity relationship of the advancing barrier; its shape (concave vs convex) is the diagnostic signature.</dd><dt>Peskin 1993</dt><dd>Closed-form theory for a Brownian ratchet against a rigid load; sets the rigid-rung expectations.</dd><dt>Inoue 2015</dt><dd>Flexible-membrane ratchet study showing a concave→convex F-V transition with polymerization rate — the headline benchmark.</dd><dt>Mem3DG</dt><dd>Mesh-based discrete-differential-geometry membrane simulator providing the deformable boundary.</dd><dt>ReaDDy</dt><dd>Particle-based reaction-diffusion simulator providing the actin filaments and tip dynamics.</dd><dt>BrownianRatchetCoupler</dt><dd>The composite Step that exchanges tip forces and boundary positions between ReaDDy and Mem3DG each tick.</dd></dl>
 
 <h2>Cross-cutting feedback</h2>
-<p class="hint">Comments that span the whole report rather than one study.</p>
 <details class="fb"><summary>✎ Add feedback on visual design (across all figures)</summary><textarea data-fbkey="global_visual_design" rows="3" placeholder="Your comment becomes an annotations.global_visual_design[] entry in the YAML"></textarea></details>
 <details class="fb"><summary>✎ Add feedback on interpretation (across the investigation)</summary><textarea data-fbkey="global_interpretation" rows="3" placeholder="Your comment becomes an annotations.global_interpretation[] entry in the YAML"></textarea></details>
 
 <div class="fbbar">
-  <button class="btn gen" id="btn-gen">① Generate feedback YAML</button>
-  <button class="btn copy" id="btn-copy" disabled>Copy</button>
-  <button class="btn issue" id="btn-issue" disabled>② Open as GitHub issue</button>
-  <button class="btn pr" id="btn-pr" disabled>② Propose as PR file</button>
+  <button class="btn gen" id="btn-gen">Preview YAML</button>
+  <button class="btn copy" id="btn-copy">Copy YAML</button>
+  <button class="btn issue" id="btn-issue">Open as GitHub issue</button>
+  <button class="btn pr" id="btn-pr">Propose as PR file</button>
   <span class="hint" id="fb-status"></span>
 </div>
 <textarea id="yamlout" readonly spellcheck="false"></textarea>
 
 <script>
 (function() {
-  var OWNER_REPO = 'vivarium-collective/pbg-membrane-actin-composite';
-  var BASE = 'main';
-  var SLUG = 'membrane-actin-ratchet';
-  function blockScalar(text, indent) {
-    var pad = ' '.repeat(indent);
-    return (text || '').replace(/\r/g,'').split('\n')
-      .map(function(l) { return pad + l; }).join('\n');
-  }
+  var OWNER_REPO = 'vivarium-collective/pbg-membrane-actin-composite', BASE = 'main', SLUG = 'membrane-actin-ratchet';
+  function block(t, n) { var p=' '.repeat(n); return (t||'').replace(/\r/g,'').split('\n').map(function(l){return p+l;}).join('\n'); }
   function buildYaml() {
-    var name = (document.getElementById('rev-name').value || 'anonymous').trim();
-    var overall = (document.getElementById('rev-overall').value || '').trim();
-    var y = 'meta:\n';
-    y += '  investigation: ' + SLUG + '\n';
-    y += '  reviewer: ' + JSON.stringify(name) + '\n';
-    y += '  focus: expert-review\n';
-    if (overall) y += '  overall_assessment: |\n' + blockScalar(overall, 4) + '\n';
-    var fbs = document.querySelectorAll('textarea[data-fbkey]');
-    var byKey = {};
-    fbs.forEach(function(t) {
-      var v = (t.value || '').trim();
-      if (!v) return;
-      (byKey[t.getAttribute('data-fbkey')] = byKey[t.getAttribute('data-fbkey')] || []).push(v);
+    var name=(document.getElementById('rev-name').value||'anonymous').trim();
+    var overall=(document.getElementById('rev-overall').value||'').trim();
+    var y='meta:\n  investigation: '+SLUG+'\n  reviewer: '+JSON.stringify(name)+'\n  focus: expert-review\n';
+    if (overall) y+='  overall_assessment: |\n'+block(overall,4)+'\n';
+    var byKey={};
+    document.querySelectorAll('textarea[data-fbkey]').forEach(function(t){
+      var v=(t.value||'').trim(); if(!v) return;
+      (byKey[t.getAttribute('data-fbkey')]=byKey[t.getAttribute('data-fbkey')]||[]).push(v);
     });
-    var keys = Object.keys(byKey);
-    if (keys.length) {
-      y += 'annotations:\n';
-      keys.forEach(function(k) {
-        y += '  ' + k + ':\n';
-        byKey[k].forEach(function(txt) {
-          y += '    - text: |\n' + blockScalar(txt, 8) + '\n';
-        });
-      });
-    }
-    return {yaml: y, name: name, hasAny: keys.length > 0 || !!overall};
+    var keys=Object.keys(byKey);
+    if (keys.length) { y+='annotations:\n'; keys.forEach(function(k){
+      y+='  '+k+':\n'; byKey[k].forEach(function(txt){ y+='    - text: |\n'+block(txt,8)+'\n'; }); }); }
+    return {yaml:y, name:name, hasAny: keys.length>0 || !!overall};
   }
-  var current = null;
-  function fname(name) {
-    var d = new Date().toISOString().slice(0,10);
-    var safe = (name||'anon').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'') || 'anon';
-    return 'feedback/' + SLUG + '--' + safe + '--' + d + '.yaml';
+  function fname(name) { var d=new Date().toISOString().slice(0,10);
+    var safe=(name||'anon').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')||'anon';
+    return 'feedback/'+SLUG+'--'+safe+'--'+d+'.yaml'; }
+  function status(m) { document.getElementById('fb-status').textContent=m; }
+  function ensure() {  // (re)generate from current inputs and show the preview
+    var r=buildYaml(); var o=document.getElementById('yamlout'); o.value=r.yaml; o.style.display='block'; return r;
   }
-  document.getElementById('btn-gen').onclick = function() {
-    current = buildYaml();
-    var out = document.getElementById('yamlout');
-    out.value = current.yaml; out.style.display = 'block';
-    var on = current.hasAny;
-    ['btn-copy','btn-issue','btn-pr'].forEach(function(id){ document.getElementById(id).disabled = !on; });
-    document.getElementById('fb-status').textContent = on
-      ? 'Review the YAML below, then submit.' : 'Add at least one comment or an overall assessment.';
+  function need() {    // ensure there's content; returns the result or null (+message)
+    var r=ensure();
+    if (!r.hasAny) { status('Add a comment in a ✎ box (or an overall assessment) first.'); return null; }
+    return r;
+  }
+  function openUrl(url) { var w=window.open(url,'_blank','noopener'); if (!w) { location.href=url; } }
+  document.getElementById('btn-gen').onclick=function(){
+    var r=ensure();
+    status(r.hasAny?'Review the YAML below, then Copy / open an issue / propose a PR.':'Add a comment in a ✎ box (or an overall assessment).');
   };
-  document.getElementById('btn-copy').onclick = function() {
-    navigator.clipboard.writeText(current.yaml).then(function(){
-      document.getElementById('fb-status').textContent = 'Copied to clipboard.';
-    });
+  document.getElementById('btn-copy').onclick=function(){ var r=need(); if(!r) return;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(r.yaml).then(function(){status('Copied to clipboard.');},
+        function(){ document.getElementById('yamlout').select(); status('Copy failed — text selected below; press Ctrl/Cmd-C.'); });
+    } else { document.getElementById('yamlout').select(); status('Select-all done — press Ctrl/Cmd-C to copy.'); }
   };
-  document.getElementById('btn-issue').onclick = function() {
-    var title = 'Expert feedback: ' + SLUG + ' (' + current.name + ')';
-    var body = 'Generated from the investigation report.\n\n```yaml\n' + current.yaml + '\n```\n';
-    var url = 'https://github.com/' + OWNER_REPO + '/issues/new?title=' +
-      encodeURIComponent(title) + '&labels=feedback&body=' + encodeURIComponent(body);
-    window.open(url, '_blank');
+  document.getElementById('btn-issue').onclick=function(){ var r=need(); if(!r) return;
+    var url='https://github.com/'+OWNER_REPO+'/issues/new?title='+encodeURIComponent('Expert feedback: '+SLUG+' ('+r.name+')')+
+      '&labels=feedback&body='+encodeURIComponent('Generated from the investigation report.\n\n```yaml\n'+r.yaml+'\n```\n');
+    status('Opening a prefilled GitHub issue…'); openUrl(url);
   };
-  document.getElementById('btn-pr').onclick = function() {
-    var url = 'https://github.com/' + OWNER_REPO + '/new/' + BASE + '?filename=' +
-      encodeURIComponent(fname(current.name)) + '&value=' + encodeURIComponent(current.yaml);
-    window.open(url, '_blank');
+  document.getElementById('btn-pr').onclick=function(){ var r=need(); if(!r) return;
+    var url='https://github.com/'+OWNER_REPO+'/new/'+BASE+'?filename='+encodeURIComponent(fname(r.name))+'&value='+encodeURIComponent(r.yaml);
+    status('Opening GitHub to commit '+fname(r.name)+' on a new branch…'); openUrl(url);
   };
 })();
 </script>
 
 <div class="foot">
   Generated 2026-06-08 from <code>investigations/membrane-actin-ratchet/investigation.yaml</code> + per-study decision figures.
-  This is a static snapshot of the interactive vivarium-dashboard report.
+  Static snapshot of the interactive vivarium-dashboard report.
   · <a href="https://github.com/vivarium-collective/pbg-membrane-actin-composite">Source</a>
-  · <a href="demo/report.html">Original interactive demo</a>
+  · <a href="demo/report.html">Original demo</a>
 </div>
 </body></html>
