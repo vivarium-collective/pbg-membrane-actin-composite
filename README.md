@@ -1,6 +1,6 @@
 # pbg-membrane-actin-composite
 
-**[View Interactive Demo Report](https://vivarium-collective.github.io/pbg-membrane-actin-composite/)** &nbsp;·&nbsp; **[Read the Specification](docs/spec.md)**
+**[View Investigation Report](https://vivarium-collective.github.io/pbg-membrane-actin-composite/)** (per-section expert feedback → one-click GitHub issue/PR) &nbsp;·&nbsp; **[Original demo](https://vivarium-collective.github.io/pbg-membrane-actin-composite/demo/report.html)** &nbsp;·&nbsp; **[Read the Specification](docs/spec.md)**
 
 A process-bigraph composite that wires
 [pbg-mem3dg](https://github.com/vivarium-collective/pbg-mem3dg) (lipid-membrane
