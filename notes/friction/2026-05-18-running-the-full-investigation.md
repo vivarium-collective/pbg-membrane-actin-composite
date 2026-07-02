@@ -102,7 +102,7 @@ Two subtleties that ate 30+ minutes:
 
 **Recommendation for the upstream framework:** This bug will hit *every*
 workspace that wraps a C++ simulator. Push the fix into pbg-superpowers
-(or vivarium-dashboard's subprocess runner): wrap the generated script in
+(or vivarium-workbench's subprocess runner): wrap the generated script in
 a stdout-fd preservation pattern. Or change the result-parsing to use a
 DELIMITED-JSON convention (e.g., `@@@RESULTS@@@<base64-json>@@@END@@@`)
 that's robust to trailing garbage.

@@ -4,7 +4,7 @@
 **Agent:** Claude Code (Opus 4.7)
 **Task:** Convert `pbg-membrane-actin-composite` (a standalone composite-package
 repo combining pbg-mem3dg + pbg-readdy) into a pbg-template-style workspace
-branch so investigations could be planned from the vivarium-dashboard.
+branch so investigations could be planned from the vivarium-workbench.
 **Outcome:** Succeeded on branch `membrane-actin-workspace`. Lint passes,
 investigation seed file validates, workspace registered in `~/.pbg/workspaces.json`.
 
@@ -96,7 +96,7 @@ following files. **Skip / don't copy:**
 
 **Files to merge (not replace):**
 - `pyproject.toml` — add `pyyaml`, `jsonschema[format-nongpl]`, `jinja2`,
-  `pypdf`, `vivarium-dashboard` to `dependencies`.
+  `pypdf`, `vivarium-workbench` to `dependencies`.
 - `.gitignore` — add the workspace runtime entries (`.pbg/server/`,
   `.pbg/state.json`, `investigations/*/runs.db`, `reports/assets/*`, etc.).
 
@@ -104,7 +104,7 @@ The skill's "skip files that already exist" guidance is correct in spirit
 but ambiguous in practice: it doesn't say which files need *merge* vs
 *skip-entirely*. A scaffolder should encode this table.
 
-## 6. `vivarium-dashboard` isn't on PyPI; in-place mode misses the auto-pin
+## 6. `vivarium-workbench` isn't on PyPI; in-place mode misses the auto-pin
 
 `template-init.sh` has logic to detect a sibling `../vivarium-dashboard/`
 checkout and inject a `[tool.uv.sources]` block into pyproject.toml. The
@@ -112,17 +112,17 @@ in-place workflow doesn't run `template-init.sh` and therefore skips this
 step. The first time the user runs `uv pip install -e ".[dev]"`, they'll
 hit:
 
-> `vivarium-dashboard was not found in the package registry`
+> `vivarium-workbench was not found in the package registry`
 
 **Recommendation:** The in-place scaffolder must run the same auto-pin
-logic (or print a clear warning) when adding vivarium-dashboard to deps.
+logic (or print a clear warning) when adding vivarium-workbench to deps.
 Otherwise the very next user action after this scaffolding (`bash
 scripts/serve.sh`) silently fails because the venv install never
 completed.
 
 ## 7. Investigation vs Study schema asymmetry isn't surfaced
 
-The user said "plan investigations with the vivarium-dashboard." The
+The user said "plan investigations with the vivarium-workbench." The
 right artifact to seed for *planning* is an **investigation**
 (`name`, `title` required; everything else optional — see
 `.pbg/schemas/investigation.schema.json`). A **study** has 8 canonical
@@ -224,7 +224,7 @@ has content."
    (standalone / upstream-branch / in-place).
 3. **Encode the merge-vs-skip-vs-copy table** (§5 above) into the
    scaffolder, not into prose.
-4. **Wire vivarium-dashboard auto-pin** into the in-place path.
+4. **Wire vivarium-workbench auto-pin** into the in-place path.
 5. **Lint summary should mention investigations.**
 6. **Inline comments in `workspace.yaml.j2`** pointing at dashboard tabs.
 7. **README contrast** between "workspace" and "composite-only" repos.

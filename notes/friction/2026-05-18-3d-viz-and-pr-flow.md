@@ -150,7 +150,7 @@ workspace." Persisted in `<workspace>/.pbg/dashboard/preferred-port`.
 The Investigations page's **Run unblocked** button returned this error
 after I'd already run every member study's baseline at the study level.
 The dashboard's `enumerate_unblocked` (in
-`vivarium_dashboard/lib/run_jobs.py:138`) determines runnability per
+`vivarium_workbench/lib/run_jobs.py:138`) determines runnability per
 study; nothing in my member study yamls indicated they were "blocked,"
 but every entry must have come back as something other than `queued`.
 

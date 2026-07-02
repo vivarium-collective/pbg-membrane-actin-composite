@@ -2,7 +2,7 @@
 
 **Date:** 2026-05-18 (same session as the in-place scaffolding log).
 **Task:** After the workspace was scaffolded and two investigations were
-seeded, get the vivarium-dashboard to actually show the workspace's
+seeded, get the vivarium-workbench to actually show the workspace's
 mem3dg + readdy composites and the investigations' studies. The user
 opened the dashboard URL and saw the wrong simulators (compucell) and
 a "Study not found" 404 on `fixed-boundary`.
@@ -22,7 +22,7 @@ No models registered yet. Run /pbg-add-model <name> to begin.
 Full dashboard renders once /pbg-report runs (Task 20+ of pbg-superpowers).
 ```
 
-The vivarium-dashboard server serves whatever is at `<workspace>/reports/index.html` at `/`. After `template-init.sh` (or the in-place sed loop) renders the `.j2`, the file IS this placeholder — verbatim. The real SPA only lands after `scripts/render-dashboard.py` (or `/pbg-report`) runs, which invokes `vivarium_dashboard.lib.report.render_dashboard` and writes a ~92 KB SPA to the same path.
+The vivarium-workbench server serves whatever is at `<workspace>/reports/index.html` at `/`. After `template-init.sh` (or the in-place sed loop) renders the `.j2`, the file IS this placeholder — verbatim. The real SPA only lands after `scripts/render-dashboard.py` (or `/pbg-report`) runs, which invokes `vivarium_workbench.lib.report.render_dashboard` and writes a ~92 KB SPA to the same path.
 
 **The user reasonably concluded the workspace was broken** — they saw the placeholder text after I'd done all the scaffolding, set up the venv, registered composites and studies, and reported "dashboard is live." It was live. It was serving the wrong file.
 
@@ -32,17 +32,17 @@ The vivarium-dashboard server serves whatever is at `<workspace>/reports/index.h
 
 The `/pbg-dashboard start` skill resolves the dashboard binary in this order:
 
-1. `<workspace>/.venv/bin/vivarium-dashboard`
-2. `$(which vivarium-dashboard)`
-3. `python -m vivarium_dashboard.server`
+1. `<workspace>/.venv/bin/vivarium-workbench`
+2. `$(which vivarium-workbench)`
+3. `python -m vivarium_workbench.cli serve`
 
-The workspace `.venv/` didn't have `vivarium-dashboard` installed (because the in-place scaffolder skipped `template-init.sh`'s auto-pin step — see §6 of the sibling log). It fell through to `$(which vivarium-dashboard)` which pointed at `/Users/eranagmon/code/venv/` — a SHARED venv with `pbg-compucell3d` and `pbg-simucell3d` installed. The dashboard's process-discovery then walked **that** venv's site-packages and surfaced compucell composites.
+The workspace `.venv/` didn't have `vivarium-workbench` installed (because the in-place scaffolder skipped `template-init.sh`'s auto-pin step — see §6 of the sibling log). It fell through to `$(which vivarium-workbench)` which pointed at `/Users/eranagmon/code/venv/` — a SHARED venv with `pbg-compucell3d` and `pbg-simucell3d` installed. The dashboard's process-discovery then walked **that** venv's site-packages and surfaced compucell composites.
 
 The user opened the Composites tab and saw `pbg_compucell3d.*` everywhere — totally unrelated to this workspace's mem3dg/readdy model. Reasonable response: "this should not have compucell installed."
 
 **Fix in-context:** `uv pip install --python .venv/bin/python -e /path/to/vivarium-dashboard` into the workspace venv. Now binary-resolution step 1 succeeds and the dashboard discovers from the workspace's own (compucell-free) site-packages.
 
-**Recommendation:** Have `pbg-dashboard start` REFUSE to fall through to step 2 by default. Either step 1 resolves or the skill prints "vivarium-dashboard not installed in workspace venv — run `uv pip install …`." Silently using a sibling environment that has different packages installed is the worst-case UX.
+**Recommendation:** Have `pbg-dashboard start` REFUSE to fall through to step 2 by default. Either step 1 resolves or the skill prints "vivarium-workbench not installed in workspace venv — run `uv pip install …`." Silently using a sibling environment that has different packages installed is the worst-case UX.
 
 ## 14. Two pbg_superpowers versions in two venvs caused mysterious ImportErrors
 
@@ -140,7 +140,7 @@ That's all it says. No "embedded 2 investigations, 6 studies, 10 composites, 3 v
 
 ## 20. The skill text for /pbg-dashboard doesn't mention the render step
 
-The `/pbg-dashboard start` skill description says it "wraps `vivarium-dashboard serve` so the dashboard runs detached." It doesn't say "first ensure `reports/index.html` is a freshly-rendered SPA, not the bootstrap placeholder."
+The `/pbg-dashboard start` skill description says it "wraps `vivarium-workbench serve` so the dashboard runs detached." It doesn't say "first ensure `reports/index.html` is a freshly-rendered SPA, not the bootstrap placeholder."
 
 If the user runs `/pbg-dashboard start` on a fresh workspace, they see the placeholder. The skill doesn't warn that this is expected and that they need `/pbg-report` next. Onboarding double-tap.
 
@@ -155,7 +155,7 @@ If the user runs `/pbg-dashboard start` on a fresh workspace, they see the place
 ## Summary recommendations, ranked
 
 1. **`pbg-dashboard start` should auto-render** (or refuse to start with a clear message). The placeholder-served-as-dashboard is the worst first impression possible.
-2. **Refuse to fall through to a sibling venv** in binary resolution. Either the workspace venv has vivarium-dashboard or the skill errors out clearly.
+2. **Refuse to fall through to a sibling venv** in binary resolution. Either the workspace venv has vivarium-workbench or the skill errors out clearly.
 3. **Add a cross-reference lint** for investigation → study slug existence.
 4. **Support `factory:` in composite specs**, or document the regen pattern, so factory-based model packages don't have to dual-maintain.
 5. **Reconcile hyphens-vs-underscores** in composite stems / study `composite:` regex.
