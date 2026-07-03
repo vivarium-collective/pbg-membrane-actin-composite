@@ -14,7 +14,7 @@ actin re-bends, the cycle continues.
 **→ [vivarium-collective.github.io/pbg-membrane-actin-composite](https://vivarium-collective.github.io/pbg-membrane-actin-composite/)**
 
 A live, self-contained report for the **membrane-actin-ratchet** investigation —
-a static snapshot of the interactive vivarium-dashboard, hosted on GitHub Pages
+a static snapshot of the interactive vivarium-workbench, hosted on GitHub Pages
 (no server needed). It walks a reviewer through:
 
 - the **executive verdict** + a **validation-status matrix** (which studies are
@@ -33,7 +33,7 @@ The YAML mirrors the schema in [`feedback/README.md`](feedback/README.md) and
 folds back into the investigation via `/pbg-investigation`.
 
 The report is the dashboard's self-contained **"Generate report"** export
-(`vivarium-dashboard`), published to the `gh-pages` branch; the original
+(`vivarium-workbench`), published to the `gh-pages` branch; the original
 interactive demo remains at
 [`/demo/report.html`](https://vivarium-collective.github.io/pbg-membrane-actin-composite/demo/report.html).
 

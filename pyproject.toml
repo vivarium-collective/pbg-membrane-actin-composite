@@ -28,7 +28,7 @@ dependencies = [
     "jsonschema[format-nongpl]>=4.21",
     "jinja2>=3.1",
     "pypdf>=4.0",
-    "vivarium-dashboard",
+    "vivarium-workbench",
 ]
 
 [project.optional-dependencies]
@@ -50,4 +50,4 @@ include = ["pbg_membrane_actin_composite*"]
 # §6 for the underlying issue.
 pbg-mem3dg = { git = "https://github.com/vivarium-collective/pbg-mem3dg.git" }
 pbg-readdy = { git = "https://github.com/vivarium-collective/pbg-readdy.git" }
-vivarium-dashboard = { git = "https://github.com/vivarium-collective/vivarium-dashboard.git" }
+vivarium-workbench = { git = "https://github.com/vivarium-collective/vivarium-dashboard.git" }

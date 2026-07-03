@@ -37,14 +37,14 @@ declared inputs must be scalars — list-typed inputs break inline wiring.
 ### Path B — auto-render from runs.db via typed wire
 
 After a run completes, the dashboard's
-`vivarium_dashboard.lib.investigations.render_visualizations` builds a
+`vivarium_workbench.lib.investigations.render_visualizations` builds a
 **fresh** composite per viz: one tiny composite containing the viz Step
 plus an `inputs_store` populated from the SQLiteEmitter's `runs.db`.
 The composite is run for **one** step; the viz receives `state` with
 each port populated by the per-port resolved series.
 
 The dispatch table in `build_viz_composite`
-(`vivarium_dashboard/lib/investigations.py:1075`):
+(`vivarium_workbench/lib/investigations.py:1075`):
 
 | Declared port type     | What `inputs_store[port]` gets         |
 |------------------------|----------------------------------------|
