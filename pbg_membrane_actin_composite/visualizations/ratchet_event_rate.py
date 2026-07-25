@@ -1,7 +1,7 @@
 """Ratchet event rate — instantaneous + rolling-mean firing rate."""
 from __future__ import annotations
 
-from pbg_superpowers.visualization import Visualization
+from viva_superpowers.visualization import Visualization
 
 from pbg_membrane_actin_composite.visualizations._plotly_helpers import (
     render_lines_html, coerce_series,

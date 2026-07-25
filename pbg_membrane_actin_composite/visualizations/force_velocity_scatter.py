@@ -1,7 +1,7 @@
 """Force-velocity scatter — Inoue 2015 benchmark, time-colored trail."""
 from __future__ import annotations
 
-from pbg_superpowers.visualization import Visualization
+from viva_superpowers.visualization import Visualization
 
 from pbg_membrane_actin_composite.visualizations._plotly_helpers import (
     render_scatter_html, coerce_series,

@@ -1,7 +1,7 @@
 """Mem3DG energy budget — stacked area of bending / surface / pressure."""
 from __future__ import annotations
 
-from pbg_superpowers.visualization import Visualization
+from viva_superpowers.visualization import Visualization
 
 from pbg_membrane_actin_composite.visualizations._plotly_helpers import (
     render_stacked_area_html, coerce_series,

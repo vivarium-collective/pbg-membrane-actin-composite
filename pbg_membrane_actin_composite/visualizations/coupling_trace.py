@@ -12,7 +12,7 @@ Handles both invocation modes:
 """
 from __future__ import annotations
 
-from pbg_superpowers.visualization import Visualization
+from viva_superpowers.visualization import Visualization
 
 from pbg_membrane_actin_composite.visualizations._plotly_helpers import (
     render_lines_html, coerce_series,

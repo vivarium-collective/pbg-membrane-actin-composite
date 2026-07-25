@@ -184,7 +184,7 @@ def main() -> int:
         init.write_text(
             '"""Composite specs for the membrane-actin Brownian-ratchet composite.\n\n'
             "Each *.composite.yaml file is a declarative state document discovered by\n"
-            "pbg_superpowers.composite_discovery. Specs are regenerated from\n"
+            "viva_superpowers.composite_discovery. Specs are regenerated from\n"
             "build_document(...) plus Visualization Step wires — re-run\n"
             "scripts/regen-composites.py to refresh.\n"
             '"""\n'
