@@ -2,7 +2,7 @@
 
 These are the dashboard-driveable equivalents of the demo/report.html panels.
 Each is a process_bigraph.Step subclass (via
-pbg_superpowers.visualization.Visualization) that accumulates per-step
+viva_superpowers.visualization.Visualization) that accumulates per-step
 observable values and re-renders a styled Plotly HTML figure on every update().
 
 The full set:
@@ -16,7 +16,7 @@ The full set:
   RatchetEventRate       — instantaneous + rolling-mean ratchet firing rate
   MembraneVolumeStrain   — (V-V0)/V0 vs time with 10% reference line
 
-See pbg_superpowers.visualization.Visualization for the base contract.
+See viva_superpowers.visualization.Visualization for the base contract.
 """
 from __future__ import annotations
 

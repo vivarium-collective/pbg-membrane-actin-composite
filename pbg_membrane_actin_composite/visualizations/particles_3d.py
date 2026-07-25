@@ -30,7 +30,7 @@ import json
 import sqlite3
 from pathlib import Path
 
-from pbg_superpowers.visualization import Visualization
+from viva_superpowers.visualization import Visualization
 from pbg_membrane_actin_composite.visualizations._plotly_helpers import _autosize_script
 
 

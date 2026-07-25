@@ -3,7 +3,7 @@ try:
     from pbg_membrane_actin_composite.core import build_core
     from process_bigraph import Composite, gather_emitter_results
     from process_bigraph.emitter import SQLiteEmitter
-    from pbg_superpowers.composite_generator import (
+    from viva_superpowers.composite_generator import (
         _REGISTRY, build_generator, discover_generators,
     )
     from vivarium_dashboard.lib import composite_runs as cr
@@ -28,10 +28,10 @@ try:
     for path_tuple, entries in results.items():
         key = '.'.join(str(p) for p in path_tuple)
         out[key] = entries
-    # Gather rendered viz HTML, if pbg_superpowers is importable.
+    # Gather rendered viz HTML, if viva_superpowers is importable.
     viz_html = {}
     try:
-        from pbg_superpowers.visualization import render_results
+        from viva_superpowers.visualization import render_results
         rendered = render_results(composite)
         for path_tuple, payload in rendered.items():
             key = '.'.join(str(p) for p in path_tuple)
