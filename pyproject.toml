@@ -21,8 +21,6 @@ dependencies = [
     "bigraph-schema>=0.0.60",
     "process-bigraph>=0.0.66",
     "numpy>=1.24",
-    "pbg-mem3dg",
-    "pbg-readdy",
     # Workspace tooling (lint, schema validation, report rendering)
     "pyyaml>=6.0",
     "jsonschema[format-nongpl]>=4.21",
@@ -32,6 +30,10 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+# Heavy compiled backends (pymem3dg needs system netcdf-cxx4; readdy). Not built
+# in vanilla CI — installed on demand / in the Docker image. Tests needing them
+# skip via tests/conftest.py when absent.
+sim = ["pbg-mem3dg", "pbg-readdy"]
 dev = ["pytest>=7.4", "pytest-cov>=4.1", "pytest-timeout>=2.1"]
 demo = ["plotly>=5.18", "matplotlib>=3.7", "bigraph-viz>=0.0.30"]
 
