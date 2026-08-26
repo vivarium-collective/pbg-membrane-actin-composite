@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "pbg-membrane-actin-composite"
 version = "0.1.0"
-description = "Process-bigraph composite wiring viva-mem3dg + viva-readdy as a Brownian-ratchet membrane-actin coupling"
+description = "Process-bigraph composite wiring pbg-mem3dg + pbg-readdy as a Brownian-ratchet membrane-actin coupling"
 readme = "README.md"
 license = {text = "MIT"}
 requires-python = ">=3.11"
@@ -21,8 +21,8 @@ dependencies = [
     "bigraph-schema>=0.0.60",
     "process-bigraph>=0.0.66",
     "numpy>=1.24",
-    "viva-mem3dg",
-    "viva-readdy",
+    "pbg-mem3dg",
+    "pbg-readdy",
     # Workspace tooling (lint, schema validation, report rendering)
     "pyyaml>=6.0",
     "jsonschema[format-nongpl]>=4.21",
@@ -48,6 +48,6 @@ include = ["pbg_membrane_actin_composite*"]
 # checkouts, override these in a per-user `.env` or with --refresh after
 # editing this file. See notes/friction/2026-05-18-workspace-onboarding-from-composite.md
 # §6 for the underlying issue.
-viva-mem3dg = { git = "https://github.com/vivarium-collective/viva-mem3dg.git" }
-viva-readdy = { git = "https://github.com/vivarium-collective/viva-readdy.git" }
+pbg-mem3dg = { git = "https://github.com/vivarium-collective/pbg-mem3dg.git" }
+pbg-readdy = { git = "https://github.com/vivarium-collective/pbg-readdy.git" }
 vivarium-workbench = { git = "https://github.com/vivarium-collective/vivarium-workbench.git" }
